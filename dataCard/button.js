@@ -12,7 +12,7 @@ function showButton(){
 		    .attr("y", timeSVGH/2+35)
 		    .attr("width",iconW+2)
 		    .attr("height",iconW+2)
-	        .attr("xlink:href", "/pelars/dataCard/assets/icons/idea.png")
+	        .attr("xlink:href", "/pelarsModules/dataCard/assets/icons/idea.png")
 	var	iconName1 = timeSVG.append("g").attr("class","backlabels")
 			.append("text")
 		    .attr("x", w-47)
@@ -26,7 +26,7 @@ function showButton(){
 		    .attr("y", timeSVGH/2)
 		    .attr("width",iconW+2)
 		    .attr("height",iconW+2)
-	        .attr("xlink:href","/pelars/dataCard/assets/icons/thunder.png")
+	        .attr("xlink:href","/pelarsModules/dataCard/assets/icons/thunder.png")
 	var	iconName2 = timeSVG.append("g").attr("class","backlabels")
 			.append("text")
 		    .attr("x", w-47)
@@ -46,7 +46,7 @@ function showButton(){
 		iconBut.enter()
 		.append("image")
 		.attr("class","button1")
-		.attr("xlink:href", "/pelars/dataCard/assets/icons/idea.png")
+		.attr("xlink:href", "/pelarsModules/dataCard/assets/icons/idea.png")
 		.attr("x", function(d){
 			return timeX(d.time);
 		})
@@ -73,7 +73,7 @@ function showButton(){
 		iconBut2.enter()
 		.append("image")
 		.attr("class","button2")
-		.attr("xlink:href", "/pelars/dataCard/assets/icons/thunder.png") //just checking now put back to thunder
+		.attr("xlink:href", "/pelarsModules/dataCard/assets/icons/thunder.png") //just checking now put back to thunder
 		.attr("x", function(d){
 			return timeX(d.time);
 		})
