@@ -1,13 +1,6 @@
 
 var alltimeSVGH = h-60;
 
-var allTimeSVG = d3.select("#allTimeline") //timeline div id
-	.append("svg")
-	.attr("width",w)
-	.attr("height",alltimeSVGH)  
-	// .style("border","1px solid white") 
-	.style("margin-top","1px");
-
 var options = [];
 options.push("BTN", "RLY", "LED", "POT", "LDR", "TMP", "ACR", "PEZ", "RGB", "COL", "ROT", "IF", "Interval", "Fade", "Swap", "Map", "Counter", "Trigger", "Note", "Random", "PONG", "SimonSays");
 var hColor = d3.scale.ordinal()
@@ -19,7 +12,12 @@ var sColor = d3.scale.ordinal()
 	.range(["brown","tan"]);
 
 function showAllIDE(){
-
+	var allTimeSVG = d3.select("#allTimeline") //timeline div id
+		.append("svg")
+		.attr("width",w)
+		.attr("height",alltimeSVGH)  
+		// .style("border","1px solid white") 
+		.style("margin-top","1px");
 	var iconPic1 = allTimeSVG.append("g").attr("class","backlabels")
 			.append("image")
 		    .attr("x", w-70)

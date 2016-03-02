@@ -49,22 +49,6 @@ var thisSession;
 var forcewidth = w/3-15;
 var forceheight = h/3.5;
 
-var ardSVG = d3.select("#network")
-	.append("svg")
-	.attr("width",forcewidth)
-	.attr("height",forceheight)  
-	.style("border","1px solid white") 
-	.style("margin-top","1px")
-var buttonSVG = d3.select("#ardinfo")
-	.append("svg")
-	.attr("width",forcewidth)
-	.attr("height",forceheight)  
-	.style("border","1px solid white") 
-	.style("margin-top","1px");
-
-/*var svgMain = d3.select("#container").append("svg").attr("width",w+55).attr("height",h)
-	.attr("class","mainSVG")            
-	.attr("transform", "translate(" + 0 + "," + 0 + ")");*/
 //for arduino data
 var yOther = d3.scale.ordinal()
 
@@ -423,7 +407,6 @@ function processIDE(incomingD, summary){
 		// ideOverTime()
 	});
 	$.getScript("/pelarsModules/dataCard/allTimeline.js", function(){
-		ideDataCreation();
 		console.log("ready to show all timeline IDE")
 		//NOW YOU CAN CALL THE FOLLOWING FUNCTIONS
 		// showIDEuse()
