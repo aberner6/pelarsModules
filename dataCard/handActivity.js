@@ -10,7 +10,7 @@ var three = [];
 var activeOne = [];
 var activeTwo = [];
 var activeThree = [];
-var handSVGH = h/2-60;
+var handSVGH = h-60;
 
 function showHands(){
 	//labels

@@ -9,7 +9,7 @@ var	faceTotal = [];
 var timeX = d3.scale.linear()
 	timeX.domain([startTime, endTime]).range([14, w-50]);
 
-var faceSVGH = h/2-60;
+var faceSVGH = h-60;
 
 var miniTime = [];
 var whatTime = [];
