@@ -4,11 +4,7 @@
       font-weight: 100;
       src: url('/pelarsModules/dataCard/assets/itc-officina-sans-lt-book.ttf') format('truetype');
     }
-    body {
-      font-family: Officina;
-      color:white;
-      font-size:8px;
-    }
+
     #container {
       text-align: center;
       position: relative;
@@ -16,6 +12,9 @@
       left: 2px;
       width:100%;
       height:100%;
+      font-family: Officina;
+      color:white;
+      font-size:8px;
       /*width: 8.27in;*/
       /*height: 5.83in;*/
     }
@@ -36,7 +35,7 @@
     text.textSoft, text.textHard{
       font-size:6pt;
     }
-    img{
+    #img{
       float:left;
       padding:10px;
       width:30px;
