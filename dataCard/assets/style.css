@@ -1,13 +1,4 @@
-<html>  
-<head>  
-<title>DataCard</title>  
-<script type="text/javascript" src="/pelarsModules/dataCard/assets/jquery-1.11.3.min.js"></script>
-<script type = "text/javascript" src="/pelarsModules/dataCard/underscore-min.js"></script>
-<script type = "text/javascript" src="/pelarsModules/dataCard/assets/d3.min.js"></script>
-<script src="/pelarsModules/dataCard/assets/mapper.js"></script>
-<link rel="stylesheet" href="/pelarsModules/dataCard/assets/style.css">
-<!-- style>  
-    @font-face {
+ @font-face {
       font-family: 'Officina';
       font-style: normal;
       font-weight: 100;
@@ -35,7 +26,7 @@
     }
     #arduinoUse{
       float: left;
-    }<link rel="stylesheet" href="/pelarsModules/dataCard/assets/style.css">
+    }
     #buttonuse{
       float: left;
     }
@@ -81,19 +72,3 @@
     .axis text {
         font-size: 8px;
     }
-</style-->  
-</head>  
-<body>  
-
-<div id="container"> 
-  <div id = "arduinoTimeline">
-    <div class="boxname arduinoTimeline">
-      SESSION OVER TIME 
-    </div>
-  </div>
-
-</body>
-<script type = "text/javascript" src="/pelarsModules/dataCard/globalVariablesFaces.js"></script>  
-</html>  
-
-  
