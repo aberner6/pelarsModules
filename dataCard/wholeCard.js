@@ -256,11 +256,24 @@ $(document).ready(function() {
 getSession();
 var token;
 
+function getParam ( sname )
+{
+  var params = location.search.substr(location.search.indexOf("?")+1);
+  var sval = "";
+  params = params.split("&");
+    // split param and value into individual pieces
+    for (var i=0; i<params.length; i++)
+       {
+         temp = params[i].split("=");
+         if ( [temp[0]] == sname ) { sval = temp[1]; }
+       }
+  return sval;
+}
+
 function getSession(){
 	var token = pelars_authenticate();
 	$.getJSON("http://pelars.sssup.it:8080/pelars/session?token="+token,function(json1){
-			thisSession = parseInt(834);//parseInt(json1[json1.length-1].session); //
-			console.log("session"+thisSession);
+			thisSession = getParam("session")
 			getData(thisSession, token);
 	})
 }
@@ -369,7 +382,7 @@ var	handPic = svgMain.append("g").attr("class","backlabels")
 	    .attr("y",h/2-iconW*1.5)
 	    .attr("width",iconW)
 	    .attr("height",iconW)
-               .attr("xlink:href","/pelarsModules/dataCard/assets/hand.png")
+               .attr("xlink:href","pelarsModules/dataCard/assets/hand.png")
 var	labelsHand = svgMain.append("g").attr("class","backlabels")
 		.append("text")
 	    .attr("x", timeX(startTime)+22)
@@ -385,7 +398,7 @@ var	facePic = svgMain.append("g").attr("class","backlabels")
 	    .attr("y", 173)
 	    .attr("width",iconW)
 	    .attr("height",iconW)
-               .attr("xlink:href", "/pelarsModules/dataCard/assets/face2.png")
+               .attr("xlink:href", "pelarsModules/dataCard/assets/face2.png")
 var	labelsFace = svgMain.append("g").attr("class","backlabels")
 		.append("text")
 	    .attr("x", timeX(startTime)+22)
@@ -400,7 +413,7 @@ var kitPic = svgMain.append("g").attr("class","backlabels")
 	    .attr("y", h/4 - iconW*1.5)
 	    .attr("width",iconW+2)
 	    .attr("height",iconW+2)
-               .attr("xlink:href", "/pelarsModules/dataCard/assets/icons/btn.png")
+               .attr("xlink:href", "pelarsModules/dataCard/assets/icons/btn.png")
 var	labelsKit = svgMain.append("g").attr("class","backlabels")
 		.append("text")
 	    .attr("x", timeX(startTime)+24)
@@ -877,7 +890,7 @@ var iconBut = timeSVG.selectAll(".button1")
 	iconBut.enter()
 	.append("image")
 	.attr("class","button1")
-	.attr("xlink:href", "/pelarsModules/dataCard/assets/icons/idea.png")
+	.attr("xlink:href", "pelarsModules/dataCard/assets/icons/idea.png")
 	.attr("x", function(d){
 		return timeX(d.time);
 	})
@@ -905,7 +918,7 @@ var iconBut2 = timeSVG.selectAll(".button2")
 	iconBut2.enter()
 	.append("image")
 	.attr("class","button2")
-	.attr("xlink:href", "/pelarsModules/dataCard/assets/icons/thunder.png") //just checking now put back to thunder
+	.attr("xlink:href", "pelarsModules/dataCard/assets/icons/thunder.png") //just checking now put back to thunder
 	.attr("x", function(d){
 		return timeX(d.time);
 	})
@@ -940,7 +953,7 @@ var iconLine2 = timeSVG.selectAll(".button2L")
 // 	iconBut.enter()
 // 	.append("image")
 // 	.attr("class","button1")
-// 	.attr("xlink:href", "/pelarsModules/dataCard/assets/icons/idea.png")
+// 	.attr("xlink:href", "pelarsModules/dataCard/assets/icons/idea.png")
 // 	.attr("x", textL)
 // 	.attr("y", topMarg*2+(button1.length+5))
 // 	.attr("width",button1.length+10)
@@ -959,7 +972,7 @@ var iconLine2 = timeSVG.selectAll(".button2L")
 // 	iconBut.enter()
 // 	.append("image")
 // 	.attr("class","button2")
-// 	.attr("xlink:href", "/pelarsModules/dataCard/assets/icons/thunder.png")
+// 	.attr("xlink:href", "pelarsModules/dataCard/assets/icons/thunder.png")
 // 	.attr("x", (forcewidth*3/4))
 // 	.attr("y", (topMarg*2)+5 ) //+button2.length+5
 // 	.attr("width",button2.length+10)
@@ -983,7 +996,7 @@ var iconLine2 = timeSVG.selectAll(".button2L")
 // 	iconBut.enter()
 // 	.append("image")
 // 	.attr("class","button1")
-// 	.attr("xlink:href", "/pelarsModules/dataCard/assets/icons/idea.png")
+// 	.attr("xlink:href", "pelarsModules/dataCard/assets/icons/idea.png")
 // 	.attr("x", function(d,i){
 // 		return xSpace(i);
 // 	})
@@ -1004,7 +1017,7 @@ var iconLine2 = timeSVG.selectAll(".button2L")
 // 	iconBut.enter()
 // 	.append("image")
 // 	.attr("class","button2")
-// 	.attr("xlink:href", "/pelarsModules/dataCard/assets/icons/thunder.png")
+// 	.attr("xlink:href", "pelarsModules/dataCard/assets/icons/thunder.png")
 // 	.attr("x", function(d,i){
 // 		return xSpace(i)+(button2.length+10);
 // 	})
@@ -1683,7 +1696,7 @@ function showIDE(){
            iconsHS.enter().append("image")
                .attr("class", "iconsHS")
                .attr("xlink:href", function(d, i) {
-                   return "/pelarsModules/dataCard/assets/icons/"+d.toLowerCase() + ".png";
+                   return "pelarsModules/dataCard/assets/icons/"+d.toLowerCase() + ".png";
                })
                .attr("y", function(d,i) {
             		return yOther(d)-7;
@@ -1986,7 +1999,7 @@ var pathS;
            icons.enter().append("image")
                .attr("class", "icons")
                .attr("xlink:href", function(d, i) {
-                   return "/pelarsModules/dataCard/assets/icons/"+d.toLowerCase() + ".png";
+                   return "pelarsModules/dataCard/assets/icons/"+d.toLowerCase() + ".png";
                })
                .attr("y", function(d,i) {
                    return yUniqueH(i)-12;
@@ -2044,7 +2057,7 @@ var iconsSoft;
        .attr("class", "iconsS")
        .attr("xlink:href", function(d, i) {
        	// console.log(d.toLowerCase());
-           return "/pelarsModules/dataCard/assets/icons/"+d.toLowerCase() + ".png";
+           return "pelarsModules/dataCard/assets/icons/"+d.toLowerCase() + ".png";
        })
        .attr("y", function(d,i) {
            return yUniqueS(i)-12;
