@@ -270,38 +270,9 @@ function getParam ( sname )
   return sval;
 }
 
-function getCookie(name) {
-    var arg = name + "="
-    var alen = arg.length
-    var clen = document.cookie.length
-    var i = 0
-    console.log(clen)
-    while (i < clen) {
-        var j = i + alen
-        console.log(document.cookie.substring(i, j))
-        if (document.cookie.substring(i, j) == arg){
-            return getCookieVal(j)
-        }
-        i = document.cookie.indexOf(" ", i) + 1
-        if (i == 0) break
-    }
-    return null
-}
-
-function getCookieVal(offset){
-    var endstr = document.cookie.indexOf (";", offset)
-    if (endstr == -1)
-    endstr = document.cookie.length
-    return unescape(document.cookie.substring(offset, endstr))
-}
-
-
 function getSession(){
 	var token = pelars_authenticate();
-
-	console.log("got token: " + token)
-
-	$.getJSON("/pelars/session?token="+token,function(json1){
+	$.getJSON("http://pelars.sssup.it:8080/pelars/session?token="+token,function(json1){
 			thisSession = getParam("session")
 			getData(thisSession, token);
 	})
@@ -313,7 +284,7 @@ var startFirst, endFirst;
 function getData(thisSession, token){
 	console.log(thisSession);
 	if(thisSession>0){
-		$.getJSON("/pelars/data/"+thisSession+"?token="+token,function(json){
+		$.getJSON("http://pelars.sssup.it:8080/pelars/data/"+thisSession+"?token="+token,function(json){
 				console.log("ready")
 startFirst = json[0].time;
 endFirst = json[json.length-1].time;
@@ -327,7 +298,7 @@ firstData = json;
 	}
 }
 function getPhases(thisSession,token){
-	$.getJSON("/pelars/phase/"+thisSession+"?token="+token,function(phasesJSON){
+	$.getJSON("http://pelars.sssup.it:8080/pelars/phase/"+thisSession+"?token="+token,function(phasesJSON){
 		console.log("phase")
 		console.log(phasesJSON)
 if(phasesJSON[0].phase=="setup"&&phasesJSON.length==1){
@@ -363,12 +334,24 @@ console.log(startTime+"START"+endTime+"end")
 	})
 }
 function pelars_authenticate(){
-
-	var token = getCookie('token');
-
-	console.log("read the token :" + token);
-
-	return token;
+	var email = "d.paiva@ciid.dk";
+	var pswd = "pelars123!";
+	var jsres;
+	var res = "";
+	jQuery.ajax({
+		timeout : 1000,
+		type : "POST",
+		url : "http://pelars.sssup.it:8080/pelars/password?user=" + email + "&pwd=" + pswd,
+		async: false,
+		success : function(jqXHR, status, result){
+		jsres = jqXHR;
+		res = jsres["token"];
+		},
+		error : function(jqXHR, status) {
+			console.log("error"+jqXHR)
+			res = 0; }
+	});
+	return res;
 }
 
 
@@ -583,8 +566,63 @@ var rey = [];
 				}
 			}	
 		}
+		// if (typeof nested_data != "undefined"){
+		// 	for(i=0; i<nested_data.length; i++){
+		// 			console.log(nested_data[i])
+		// 			console.log(nest_again[i])
+		// 		if(nested_data[i]!=undefined&&nested_data[i].key&&nest_again[i].key==types[0]){
+		// 			console.log(nested_data[i].key)
+		// 			goHands(nested_data[i], nest_again[i].values);
+		// 		}
+		// 		if(nested_data[i]!=undefined&&nest_again[i].key==types[3]){
+		// 			console.log(nested_face[i].key)
+		// 			goFace(nested_face[i], nest_again[i].values);
+		// 		}
+		// 		if(nest_again[i].key=="ide"){
+		// 			console.log(nested_data[i].key)
+		// 			goIDE(nested_data[i].values, nest_again[i].values);
+		// 		}
+		// 		// compress();
+		// 		// else{ console.log("nope")}
+		// 	}	
+		// } 
 goButton(particleOnly);
 	};
+
+
+//probably have to fix this
+// svg.on("click", function(){
+// 	toggling = !toggling;
+// 	console.log(toggling)
+// 	if(!toggling){
+// 		d3.selectAll(".hand")
+// 			.transition()
+// 			.attr("transform",function(d,i) {
+// 		  		return "translate("+cmargin+",0)";
+// 		  	});
+// 		// d3.selectAll(".face")
+// 		// 	.transition()
+// 		// 	.attr("transform",function(d,i) {
+// 		//   		return "translate("+cmargin+",0)";
+// 		//   	});
+// 		$(".rectText").hide();
+// 		$(".faceText").hide();
+// 	}
+// 	if(toggling){
+// 		d3.selectAll(".hand")
+// 			.transition()
+// 			.attr("transform",function(d,i) {
+// 		  		return "translate("+cwidth*i+",0)";
+// 		  	});
+// 		// d3.selectAll(".face")
+// 		// 	.transition()
+// 		// 	.attr("transform",function(d,i) {
+// 	 //  		return "translate("+(cwidth*i)+","+(cheight*rows)+")";
+// 		//   	});
+// 		$(".rectText").show();
+// 		$(".faceText").show();
+// 	}
+// })
 
 
 
@@ -668,7 +706,7 @@ var innerRadius = radius-20;//-30;
 var arc = d3.svg.arc()
     .innerRadius(innerRadius)
     .outerRadius(outerRadius);
-   var labelr = radius/1.7 + 22; // radius for label anchor
+   var labelr = radius/1.7 + 23; // radius for label anchor
 
 
 
@@ -714,19 +752,6 @@ sliceLabel.enter().append("svg:text")
     	}
 		else{
 			return ("-.8em")
-		}
-    })
-    .attr("dx",  function(d){
-        var c = arc.centroid(d),
-            x = c[0],
-            y = c[1],
-            // pythagorean theorem for hypotenuse
-            h = Math.sqrt(x*x + y*y);
-    	if ((x/h * labelr)>outerRadius/2) {
-    		return "1.5em"
-    	}
-		else{
-			return ("-2.5em")
 		}
     })
     .attr("text-anchor", "middle")
@@ -915,6 +940,90 @@ var iconLine2 = timeSVG.selectAll(".button2L")
 	.attr("y1", timeSVGH/2+iconW+25)
 	.attr("y2", timeSVGH)
 	.attr("stroke","grey")
+
+// buttonSVG.append("text")
+// 	.attr("class","button1")
+// 	.attr("x", textL)
+// 	.attr("y", topMarg*2)
+// 	.attr("font-size",14)
+// 	.text(button1.length)
+// 	.attr("fill","black")
+// var iconBut = buttonSVG.selectAll(".button1")	
+// 	.data(d3.range(2))
+// 	iconBut.enter()
+// 	.append("image")
+// 	.attr("class","button1")
+// 	.attr("xlink:href", "/dataCard/assets/icons/idea.png")
+// 	.attr("x", textL)
+// 	.attr("y", topMarg*2+(button1.length+5))
+// 	.attr("width",button1.length+10)
+// 	.attr("height",button1.length+10);
+
+// buttonSVG.append("text")
+// 	.attr("class","button2")
+// 	.attr("x", (forcewidth*3/4))
+// 	.attr("y", topMarg*2)
+// 	.attr("font-size", 14)
+// 	.text(button2.length)
+// 	.attr("fill","black");
+
+// var iconBut = buttonSVG.selectAll(".button2")	
+// 	.data(d3.range(2))
+// 	iconBut.enter()
+// 	.append("image")
+// 	.attr("class","button2")
+// 	.attr("xlink:href", "/dataCard/assets/icons/thunder.png")
+// 	.attr("x", (forcewidth*3/4))
+// 	.attr("y", (topMarg*2)+5 ) //+button2.length+5
+// 	.attr("width",button2.length+10)
+// 	.attr("height",button2.length+10);
+
+
+
+
+
+
+
+// buttonSVG.append("text")
+// 	.attr("class","button1")
+// 	.attr("x", textL)
+// 	.attr("y", topMarg+(button1.length+10)/4)
+// 	.attr("font-size",button1.length+10)
+// 	.text(button1.length)
+// 	.attr("fill","black")
+// var iconBut = buttonSVG.selectAll(".button1")	
+// 	.data(d3.range(2))
+// 	iconBut.enter()
+// 	.append("image")
+// 	.attr("class","button1")
+// 	.attr("xlink:href", "/dataCard/assets/icons/idea.png")
+// 	.attr("x", function(d,i){
+// 		return xSpace(i);
+// 	})
+// 	.attr("y", (button1.length+10)/2)
+// 	.attr("width",button1.length+10)
+// 	.attr("height",button1.length+10);
+
+// buttonSVG.append("text")
+// 	.attr("class","button2")
+// 	.attr("x", textL)
+// 	.attr("y", topMarg*2+(button2.length+10)*1.7)
+// 	.attr("font-size", button2.length+10)
+// 	.text(button2.length)
+// 	.attr("fill","black");
+
+// var iconBut = buttonSVG.selectAll(".button2")	
+// 	.data(d3.range(2))
+// 	iconBut.enter()
+// 	.append("image")
+// 	.attr("class","button2")
+// 	.attr("xlink:href", "/dataCard/assets/icons/thunder.png")
+// 	.attr("x", function(d,i){
+// 		return xSpace(i)+(button2.length+10);
+// 	})
+// 	.attr("y", topMarg*2+button2.length+10)
+// 	.attr("width",button2.length+10)
+// 	.attr("height",button2.length+10);
 }
 
 function goIDE(incomingD, summary){
@@ -969,7 +1078,17 @@ function goIDE(incomingD, summary){
 		}
 	}
 	showIDE();
+	// goButton();
+// var itemsOrdered = [];
+// var theOrder = ["Grapes", "Oranges", "Peaches", "Apples", "Watermelons", "Bananas"];
 
+// for (var i = 0; i < theOrder.length; i++) {
+//     if (items.indexOf(theOrder[i]) > -1) {
+//         itemsOrdered.push(theOrder[i]);
+//     }
+// }
+
+// console.log(itemsOrdered);
 		//trying to figure out links here
         links = ideData.filter(function(d) {
             return d.mod == "L";
@@ -1011,11 +1130,77 @@ var linkdist = w/10;
 	    .charge(-100)
 	    // .on("tick", tick)
 	    // .start();  
-// makeChords(force.nodes(), force.links());
+makeChords(force.nodes(), force.links());
 // console.log(links);
 // console.log(force.nodes())
 // console.log(force.links())
 makeEdge(links,force.nodes(), force.links());
+
+
+	// var rMap;
+	// var maxWeight;
+	// var thisWeight = [];
+	// circle = netSVG.selectAll("node")
+	//     .data(force.nodes())
+	//     .enter().append("circle")
+	//     .attr("class",function(d){
+	//         thisWeight.push(d.weight);
+	//         maxWeight = d3.max(thisWeight, function(d){ return d; })
+	//         rMap = d3.scale.linear()
+	//             .domain([0,maxWeight])
+	//             .range([radiusMin, forcewidth/8])   
+	//     	return "node"
+	//     })
+ //    circle
+	//     .attr("r", function(d){
+	//     	// console.log(d.weight);
+	//     	return rMap(d.weight);
+	//     })
+	//     .attr("fill", function(d){
+	//     	return colorNet(d.name);
+	//     })
+	//     // .each(collide(0.5)); //Added 
+
+	// path = netSVG.selectAll("path")
+	//     .data(force.links())
+	//     .enter().append("path")
+	//     .attr("class","link")
+	//     .attr("stroke",colorText)
+	//     .attr("fill","none")
+	//     .attr("opacity",.5)
+	//     // .attr("marker-end", "url(#end)");
+
+	// text = netSVG.selectAll("labels")
+	//     .data(force.nodes())
+	//     .enter().append("text")
+	//     .attr("class","labels")
+	//     .attr("x", 8)
+	//     .attr("y", ".31em")
+	//     .text(function(d,i) {
+	//              return d.name;           
+	//     }) 
+	//     .attr("fill",colorText)
+	//     .attr("font-size",9)
+
+	// function tick() {
+	//   path.attr("d", linkArc);
+	//   circle
+	//   .attr("transform", transform);
+	//   text.attr("transform", transform);
+	// }
+	// function linkArc(d) {
+	//   var dx = d.target.x - d.source.x,
+	//       dy = d.target.y - d.source.y,
+	//       dr = Math.sqrt(dx * dx + dy * dy);
+	//   return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+	// }
+	// function transform(d) {
+	//   d.x = Math.max(radiusMin, Math.min(w - radiusMin, d.x));
+	//   d.y = Math.max(radiusMin, Math.min(h - radiusMin, d.y));  
+	//     // node.attr("cx", function(d) { return d.x = Math.max(r, Math.min(w - r, d.x)); })
+	//     //     .attr("cy", function(d) { return d.y = Math.max(r, Math.min(h - r, d.y)); });    
+	//   return "translate(" + d.x+ "," + d.y + ")";
+	// }
 
 }
 
@@ -1076,13 +1261,16 @@ function goFace(incomingData, summary){
 	}
 	timeMin = d3.min(miniTime);
 	timeMax = d3.max(whatTime);
+	// timeX.domain([timeMin, timeMax]).range([cmargin, w-cwidth+cmargin]);
 	showFace();
 }
 
 function goHands(incomingData, summary){	
 	console.log(summary+"summaryHands")
 	console.log(incomingData)
-
+	// incomingData = d3.nest()
+	// 		.key(function(d) { return d.time; }).sortKeys(d3.ascending)
+	// 		.entries(incomingData);
 	handData = incomingData;
 	summaryHands = summary;
 	// One cell for each hand tracked (hands are in nested data @ at 1)
@@ -1096,7 +1284,11 @@ function compress(){
 		.attr("transform",function(d,i) {
 	  		return "translate("+cmargin+",0)";
 	  	});
-
+	// d3.selectAll(".face")
+	// 	.transition().delay(1000).duration(2000)
+	// 	.attr("transform",function(d,i) {
+	//   		return "translate("+cmargin+",0)";
+	//   	});
 	$(".rectText").hide();
 	$(".faceText").hide();
 }
@@ -1603,7 +1795,15 @@ console.log(uniqueHWOnly.length+"in hw unique")
 		bothLength = diffSoftHard.length;
 	}
 
+// var maxHeight;
+// 	if(uniqueHards.length>=uniqueSofts.length){
+// 		maxHeight = uniqueHards.length;
+// 	} else{
+// 		maxHeight = uniqueSofts.length;
+// 	}
+// 	console.log(maxHeight)
 
+// var maxHeight = 
 //arrays are dirty with undefined values
 hardUseComp = cleanArray(hardUseComp)
 // hardUseComp.sort(function(x, y){
@@ -1710,6 +1910,21 @@ var pathS;
   	pathS
   		.datum(softUseComp)
   		.attr("d", lineS);
+	// svg.append("path")
+	// 	.datum(data)
+	// 	.attr("class", "area")
+	// 	.attr("d", area);
+
+
+
+
+
+
+
+
+
+
+
 
 
         function ardUseTotals(index) {
@@ -1721,6 +1936,17 @@ var pathS;
             }
             return total;
         }
+        // function faceTotals(index) {
+        //     var total = 0;
+        //     for (i = 0; i < faceData.values.length-1; i++) {
+        //         if (faceData.values[i].minute == index) {
+        //             total++;
+        //         } else {}
+        //     }
+        //     return total;
+        // }
+
+
 
         function hardUseTotals(index) {
             var total = 0;
@@ -1728,6 +1954,9 @@ var pathS;
                 if (uniqueHWOnly[i].minute == index){ 
                     total++;
                 } 
+                // if (hardwareOnly[i].minute == index && hardwareOnly[i].oc==2) {
+                //     total--;
+                // } 
             }
             return total;
         }
@@ -1736,11 +1965,24 @@ var pathS;
             for (i = 0; i < uniqueSWOnly.length; i++) {
                 if (uniqueSWOnly[i].minute == index) {
                     total++;
-                }  
+                } 
+                // if (softwareOnly[i].minute == index && softwareOnly[i].oc==2) {
+                //     total--;
+                // } 
             }
             return total;
         }
 
+
+
+
+
+        // var hardware = ideData.filter(function(d) {
+        //     return d.mod == "M";
+        // });
+        // var software = ideData.filter(function(d) {
+        //     return d.mod == "B";
+        // });
 
 	var yUniqueH = d3.scale.linear()
 		.domain([0,bothLength])
@@ -1780,7 +2022,20 @@ var textHardware;
 	    .text(function(d){
 	    	return d;
 	    })
-
+// var rectSoftware;
+// 	rectSoftware = ardSVG.selectAll("rectSoft")
+// 	    .data(whatIsThe)
+// 	    .enter().append("rect")
+// 	    .attr("class", "rectSoft")
+// 	    .attr("x", function(d,i){
+// 	    	return uniquesX(i)-3;//10+i*30;
+// 	    })
+// 	    .attr("y",30)
+// 	    .attr("fill", "#B19B80")
+// 	    .attr("width",19)
+// 	    .attr("height",15)
+// 	    .attr("stroke","white")
+// 	    .attr("stroke-width",.5)
 var textSoftware;
 	textSoftware = ardSVG.selectAll("textSoft")
 	    .data(diffSoftHard)
@@ -1859,6 +2114,14 @@ function makeEdge(linkData, linkNodes, linkLinks){
 var diameter = forcewidth;
 var radius = diameter / 2;
 var margin = 60;
+// drawGraph();
+// Draws an arc diagram for the provided undirected graph
+// function drawGraph(graph) {
+    // create svg image
+    // var circleSVG  = d3.select("body").select("#buttonSVG")
+    //     .append("svg")
+    //     .attr("width", diameter)
+    //     .attr("height", diameter);
 
     // create plot area within svg image
     var plot = buttonSVG.append("g")
@@ -1907,6 +2170,21 @@ var	kitNameColor5 = buttonSVG.append("g").attr("class","backlabels")
 	    .attr("y", forceheight-3)
 	    .text("Functions")
 	    .attr("font-size",8)
+        	// for(j=0; j<inputs.length; j++){
+        	// 	if(d.name.toLowerCase().indexOf(inputs[j].toLowerCase())>-1){
+	        // 		return "lightpink";
+        	// 	}
+        	// }
+        	// for(k=0; k<outputs.length; k++){
+        	// 	if(d.name.toLowerCase().indexOf(outputs[k].toLowerCase())>-1){
+	        // 		return "#FF9800";
+        	// 	}
+        	// }
+        	// for(l=0; l<programming.length; l++){
+        	// 	if(d.name.toLowerCase().indexOf(programming[l].toLowerCase())>-1){
+	        // 		return "#C71549";
+        	// 	}
+        	// }
 
 
 
@@ -2032,6 +2310,19 @@ function drawLinks(links) {
         .attr("y1", function(d) { return d.source.y; })
         .attr("x2", function(d) { return d.target.x; })
         .attr("y2", function(d) { return d.target.y; })
+        // .style("stroke",  function(d, i) { 
+        // 	for(j=0; j<uniqueHards.length; j++){
+        // 		if(d.name.indexOf(uniqueHards[j])>-1){
+	       //  		return hardwareColor;
+        // 		}
+        // 	}
+        // 	for(k=0; k<uniqueSofts.length; k++){
+        // 		if(d.name.indexOf(uniqueSofts[k])>-1){
+	       //  		return softwareColor;
+        // 		}
+        // 	}
+        // })
+        // })
         .attr("fill","none")
 	    .attr("marker-end", "url(#end)");
 }
@@ -2119,6 +2410,16 @@ var mpr = chordMpr(newData);
             .innerRadius(r0)
             .outerRadius(r0 + 20);
 
+        // var svg = d3.select("body").append("svg:svg")
+        //     .attr("width", w)
+        //     .attr("height", h)
+          // activeSVG.append("svg:g")
+          //   .attr("id", "circle")
+          //   .attr("transform", "translate(" + forcewidth / 2 + "," + forceheight / 2 + ")");
+
+          //   activeSVG.append("circle")
+          //       .attr("r", r0 + 20);
+
         var rdr = chordRdr(matrix, mmap);
         chord.matrix(matrix);
         console.log(chord.chords())
@@ -2132,7 +2433,9 @@ var mpr = chordMpr(newData);
             .style("stroke", "black")
             //needs to be about the type of element
             .style("fill","none")
+            // .style("fill", function(d) { return rdr(d).gdata == "state" ? "black": "grey"; })
             .attr("d", arc)
+                        // .attr("transform", "translate(" + forcewidth / 2 + "," + forceheight / 2 + ")");
 
         g.append("svg:text")
             .each(function(d) { d.angle = (d.startAngle + d.endAngle) / 2; })
@@ -2151,6 +2454,8 @@ var mpr = chordMpr(newData);
                 .data(chord.chords())
               .enter().append("svg:path")
                 .attr("class", "chord")
+                // .style("stroke", "black")
+                // .style("fill", function(d) { return rdr(d).tname == "Starbucks" ? "#00592d": "#ff6200"; })
                 .attr("d", d3.svg.chord().radius(r0))
             .attr("transform", "translate(" + forcewidth / 2 + "," + forceheight / 2 + ")");
       }
