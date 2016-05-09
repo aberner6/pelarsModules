@@ -1,3 +1,40 @@
+    var width = forcewidth*2,
+        height = forceheight*2;
+    var diameter = forcewidth;
+    var margin = 60;
+    var radius = (diameter / 2)-margin+3;
+    var color = ["#3F51B5","#607D8B","#7986CB"];
+
+    var pie = d3.layout.pie()
+        .sort(null);
+
+    var outerRadius = radius;
+    var innerRadius = radius-20;
+    var arc = d3.svg.arc()
+        .innerRadius(innerRadius)
+        .outerRadius(outerRadius);
+    var labelr = radius/1.7 + 23; 
+
+    var netSVG = d3.select("#allTimeline")
+        .append("svg")
+        .attr("width",forcewidth*2)
+        .attr("height",forceheight*2)  
+        .append("g")
+        .style("margin-top","1px")
+        .attr("transform", "translate(" + width/2 + "," + height/2 + ")");
+function update(phaseArray){
+    var pathPie = netSVG.selectAll("path")
+        .data(pie(phaseArray));
+    pathPie.attr("class","update"); 
+    pathPie.enter().append("path").attr("class","enter")
+        .attr("fill", function(d, i) { return color[i]; }); 
+    pathPie
+        .attr("d", arc); pathPie.exit().remove() 
+}
+
+
+
+
 
 function makePie(){
     var width = forcewidth*2,
@@ -73,7 +110,7 @@ function makePie(){
         		return "Reflect"
         	}
         })
-        .attr("fill", "white")
+        // .attr("fill", "white")
             // function(d, i) { return color[i]; })
 }
 function makeRectPhases(){
