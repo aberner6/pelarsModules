@@ -862,7 +862,16 @@ function goButton(incomingData, imgData){
                         .attr("height", 100);
                         // overview.exit().remove();
 }
-
+		// tempData.push(imgJSON);
+		// for(i=0; i<imgJSON.length; i++){
+		// 	console.log(imgJSON[i])
+		// 	// if(imgJSON[i][i].type=="image"){
+		// 	// 	imgData.push(imgJSON[0]);						
+		// 	// }
+		// 	// else{
+		// 	// 	console.log(tempData)
+		// 	// }			
+		// }
 function goIDE(incomingD, summary){
 	ideData = incomingD[0].values;
 	sumIDE = summary;
