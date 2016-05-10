@@ -272,11 +272,21 @@ function getData(thisSession, token){
 		$.getJSON("http://pelars.sssup.it:8080/pelars/data/"+thisSession+"?token="+token,function(json){
 			startFirst = json[0].time;
 			endFirst = json[json.length-1].time;
-
 			firstData = json;
+			getImages(thisSession, token);
 			getPhases(thisSession, token);
 		})
 	}
+}
+var tempData = [];
+var imgData = [];
+function getImages(thisSession,token){
+	$.getJSON("http://pelars.sssup.it:8080/pelars/multimedia/"+thisSession+"?token="+token,function(imgJSON){
+		tempData.push(imgJSON);
+		imgData.push(tempData[0]);
+		console.log("imgdata done");
+		goButton(particleOnly, imgData);
+	})	
 }
 function getPhases(thisSession,token){
 	$.getJSON("http://pelars.sssup.it:8080/pelars/phase/"+thisSession+"?token="+token,function(phasesJSON){
@@ -535,7 +545,6 @@ function ready(data1) {
 			}
 		}	
 	}
-	goButton(particleOnly);
 };
 
 function showPhases(phasesJSON) {
@@ -738,7 +747,7 @@ function showPhases(phasesJSON) {
 		.attr("text-anchor","middle")
 }
 
-function goButton(incomingData){
+function goButton(incomingData, imgData){
 	buttonData.push(incomingData);
 	console.log(incomingData);
 	for(i=0; i<buttonData[0].length; i++){
@@ -827,6 +836,31 @@ function goButton(incomingData){
 		.attr("y1", timeSVGH/2+iconW+25)
 		.attr("y2", timeSVGH)
 		.attr("stroke","grey")
+
+
+                var overview;
+                    overview = timeSVG.selectAll(".screen")
+                        .data(imgData[0])
+                        .attr("x", function(d, i) {
+							return timeX(d.time)+8;
+                        })
+                    overview
+                        .enter()
+                        .append("image")
+                        .attr("class", "screen")
+                        .attr("xlink:href", function(d, i) {
+                        	// var thisTime = d.time;
+                        	console.log(d);
+                        	console.log(d.data);
+							return d.data;                    	
+                        })
+                        .attr("x", function(d, i) {
+							return timeX(d.time)+8;
+                        })
+						.attr("y", timeSVGH/2+iconW+25)
+                        .attr("width", 100)
+                        .attr("height", 100);
+                        // overview.exit().remove();
 }
 
 function goIDE(incomingD, summary){
