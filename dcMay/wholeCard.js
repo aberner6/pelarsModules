@@ -112,59 +112,44 @@ var m = [15, 20, 40, 120]; //top right bottom left
 var h = $("#container").height();//document.body.clientHeight;
 var w = $("#container").width()-55;//document.body.clientWidth;
 
-
+var topMargin = 100;
 var goAhead;
-var svgMain = d3.select("#container").append("svg").attr("width",w+55).attr("height",h)
+var svgMain = d3.select("#container").append("svg")
+	.attr("width",w+55).attr("height",h+topMargin)
+	.attr("transform", "translate(" + 0 + "," + 0 + ")")
 	.attr("class","mainSVG")            
-	.attr("transform", "translate(" + 0 + "," + 0 + ")");
 
 
 var forcewidth = w/3-15;
 var forceheight = h/3.5;
 
-var ardSVG = d3.select("#network")
-	.append("svg")
-	.attr("width",forcewidth)
-	.attr("height",forceheight)  
-	.style("border","1px solid white") 
-	.style("margin-top","1px")
+var timeSVGH = h/2;//-60;
 
-var buttonSVG = d3.select("#ardinfo")
-	.append("svg")
-	.attr("width",forcewidth)
-	.attr("height",forceheight)  
-	.style("border","1px solid white") 
-	.style("margin-top","1px");
-
-var activeSVG = d3.select("#buttonuse")
-	.append("svg")
-	.attr("width",forcewidth)
-	.attr("height",forceheight)  
-	.style("border","1px solid white") 
-	.style("margin-top","1px");
-
-
-var timeSVGH = h/2-60;
-var timeSVG = d3.select("#timeline")
-	.append("svg")
+var timeSVG = svgMain
+// d3.select("#timeline")
+	.append("g")
+	.attr("class","timelineSVG")
 	.attr("width",w)
 	.attr("height",timeSVGH)  
-	.style("border","1px solid white") 
 	.style("margin-top","1px");
 
-buttonSVG.append("svg:defs").selectAll("marker")
-    .data(["end"])      // Different link/path types can be defined here
-  .enter().append("svg:marker")    // This section adds in the arrows
-    .attr("id", String)
-    .attr("viewBox", "0 -5 10 10")
-    .attr("refX", 15)
-    .attr("refY", -1.5)
-    .attr("markerWidth", 6)
-    .attr("markerHeight", 6)
-    .attr("orient", "auto")
-    .attr("fill",colorText)
-  .append("svg:path")
-    .attr("d", "M0,-5L10,0L0,5");  
+var buttonSVG = svgMain
+// d3.select("#ardinfo")
+	.append("g")
+	.attr("class","buttonSVG")
+	.attr("width",forcewidth)
+	.attr("height",forceheight)  
+	.style("border","1px solid white") 
+	.attr("transform", "translate(" + forcewidth*2 + "," + (timeSVGH+topMargin) + ")")
+
+var activeSVG = svgMain
+// d3.select("#buttonuse")
+	.append("g")
+	.attr("class","activeSVG")
+	.attr("width",forcewidth)
+	.attr("height",forceheight)  
+	.style("border","1px solid white") 
+	.attr("transform", "translate(" + forcewidth + "," + (timeSVGH+topMargin) + ")")
 
 var nest_again;
 var ideData;
@@ -258,7 +243,7 @@ $(document).ready(function() {
 function getSession(){
 	token = pelars_authenticate();
 	$.getJSON("http://pelars.sssup.it:8080/pelars/session?token="+token,function(json1){
-			thisSession = parseInt(834);//parseInt(json1[json1.length-1].session); //
+			thisSession = parseInt(1320);//(834);//parseInt(json1[json1.length-1].session); //
 			console.log("session"+thisSession);
 			getData(thisSession, token);
 	})
@@ -280,12 +265,34 @@ function getData(thisSession, token){
 }
 var tempData = [];
 var imgData = [];
+var btnImg = [];
 function getImages(thisSession,token){
 	$.getJSON("http://pelars.sssup.it:8080/pelars/multimedia/"+thisSession+"?token="+token,function(imgJSON){
-		tempData.push(imgJSON);
+		tempData.push(imgJSON); //not just imgJSON
 		imgData.push(tempData[0]);
+		// for(i=0; i<tempData[0].length; i++){
+		// 	if(tempData[0][i].mimetype=="jpg"){
+		// 		imgData.push(tempData[0][i]);
+		// 	}
+		// }
+		// if(imgData.length>0){
+		// 	console.log(imgData)
+		// 	console.log("imgdata done");
+		// 	goButton(particleOnly, imgData);
+		// }
 		console.log("imgdata done");
+		// for (i=0; i<imgData[0].length; i++){
+		// 	if (imgData[0][i].trigger=="manual"){
+		// 		btnImg.push(imgData[0][i]);
+		// 	}
+		// }
 		goButton(particleOnly, imgData);
+// ok, I have done the following: http://pelars.sssup.it/pelars/snapshot/1159/1.457599585392E12
+// extract the time from the button Json, the endpoint will return the metadata of the three snapshots associated to that button press
+// as JSON array
+// so the description is: http://pelars.sssup.it/pelars/snapshot/{session_id}/{time}
+//manual means triggered by the button
+//what means triggered by the mobile docu tool?
 	})	
 }
 function getPhases(thisSession,token){
@@ -380,7 +387,7 @@ function ready(data1) {
 	var	facePic = svgMain.append("g").attr("class","backlabels")
 			.append("image")
 		    .attr("x", timeX(startTime)+iconW)
-		    .attr("y", 173)
+		    .attr("y", h/3-22)
 		    .attr("width",iconW)
 		    .attr("height",iconW)
 	               .attr("xlink:href", "assets/face2.png")
@@ -388,7 +395,7 @@ function ready(data1) {
 			.append("text")
 		    .attr("x", timeX(startTime)+22)
 		    .attr("text-anchor","middle")
-		    .attr("y", 197)
+		    .attr("y", h/3)
 		    .text("Faces")
 		    .attr("font-size",8)
 
@@ -483,9 +490,9 @@ function ready(data1) {
 	    }
 	    return 'less than a second'; //'just now' //or other string you like;
 	}
-
 	for(i=0; i<data.length; i++){
-		if(data[i].type == "particle"){
+		// console.log(data[i].type)
+		if(data[i].type == "button"){
 			particleOnly.push(data[i]);
 		}
 	}
@@ -608,14 +615,15 @@ function showPhases(phasesJSON) {
 	    .outerRadius(outerRadius);
 	var labelr = radius/1.7 + 22; // radius for label anchor
 
-	var netSVG = d3.select("#facehand")
-		.append("svg")
+	var netSVG = svgMain
+		.append("g")
+		.attr("class","piePhase")
 		.attr("width",forcewidth)
 		.attr("height",forceheight)  
 		.append("g")
 		.style("border","1px solid white") 
 		.style("margin-top","1px")
-	    .attr("transform", "translate(" + width/2 + "," + 80 + ")");
+		.attr("transform", "translate(" + radius+margin + "," + (timeSVGH+radius+topMargin) + ")")
 
 	var pathPie = netSVG.selectAll("pathPie")
 	    .data(pie(phaseArray))
@@ -848,30 +856,42 @@ function goButton(incomingData, imgData){
                         .enter()
                         .append("image")
                         .attr("class", "screen")
-                        .attr("xlink:href", function(d, i) {
-                        	// var thisTime = d.time;
-                        	console.log(d);
-                        	console.log(d.data);
-							return d.data;                    	
-                        })
                         .attr("x", function(d, i) {
 							return timeX(d.time)+8;
                         })
 						.attr("y", timeSVGH/2+iconW+25)
-                        .attr("width", 100)
-                        .attr("height", 100);
-                        // overview.exit().remove();
+                        		.attr("width",40)
+                        		.attr("height",30)
+                        .attr("xlink:href", function(d, i) {
+                        	// var thisTime = d.time;
+                        	// console.log(d);
+                        	// console.log(d.data);
+                        	if(d.type=="image" && d.view=="workspace"){
+								return d.data;                    	                       		
+                        	}else{
+
+                        	}
+                        })
+                        .on("mouseover", function(d,i){
+							d3.select(this).each(moveToFront);
+
+                        	d3.select(this)
+                        		.transition()
+                        		.attr("width",320)
+                        		.attr("height",240)
+                        })    
+                        .on("mouseout", function(d,i){
+                        	d3.select(this)
+                        		.transition()
+                        		.delay(200)
+                        		.attr("width",40)
+                        		.attr("height",30)
+                        })                             
+                 //BUTTON PRESSES                      
+				// console.log("d.properties"+d.properties)
+			// updateHoverbox(d.properties, "path");
 }
-		// tempData.push(imgJSON);
-		// for(i=0; i<imgJSON.length; i++){
-		// 	console.log(imgJSON[i])
-		// 	// if(imgJSON[i][i].type=="image"){
-		// 	// 	imgData.push(imgJSON[0]);						
-		// 	// }
-		// 	// else{
-		// 	// 	console.log(tempData)
-		// 	// }			
-		// }
+
 function goIDE(incomingD, summary){
 	ideData = incomingD[0].values;
 	sumIDE = summary;
@@ -1236,12 +1256,12 @@ function showFace(){
 	var thisMany = [];
 	maxTotal = 4;
 
-	  var yOffset = h/2;
-	  var mini = 4;
-	  var heightPanel = 100;
-	  var yPath = d3.scale.linear()
-		  .domain([0, maxTotal])
-		 .range([timeSVGH/2, 0]);
+	var yOffset = h/2;
+	var mini = 4;
+	var heightPanel = 100;
+	var yPath = d3.scale.linear()
+	  .domain([0, maxTotal])
+	  .range([timeSVGH/2, 0]);
 
   	lineFace = d3.svg.line()
       .x(function(d, i) { return timeX(d.time); })
@@ -1608,65 +1628,65 @@ function showIDE(){
 		.domain([0,bothLength])
 	    .range([topMarg, forceheight-topMarg/2]);
 
-    var icons;
-       icons = ardSVG.selectAll(".icons")
-           .data(uniqueHards)
-       icons.enter().append("image")
-           .attr("class", "icons")
-           .attr("xlink:href", function(d, i) {
-               return "assets/icons/"+d.toLowerCase() + ".png";
-           })
-           .attr("y", function(d,i) {
-               return yUniqueH(i)-12;
-           })
-           .attr("width", iconW)
-           .attr("height", iconW)
-           .attr("x", iconLMarg)
+ //    var icons;
+ //       icons = ardSVG.selectAll(".icons")
+ //           .data(uniqueHards)
+ //       icons.enter().append("image")
+ //           .attr("class", "icons")
+ //           .attr("xlink:href", function(d, i) {
+ //               return "assets/icons/"+d.toLowerCase() + ".png";
+ //           })
+ //           .attr("y", function(d,i) {
+ //               return yUniqueH(i)-12;
+ //           })
+ //           .attr("width", iconW)
+ //           .attr("height", iconW)
+ //           .attr("x", iconLMarg)
 
-	var textHardware;
-		textHardware = ardSVG.selectAll("textHard")
-		    .data(uniqueHards)
-		    .enter().append("text")
-		    .attr("class", "textHard")
-		    .attr("x", textL)
-		    .attr("y",function(d,i){
-		    	return yUniqueH(i) //not d
-		    })
-	    	.attr("text-anchor", "start") // set anchor y justification
-		    .attr("fill", "black")
-		    .text(function(d){
-		    	return d;
-		    })
+	// var textHardware;
+	// 	textHardware = ardSVG.selectAll("textHard")
+	// 	    .data(uniqueHards)
+	// 	    .enter().append("text")
+	// 	    .attr("class", "textHard")
+	// 	    .attr("x", textL)
+	// 	    .attr("y",function(d,i){
+	// 	    	return yUniqueH(i) //not d
+	// 	    })
+	//     	.attr("text-anchor", "start") // set anchor y justification
+	// 	    .attr("fill", "black")
+	// 	    .text(function(d){
+	// 	    	return d;
+	// 	    })
 
-	var textSoftware;
-		textSoftware = ardSVG.selectAll("textSoft")
-		    .data(diffSoftHard)
-		    .enter().append("text")
-		    .attr("class", "textSoft")
-	    	.attr("text-anchor", "start") // set anchor y justification
-		    .attr("x", forcewidth/2)
-		    .attr("y", function(d,i){
-		    	return yUniqueS(i) //not d
-		    })
-		    .text(function(d){
-		    	return d;
-		    })
-		    .attr("fill","black")
-	var iconsSoft;
-	   iconsSoft = ardSVG.selectAll(".iconsS")
-	       .data(diffSoftHard)
-	   iconsSoft.enter().append("image")
-	       .attr("class", "iconsS")
-	       .attr("xlink:href", function(d, i) {
-	       	// console.log(d.toLowerCase());
-	           return "assets/icons/"+d.toLowerCase() + ".png";
-	       })
-	       .attr("y", function(d,i) {
-	           return yUniqueS(i)-12;
-	       })
-	       .attr("width", iconW)
-	       .attr("height", iconW)
-	       .attr("x", (forcewidth/2)+iconLMarg)
+	// var textSoftware;
+	// 	textSoftware = ardSVG.selectAll("textSoft")
+	// 	    .data(diffSoftHard)
+	// 	    .enter().append("text")
+	// 	    .attr("class", "textSoft")
+	//     	.attr("text-anchor", "start") // set anchor y justification
+	// 	    .attr("x", forcewidth/2)
+	// 	    .attr("y", function(d,i){
+	// 	    	return yUniqueS(i) //not d
+	// 	    })
+	// 	    .text(function(d){
+	// 	    	return d;
+	// 	    })
+	// 	    .attr("fill","black")
+	// var iconsSoft;
+	//    iconsSoft = ardSVG.selectAll(".iconsS")
+	//        .data(diffSoftHard)
+	//    iconsSoft.enter().append("image")
+	//        .attr("class", "iconsS")
+	//        .attr("xlink:href", function(d, i) {
+	//        	// console.log(d.toLowerCase());
+	//            return "assets/icons/"+d.toLowerCase() + ".png";
+	//        })
+	//        .attr("y", function(d,i) {
+	//            return yUniqueS(i)-12;
+	//        })
+	//        .attr("width", iconW)
+	//        .attr("height", iconW)
+	//        .attr("x", (forcewidth/2)+iconLMarg)
 
 
 
@@ -1715,10 +1735,29 @@ function makeEdge(linkData, linkNodes, linkLinks){
 	var radius = diameter / 2;
 	var margin = 60;
 
+
+////
+
+	// var width = forcewidth,
+	//     height = forceheight;
+	// var diameter = forcewidth;
+	// var margin = 60;
+	// var radius = (diameter / 2)-margin+3;
+	//     // radius = Math.min(width, height) / 2.4;
+
+	// var color = ["#3F51B5","#607D8B","#7986CB"];
+
+	// var pie = d3.layout.pie()
+	//     .sort(null);
+
+	// var outerRadius = radius;//-10;
+	// var innerRadius = radius-20;//-30;
+	////
+
     // create plot area within svg image
     var plot = buttonSVG.append("g")
         .attr("id", "plot")
-        .attr("transform", "translate(" + radius + ", " + (radius-39) + ")");
+        .attr("transform", "translate(" + radius + ", " + (radius-59) + ")");
 
 
 	var kitColor3 = buttonSVG.append("g").attr("class","backlabels")
