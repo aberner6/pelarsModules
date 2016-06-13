@@ -754,7 +754,14 @@ function showPhases(phasesJSON) {
 		})
 		.attr("text-anchor","middle")
 }
-
+var bigImgWidth = 8*40; 
+var bigImgHeight = 6*40; 
+var btnImg1 = [];
+var btnImg2 = [];
+var thisTime;
+var thisArray = [];
+var img2Data = [];
+var thunder;
 function goButton(incomingData, imgData){
 	buttonData.push(incomingData);
 	console.log(incomingData);
@@ -785,6 +792,29 @@ function goButton(incomingData, imgData){
 	}else{ buttonTot = button1.length; }
 	console.log(buttonTot)
 
+    var timelineImgWidth = 60; //(w/imgData[0].length)*6;
+    var timelineImgHeight = timelineImgWidth*1.3;
+    var timelineImgY = timeSVGH/2+iconW+25;
+	var timelineThunderY = timeSVGH/2+iconW/2+21
+	for(i=0; i<button1.length; i++){
+		btnImg1.push({
+		time: button1[i].time,
+		img: "http://pelars.sssup.it/pelars/snapshot/"+thisSession+"/"+(button1[i].time/1000000000000)+"E12"
+		})
+	}
+	// for(i=0; i<button2.length; i++){
+	// 	btnImg2.push({
+	// 		time: button2[i].time,
+	// 		img: "http://pelars.sssup.it/pelars/snapshot/"+thisSession+"/"+(button2[i].time/1000000000000)+"E12"
+	// 	})
+	// }
+	for(i=0; i<button2.length; i++){
+		$.getJSON("http://pelars.sssup.it/pelars/snapshot/"+thisSession+"/"+(button2[i].time/1000000000000)+"E12"+"?token="+token, function(json){
+			btnImg2.push(json);
+		})
+	}
+	console.log(img2Data);
+
 	var xSpace = d3.scale.linear()
 		.domain([0, buttonTot+1])
 		.range([textL, forcewidth-iconW])
@@ -814,7 +844,7 @@ function goButton(incomingData, imgData){
 		})
 		.attr("y1", timeSVGH/2+iconW+25)
 		.attr("y2", timeSVGH)
-		.attr("stroke","grey")
+		.attr("stroke","grey");
 
 	console.log(button2);
 	var iconBut2 = timeSVG.selectAll(".button2")	
@@ -826,9 +856,35 @@ function goButton(incomingData, imgData){
 		.attr("x", function(d){
 			return timeX(d.time);
 		})
-		.attr("y", timeSVGH/2+iconW/2+21)
+		.attr("y", timelineThunderY)
 		.attr("width",iconW)
-		.attr("height",iconW);
+		.attr("height",iconW)
+		.on("mouseover", function(d,i){
+			var thisData = d3.select(this);
+			thisTime = thisData[0][0].__data__.time;
+			var thisIndex = i;
+
+		    thunder = timeSVG.selectAll(".clip-circ"+thisIndex)
+                .data(btnImg2[thisIndex]) 
+                .attr("x", timeX(thisTime))
+            thunder
+                .enter()
+                .append("image")
+                .attr("class", "clip-circ"+thisIndex)
+                .attr("x", timeX(thisTime))
+				.attr("y", timelineThunderY)
+        		.attr("width", timelineImgWidth*4)
+        		.attr("height", timelineImgHeight*4)
+                .attr("xlink:href", function(d, i) {
+                	// console.log(d);
+                	if(d.view=="workspace"){
+                		return d.data;
+                	}
+                });
+		})
+		.on("mouseout", function(d,i){
+			thunder.remove();
+		})
 
 	var iconLine2 = timeSVG.selectAll(".button2L")	
 		.data(button2)
@@ -843,50 +899,53 @@ function goButton(incomingData, imgData){
 		})
 		.attr("y1", timeSVGH/2+iconW+25)
 		.attr("y2", timeSVGH)
-		.attr("stroke","grey")
-
+		.attr("stroke","grey");
+	
+	var autoImg = [];
+	for(i=0; i<imgData[0].length; i++){
+		if(imgData[0][i].creator=="client" && imgData[0][i].type=="image" && imgData[0][i].view=="workspace"){
+			autoImg.push(imgData[0][i]);
+		}
+		// if(imgData[0][i].creator=="client" && imgData[0][i].type=="image" && imgData[0][i].view=="workspace"){
+		// 	autoImg.push(imgData[0][i]);
+		// }
+	}
 
                 var overview;
-                    overview = timeSVG.selectAll(".screen")
-                        .data(imgData[0])
+                    overview = timeSVG.selectAll(".clip-rect")
+                        .data(autoImg) //imgData[0])
                         .attr("x", function(d, i) {
 							return timeX(d.time)+8;
                         })
                     overview
                         .enter()
                         .append("image")
-                        .attr("class", "screen")
+                        .attr("class", "clip-rect")
                         .attr("x", function(d, i) {
 							return timeX(d.time)+8;
                         })
-						.attr("y", timeSVGH/2+iconW+25)
-                        		.attr("width",40)
-                        		.attr("height",30)
+						.attr("y", timelineImgY)
+                		.attr("width", timelineImgWidth)//(w/(imgData[0].length))*10)
+                		.attr("height", timelineImgHeight)//((w/(imgData[0].length))*10)*1.3)
                         .attr("xlink:href", function(d, i) {
-                        	// var thisTime = d.time;
-                        	// console.log(d);
-                        	// console.log(d.data);
-                        	if(d.type=="image" && d.view=="workspace"){
-								return d.data;                    	                       		
-                        	}else{
-
-                        	}
+							return d.data;                    	                       		
                         })
-                        .on("mouseover", function(d,i){
+                        .on("click", function(d,i){
+                        	// console.log(d);
 							d3.select(this).each(moveToFront);
-
                         	d3.select(this)
                         		.transition()
-                        		.attr("width",320)
-                        		.attr("height",240)
+                        		.duration(500)
+                        		// .attr("y", timelineImgY+timelineImgHeight/2)
+                        		.attr("width",bigImgWidth)
+                        		.attr("height",bigImgHeight)
+                        		.transition()
+                        		.delay(1000)
+								// .attr("y", timelineImgY)
+		                		.attr("width", timelineImgWidth)
+		                		.attr("height", timelineImgHeight)   
                         })    
-                        .on("mouseout", function(d,i){
-                        	d3.select(this)
-                        		.transition()
-                        		.delay(200)
-                        		.attr("width",40)
-                        		.attr("height",30)
-                        })                             
+                       
                  //BUTTON PRESSES                      
 				// console.log("d.properties"+d.properties)
 			// updateHoverbox(d.properties, "path");
