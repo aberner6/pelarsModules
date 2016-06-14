@@ -877,11 +877,11 @@ function goButton(incomingData, imgData){
                 .attr("xlink:href", function(d, i) {
                 	if(d.time<=thisTime+40 || d.time>=thisTime-40){
                 		console.log(d.time);
-	                	// if(d.view=="workspace"){
-	                	// 	return d.data;
-	                	// } else {
+	                	if(d.view=="workspace"){
+	                		return d.data;
+	                	} else {
 	                		return btnImg2[thisIndex][0].data; //d.data;
-	                	// }
+	                	}
                 	} else{
                 		console.log(d.time+"d.time")
                 	}
