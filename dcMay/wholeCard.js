@@ -758,7 +758,7 @@ var bigImgWidth = 8*40;
 var bigImgHeight = 6*40; 
 var btnImg1 = [];
 var btnImg2 = [];
-var thisTime;
+// var thisTime;
 var thisArray = [];
 var img2Data = [];
 var thunder;
@@ -806,23 +806,9 @@ function goButton(incomingData, imgData){
 	for(i=0; i<button2.length; i++){
 		console.log(button2[i].time)
 		$.getJSON("http://pelars.sssup.it/pelars/snapshot/"+thisSession+"/"+(button2[i].time/1000000000000)+"E12"+"?token="+token, function(json){
-			btnImg2.push({
-				time: i,
-				data: json
-			});
+			btnImg2.push(json);
 		})
 	}
-	// for(i=0; i<btnImg2.length; i++){
-	// 	btnImg2[i].time.sort(d3.ascending) //trying to order based on time first
-	// }
-	// btnImg2_nest = d3.nest()
-	// 	.key(function(d) { 
-	// 		return d.time; 
-	// 	})
-	// 	.sortKeys(d3.ascending)
-	// 	.entries(btnImg2);
-
-	// console.log(img2Data);
 
 	var xSpace = d3.scale.linear()
 		.domain([0, buttonTot+1])
@@ -870,12 +856,13 @@ function goButton(incomingData, imgData){
 		.attr("height",iconW)
 		.on("click", function(d,i){
 			var thisData = d3.select(this);
-			thisTime = thisData[0][0].__data__.time;
+			var thisTime = thisData[0][0].__data__.time;
+			console.log(thisTime+"thisTIME")
 			var thisIndex = i;
 			var thunderImgW = 200;
 			console.log(thisIndex)
 		    thunder = timeSVG.selectAll(".clip-circ"+thisIndex)
-                .data(btnImg2[thisIndex].data) //btnImg2[thisIndex].data or take off data 
+                .data(btnImg2[thisIndex]) //btnImg2[thisIndex].data or take off data 
                 .attr("id","clip-circ")
                 .attr("x", timeX(thisTime)-thunderImgW/2)
             thunder
@@ -883,18 +870,20 @@ function goButton(incomingData, imgData){
                 .append("image")
                 .attr("class", "clip-circ"+thisIndex)
                 .attr("id","clip-circ")
-                // .attr("class",thisIndex)
-                // .style("clip-path", url(#clipCirc))
                 .attr("x", timeX(thisTime)-thunderImgW/2)
 				.attr("y", timelineThunderY)
         		.attr("width", thunderImgW)
         		.attr("height", timelineImgHeight*4)
                 .attr("xlink:href", function(d, i) {
-                	// console.log(d);
-                	if(d.view=="workspace"){
-                		return d.data;
-                	} else if (d.view=="people"){
-                		return d.data;
+                	if(d.time<=thisTime+40 || d.time>=thisTime-40){
+                		console.log(d.time);
+	                	// if(d.view=="workspace"){
+	                	// 	return d.data;
+	                	// } else {
+	                		return btnImg2[thisIndex][0].data; //d.data;
+	                	// }
+                	} else{
+                		console.log(d.time+"d.time")
                 	}
                 });
 			thunder.exit();
