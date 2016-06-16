@@ -258,8 +258,15 @@ function getData(thisSession, token){
 			startFirst = json[0].time;
 			endFirst = json[json.length-1].time;
 			firstData = json;
-			getImages(thisSession, token);
-			getPhases(thisSession, token);
+			// getImages(thisSession, token);
+			// getPhases(thisSession, token);
+		
+			var defer = $.Deferred();
+			defer
+			  .done(getImages(thisSession, token))
+			  .done(getPhases(thisSession, token))
+			  .done(mobileImages(thisSession, token))
+			defer.resolve();
 		})
 	}
 }
@@ -270,30 +277,19 @@ function getImages(thisSession,token){
 	$.getJSON("http://pelars.sssup.it:8080/pelars/multimedia/"+thisSession+"?token="+token,function(imgJSON){
 		tempData.push(imgJSON); //not just imgJSON
 		imgData.push(tempData[0]);
-		// for(i=0; i<tempData[0].length; i++){
-		// 	if(tempData[0][i].mimetype=="jpg"){
-		// 		imgData.push(tempData[0][i]);
-		// 	}
-		// }
-		// if(imgData.length>0){
-		// 	console.log(imgData)
-		// 	console.log("imgdata done");
-		// 	goButton(particleOnly, imgData);
-		// }
+
 		console.log("imgdata done");
-		// for (i=0; i<imgData[0].length; i++){
-		// 	if (imgData[0][i].trigger=="manual"){
-		// 		btnImg.push(imgData[0][i]);
-		// 	}
-		// }
+
 		goButton(particleOnly, imgData);
-// ok, I have done the following: http://pelars.sssup.it/pelars/snapshot/1159/1.457599585392E12
-// extract the time from the button Json, the endpoint will return the metadata of the three snapshots associated to that button press
-// as JSON array
-// so the description is: http://pelars.sssup.it/pelars/snapshot/{session_id}/{time}
-//manual means triggered by the button
-//what means triggered by the mobile docu tool?
 	})	
+}
+var mobileData = [];
+function mobileImages(thisSession,token){
+	$.getJSON("http://pelars.sssup.it:8080/pelars/multimedia/"+thisSession+"/mobile?token="+token,function(mobileJSON){
+		mobileData.push(mobileJSON);
+		console.log(mobileData);
+	})
+// http://pelars.sssup.it/pelars/multimedia/1320/mobile	
 }
 function getPhases(thisSession,token){
 	$.getJSON("http://pelars.sssup.it:8080/pelars/phase/"+thisSession+"?token="+token,function(phasesJSON){
@@ -627,7 +623,7 @@ function showPhases(phasesJSON) {
 
 	var pathPie = netSVG.selectAll("pathPie")
 	    .data(pie(phaseArray))
-	  .enter().append("path")
+	  	.enter().append("path")
 	    .attr("fill", function(d, i) { return color[i]; })
 	    .attr("d", arc);
 
@@ -762,6 +758,13 @@ var btnImg2 = [];
 var thisArray = [];
 var img2Data = [];
 var thunder;
+var captionImg = [];
+var captions = [];
+var researcherNote = [];
+var docuNotes = [];
+var docuImg = [];
+var caption;
+
 function goButton(incomingData, imgData){
 	buttonData.push(incomingData);
 	console.log(incomingData);
@@ -789,7 +792,10 @@ function goButton(incomingData, imgData){
 	var buttonTot;
 	if(button2.length>button1.length){
 		buttonTot = button2.length;
-	}else{ buttonTot = button1.length; }
+	}
+	else{ 
+		buttonTot = button1.length; 
+	}
 	console.log(buttonTot)
 
     var timelineImgWidth = 60; //(w/imgData[0].length)*6;
@@ -875,19 +881,19 @@ function goButton(incomingData, imgData){
         		.attr("width", thunderImgW)
         		.attr("height", timelineImgHeight*4)
                 .attr("xlink:href", function(d, i) {
-                	if(d.time<=thisTime+40 || d.time>=thisTime-40){
-                		console.log(d.time);
+                	if(d.time>=thisTime && d.time<=thisTime+40){
+                		console.log(d.time + "yes time");
 	                	if(d.view=="workspace"){
 	                		return d.data;
 	                	} else {
 	                		return btnImg2[thisIndex][0].data; //d.data;
 	                	}
                 	} else{
-                		console.log(d.time+"d.time")
+                		console.log(d.time+"no time")
                 	}
                 });
 			thunder.exit();
-		})
+		});
 		// .on("mouseout", function(d,i){
 		// 	thunder.exit().remove();
 		// })
@@ -908,50 +914,117 @@ function goButton(incomingData, imgData){
 		.attr("stroke","grey");
 	
 	var autoImg = [];
-	for(i=0; i<imgData[0].length; i++){
-		if(imgData[0][i].creator=="client" && imgData[0][i].type=="image" && imgData[0][i].view=="workspace"){
-			autoImg.push(imgData[0][i]);
+	function funcA(){
+		for(i=0; i<imgData[0].length; i++){
+			if(imgData[0][i].creator=="client" && imgData[0][i].type=="image" && imgData[0][i].view=="workspace"){
+				autoImg.push(imgData[0][i]);
+			}
+			if(imgData[0][i].creator=="observer" && imgData[0][i].type=="text"){
+				researcherNote.push(imgData[0][i]);
+			}
+			if(imgData[0][i].creator=="student" && imgData[0][i].type=="text"){
+				docuNotes.push(imgData[0][i]);
+			}
+			if(imgData[0][i].creator=="student" && imgData[0][i].type=="image"){
+				docuImg.push(imgData[0][i]);
+			}
 		}
-		// if(imgData[0][i].creator=="client" && imgData[0][i].type=="image" && imgData[0][i].view=="workspace"){
-		// 	autoImg.push(imgData[0][i]);
-		// }
 	}
+	// function funcC(){
+	// 	console.log("called c")
+	// 	for(i=0; i<researcherNote.length; i++){
+	// 		var url1 = researcherNote[i].data+"?token="+token;
+	// 		$.get(url1, function(caption){
+	// 			captions.push(caption)
+	// 		})
+	// 	}
+	// }
+	var dfd = $.Deferred();
+	dfd
+	  .done(funcA)
+	  // .done(funcC)
+	dfd.resolve();
 
-                var overview;
-                    overview = timeSVG.selectAll(".clip-rect")
-                        .data(autoImg) //imgData[0])
-                        .attr("x", function(d, i) {
-							return timeX(d.time)+8;
-                        })
-                    overview
-                        .enter()
-                        .append("image")
-                        .attr("class", "clip-rect")
-                        .attr("x", function(d, i) {
-							return timeX(d.time)+8;
-                        })
-						.attr("y", timelineImgY)
-                		.attr("width", timelineImgWidth)//(w/(imgData[0].length))*10)
-                		.attr("height", timelineImgHeight)//((w/(imgData[0].length))*10)*1.3)
-                        .attr("xlink:href", function(d, i) {
-							return d.data;                    	                       		
-                        })
-                        .on("click", function(d,i){
-                        	// console.log(d);
-							d3.select(this).each(moveToFront);
-                        	d3.select(this)
-                        		.transition()
-                        		.duration(500)
-                        		// .attr("y", timelineImgY+timelineImgHeight/2)
-                        		.attr("width",bigImgWidth)
-                        		.attr("height",bigImgHeight)
-                        		.transition()
-                        		.delay(1000)
-								// .attr("y", timelineImgY)
-		                		.attr("width", timelineImgWidth)
-		                		.attr("height", timelineImgHeight)   
-                        })    
-                       
+
+
+    var overview;
+        overview = timeSVG.selectAll(".clip-rect")
+            .data(autoImg) //imgData[0])
+            .attr("x", function(d, i) {
+				return timeX(d.time)+8;
+            })
+        overview
+            .enter()
+            .append("image")
+            .attr("class", "clip-rect")
+            .attr("x", function(d, i) {
+				return timeX(d.time)+8;
+            })
+			.attr("y", timelineImgY)
+    		.attr("width", timelineImgWidth)//(w/(imgData[0].length))*10)
+    		.attr("height", timelineImgHeight)//((w/(imgData[0].length))*10)*1.3)
+            .attr("xlink:href", function(d, i) {
+				return d.data;                    	                       		
+            })
+            .on("click", function(d,i){
+            	// console.log(d);
+				d3.select(this).each(moveToFront);
+            	d3.select(this)
+            		.transition()
+            		.duration(500)
+            		// .attr("y", timelineImgY+timelineImgHeight/2)
+            		.attr("width",bigImgWidth)
+            		.attr("height",bigImgHeight)
+            		.transition()
+            		.delay(1000)
+					// .attr("y", timelineImgY)
+            		.attr("width", timelineImgWidth)
+            		.attr("height", timelineImgHeight)   
+            })    
+// for (i=0; i<researcherNote.length; i++){
+// 		var url1 = researcherNote[i].data+"?token="+token;
+// 			$.get(url1, function(caption){
+// 				captions.push(caption)
+// 			})
+// }
+//mobile image data back up?
+		var resNote;
+		resNote = timeSVG.selectAll(".commentIcon")
+			.data(researcherNote) //when moused over this yields text
+				resNote.enter()
+				.append("image")
+				.attr("class","commentIcon")
+				.attr("xlink:href", "assets/pencil.png") //just checking now put back to thunder
+				.attr("x", function(d){
+					return timeX(d.time);
+				})
+				.attr("y", timelineThunderY)
+				.attr("width",iconW)
+				.attr("height",iconW);
+
+		$('.commentIcon').tipsy({ 
+				gravity: 'nw', 
+				html: true, 
+				title: function() {
+					var dis = this.__data__;
+			  		var url1 = dis.data+"?token="+token;
+				
+					var deferit = $.Deferred();
+					deferit
+					  .done(func1)
+					deferit.resolve();
+					// func1();
+					function func1(){
+						$.get(url1, function(capt){
+							console.log(capt);
+							caption = capt;
+						})
+					}
+						console.log(caption);
+						return caption;
+					// return caption.responseText;
+				}
+		});
                  //BUTTON PRESSES                      
 				// console.log("d.properties"+d.properties)
 			// updateHoverbox(d.properties, "path");
