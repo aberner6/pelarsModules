@@ -236,6 +236,10 @@ var rows = 2;
 var endTime;
 var thisSession;
 
+//FIDGETING
+var leftMargin = 20;
+var rightMargin = 35;
+
 $(document).ready(function() {
 	getSession();
 })
@@ -297,7 +301,7 @@ function getPhases(thisSession,token){
 			console.log("IN HERE")
 			startTime = startFirst;
 			endTime = endFirst;	
-			timeX.domain([startTime, endTime]).range([10, w-50]);
+			timeX.domain([startTime, endTime]).range([leftMargin, w-rightMargin]);
 		}
 		else{
 				if(phasesJSON[0].start<startFirst){
@@ -317,7 +321,7 @@ function getPhases(thisSession,token){
 				} else{
 					endTime = endFirst;
 				}
-			timeX.domain([startTime, endTime]).range([10, w-50]);
+			timeX.domain([startTime, endTime]).range([leftMargin, w-rightMargin]);
 			showPhases(phasesJSON)
 		}
 		ready(firstData)
@@ -351,7 +355,7 @@ function ready(data1) {
     var xAxis = d3.svg.axis();
     var xAxisScale = d3.time.scale()
         .domain([startTime, endTime])
-        .range([10, w-40]);
+        .range([leftMargin, w-40]);
     var timeFormat = d3.time.format("%H:%M");
 
     xAxis
@@ -764,6 +768,7 @@ var researcherNote = [];
 var docuNotes = [];
 var docuImg = [];
 var caption;
+var captionDoc;
 
 function goButton(incomingData, imgData){
 	buttonData.push(incomingData);
@@ -801,7 +806,10 @@ function goButton(incomingData, imgData){
     var timelineImgWidth = 60; //(w/imgData[0].length)*6;
     var timelineImgHeight = timelineImgWidth*1.3;
     var timelineImgY = timeSVGH/2+iconW+25;
-	var timelineThunderY = timeSVGH/2+iconW/2+21
+	var timelineThunderY = timeSVGH/2+iconW/2+21;
+	
+	var timelineBottomY = timeSVGH;
+
 	for(i=0; i<button1.length; i++){
 		btnImg1.push({
 		time: button1[i].time,
@@ -857,7 +865,7 @@ function goButton(incomingData, imgData){
 		.attr("x", function(d){
 			return timeX(d.time);
 		})
-		.attr("y", timelineThunderY)
+		.attr("y", timelineThunderY/3)
 		.attr("width",iconW)
 		.attr("height",iconW)
 		.on("click", function(d,i){
@@ -877,7 +885,7 @@ function goButton(incomingData, imgData){
                 .attr("class", "clip-circ"+thisIndex)
                 .attr("id","clip-circ")
                 .attr("x", timeX(thisTime)-thunderImgW/2)
-				.attr("y", timelineThunderY)
+				.attr("y", timelineThunderY/3)
         		.attr("width", thunderImgW)
         		.attr("height", timelineImgHeight*4)
                 .attr("xlink:href", function(d, i) {
@@ -897,21 +905,21 @@ function goButton(incomingData, imgData){
 		// .on("mouseout", function(d,i){
 		// 	thunder.exit().remove();
 		// })
-
-	var iconLine2 = timeSVG.selectAll(".button2L")	
-		.data(button2)
-		iconLine2.enter()
-		.append("line")
-		.attr("class","button2L")
-		.attr("x1", function(d){
-			return timeX(d.time)+8;
-		})
-		.attr("x2", function(d){
-			return timeX(d.time)+8;
-		})
-		.attr("y1", timeSVGH/2+iconW+25)
-		.attr("y2", timeSVGH)
-		.attr("stroke","grey");
+//fix icon lines
+	// var iconLine2 = timeSVG.selectAll(".button2L")	
+	// 	.data(button2)
+	// 	iconLine2.enter()
+	// 	.append("line")
+	// 	.attr("class","button2L")
+	// 	.attr("x1", function(d){
+	// 		return timeX(d.time)+8;
+	// 	})
+	// 	.attr("x2", function(d){
+	// 		return timeX(d.time)+8;
+	// 	})
+	// 	.attr("y1", timeSVGH/2+iconW+25)
+	// 	.attr("y2", timeSVGH)
+	// 	.attr("stroke","grey");
 	
 	var autoImg = [];
 	function funcA(){
@@ -922,10 +930,11 @@ function goButton(incomingData, imgData){
 			if(imgData[0][i].creator=="observer" && imgData[0][i].type=="text"){
 				researcherNote.push(imgData[0][i]);
 			}
-			if(imgData[0][i].creator=="student" && imgData[0][i].type=="text"){
-				docuNotes.push(imgData[0][i]);
-			}
-			if(imgData[0][i].creator=="student" && imgData[0][i].type=="image"){
+			if(imgData[0][i].creator=="student"){ 
+				// && imgData[0][i].type=="text"){
+				// docuNotes.push(imgData[0][i]);
+			// }
+			// if(imgData[0][i].creator=="student" && imgData[0][i].type=="image"){
 				docuImg.push(imgData[0][i]);
 			}
 		}
@@ -946,8 +955,7 @@ function goButton(incomingData, imgData){
 	dfd.resolve();
 
 
-
-    var overview;
+    	var overview;
         overview = timeSVG.selectAll(".clip-rect")
             .data(autoImg) //imgData[0])
             .attr("x", function(d, i) {
@@ -960,7 +968,7 @@ function goButton(incomingData, imgData){
             .attr("x", function(d, i) {
 				return timeX(d.time)+8;
             })
-			.attr("y", timelineImgY)
+			.attr("y", timelineBottomY) 
     		.attr("width", timelineImgWidth)//(w/(imgData[0].length))*10)
     		.attr("height", timelineImgHeight)//((w/(imgData[0].length))*10)*1.3)
             .attr("xlink:href", function(d, i) {
@@ -991,16 +999,51 @@ function goButton(incomingData, imgData){
 		var resNote;
 		resNote = timeSVG.selectAll(".commentIcon")
 			.data(researcherNote) //when moused over this yields text
-				resNote.enter()
-				.append("image")
-				.attr("class","commentIcon")
-				.attr("xlink:href", "assets/pencil.png") //just checking now put back to thunder
-				.attr("x", function(d){
-					return timeX(d.time);
-				})
-				.attr("y", timelineThunderY)
-				.attr("width",iconW)
-				.attr("height",iconW);
+		resNote.enter()
+			.append("image")
+			.attr("class","commentIcon")
+			.attr("xlink:href", "assets/pencil.png") //just checking now put back to thunder
+			.attr("x", function(d){
+				return timeX(d.time);
+			})
+			.attr("y", timelineBottomY)
+			.attr("width",iconW)
+			.attr("height",iconW);
+
+		var studDoc;
+		studDoc = timeSVG.selectAll(".camIcon")
+			.data(docuImg);
+		studDoc.enter()
+			.append("image")
+			.attr("class","camIcon")
+			.attr("xlink:href", "assets/camera.png") //just checking now put back to thunder
+			.attr("x", function(d){
+				return timeX(d.time);
+			})
+			.attr("y", timelineThunderY/4)
+			.attr("width",iconW)
+			.attr("height",iconW);	
+
+		$('.camIcon').tipsy({ 
+				gravity: 'nw', 
+				html: true, 
+				title: function() {
+					var dis = this.__data__;
+			  		var url1 = dis.data+"?token="+token;
+					console.log(dis);
+					var deferit = $.Deferred();
+					deferit
+					  .done(func1)
+					deferit.resolve();
+					function func1(){
+						$.get(url1, function(capt){
+							captionDoc = capt;
+						})
+					}
+						return captionDoc;
+				}
+		});
+
 
 		$('.commentIcon').tipsy({ 
 				gravity: 'nw', 
@@ -1008,19 +1051,16 @@ function goButton(incomingData, imgData){
 				title: function() {
 					var dis = this.__data__;
 			  		var url1 = dis.data+"?token="+token;
-				
+					console.log(dis);
 					var deferit = $.Deferred();
 					deferit
 					  .done(func1)
 					deferit.resolve();
-					// func1();
 					function func1(){
 						$.get(url1, function(capt){
-							console.log(capt);
 							caption = capt;
 						})
 					}
-						console.log(caption);
 						return caption;
 					// return caption.responseText;
 				}
