@@ -163,7 +163,7 @@ var arr = [];
 var only1 = [];
 
 var timeMin, timeMax;
-var timeX = d3.scale.linear();
+// var timeX = d3.scale.linear();
 var timeX2 = d3.scale.linear();
 var maxtime = [];
 var whatTime = [];	
@@ -939,19 +939,19 @@ function goButton(incomingData, imgData){
 			}
 		}
 	}
-	// function funcC(){
-	// 	console.log("called c")
-	// 	for(i=0; i<researcherNote.length; i++){
-	// 		var url1 = researcherNote[i].data+"?token="+token;
-	// 		$.get(url1, function(caption){
-	// 			captions.push(caption)
-	// 		})
-	// 	}
-	// }
+	function funcC(){
+		console.log("called c")
+		for(i=0; i<researcherNote.length; i++){
+			var url1 = researcherNote[i].data+"?token="+token;
+			$.get(url1, function(caption){
+				captions.push(caption)
+			})
+		}
+	}
 	var dfd = $.Deferred();
 	dfd
 	  .done(funcA)
-	  // .done(funcC)
+	  .done(funcC)
 	dfd.resolve();
 
 
