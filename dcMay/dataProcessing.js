@@ -11,6 +11,17 @@ var rightMargin = 35;
 var timeX = d3.scale.linear()
 	.range([leftMargin, w-rightMargin]);
 
+// 1. get token
+// 2. get session number
+// 3. get data and create first idea of starttime/endtime
+// 4. get multimedia data and get phases
+// 5. use phase data to confirm starttime/endtime
+// 6. show phases
+// 7. parse button
+// 8. ready for arduino data 
+// 9. show button presses
+// 
+
 $(document).ready(function() {
 	getToken(); //returns the token
 	var getSesh = setInterval(function(){  //returns the session
@@ -37,7 +48,7 @@ function getToken(){
 function getSession(token){
 	console.log(token+"token");
 	$.getJSON("http://pelars.sssup.it:8080/pelars/session?token="+token,function(json1){
-		thisSession = parseInt(1350);//parseInt(json1[json1.length-1].session);
+		thisSession = parseInt(1371);//parseInt(json1[json1.length-1].session);
 		//1320
 	})
 }
@@ -56,7 +67,6 @@ function getData(thisSession, token){
 }
 var tempData = [];
 var multiData = [];
-var btnImg = [];
 function getMulti(thisSession,token){
 	$.getJSON("http://pelars.sssup.it:8080/pelars/multimedia/"+thisSession+"?token="+token,function(multiJSON){
 		tempData.push(multiJSON); 
@@ -112,6 +122,8 @@ function getPhases(thisSession,token){
 var particleOnly = [];
 var button1 = [];
 var button2 = [];
+var btnImg1 = [];
+var btnImg2 = [];
 //these were switched from b1 to b2
 function parseButton(incomingData){ 
 	particleOnly = incomingData.filter(function(n){ 
@@ -127,15 +139,21 @@ function parseButton(incomingData){
 	}); 
 	console.log(button2.length + "button 2")
 	drawButton(button1, button2);
+
+	for(i=0; i<button1.length; i++){
+		$.getJSON("http://pelars.sssup.it/pelars/snapshot/"+thisSession+"/"+(button1[i].time/1000000000000)+"E12"+"?token="+token, function(json){
+			btnImg1.push(json);
+		})
+	}
+	for(i=0; i<button2.length; i++){
+		$.getJSON("http://pelars.sssup.it/pelars/snapshot/"+thisSession+"/"+(button2[i].time/1000000000000)+"E12"+"?token="+token, function(json){
+			btnImg2.push(json);
+		})
+	}
 }
 var topMargin = 100;
 var timeSVGH = h/2;
-var iconW = 15;
-var butY = timeSVGH/2+iconW/2+21;
-var butLineY1 = butY+4;
-var butLineY2 = timeSVGH;
 var svgMain, timeSVG;
-
 setSVG();
 function setSVG(){
 	svgMain = d3.select("#container").append("svg")
@@ -151,11 +169,18 @@ function setSVG(){
 }
 var thunderSpace = .5;
 var ideaSpace = -.25;
+var iconW = 15;
+var butY = timeSVGH/2+iconW/2+21;
+var butLineY1 = butY+4;
+var butLineY2 = timeSVGH;
+var btnImgW = 200;
+var btnImgH = btnImgW*1.3;
+var thunder, lightbulb;
 function drawButton(button1, button2){
 	console.log("drawing")
-	var iconBut = timeSVG.selectAll(".button1")	
+	var iconBut1 = timeSVG.selectAll(".button1")	
 		.data(button1)
-		iconBut.enter()
+		iconBut1.enter()
 		.append("image")
 		.attr("class","button1")
 		.attr("xlink:href", "assets/icons/idea.png")
@@ -164,7 +189,41 @@ function drawButton(button1, button2){
 		})
 		.attr("y", butY)
 		.attr("width",iconW)
-		.attr("height",iconW);
+		.attr("height",iconW)
+		.on("click", function(d,i){
+			var thisData = d3.select(this);
+			var thisTime = thisData[0][0].__data__.time;
+			console.log(thisTime+"thisTIME")
+			var thisIndex = i;
+
+			console.log(thisIndex)
+		    lightbulb = timeSVG.selectAll(".clip-circ"+thisIndex)
+                .data(btnImg1[thisIndex]) 
+                .attr("id","clip-circ")
+                .attr("x", timeX(thisTime)-btnImgW/2)
+            lightbulb
+                .enter()
+                .append("image")
+                .attr("class", "clip-circ"+thisIndex)
+                .attr("id","clip-circ")
+                .attr("x", timeX(thisTime)-btnImgW/2)
+				.attr("y", butY)
+        		.attr("width", btnImgW)
+        		.attr("height", btnImgH)
+                .attr("xlink:href", function(d, i) {
+                	// if(d.time>=thisTime && d.time<=thisTime+40){
+                		// console.log(d.time + "yes time");
+	                	if(d.view=="workspace"){
+	                		return d.data;
+	                	} else {
+	                		return btnImg1[thisIndex][0].data; //d.data;
+	                	}
+                	// } else{
+                		// console.log(d.time+"no time")
+                	// }
+                });
+			lightbulb.exit();
+		});
 	var iconLine1 = timeSVG.selectAll(".button1L")	
 		.data(button1)
 		iconLine1.enter()
@@ -195,8 +254,37 @@ function drawButton(button1, button2){
 		.on("click", function(d,i){
 			var thisData = d3.select(this);
 			var thisTime = thisData[0][0].__data__.time;
-			console.log(thisTime);
-		});	
+			console.log(thisTime+"thisTIME")
+			var thisIndex = i;
+
+			console.log(thisIndex)
+		    thunder = timeSVG.selectAll(".clip-circ"+thisIndex)
+                .data(btnImg2[thisIndex]) //btnImg2[thisIndex].data or take off data 
+                .attr("id","clip-circ")
+                .attr("x", timeX(thisTime)-btnImgW/2)
+            thunder
+                .enter()
+                .append("image")
+                .attr("class", "clip-circ"+thisIndex)
+                .attr("id","clip-circ")
+                .attr("x", timeX(thisTime)-btnImgW/2)
+				.attr("y", butY)
+        		.attr("width", btnImgW)
+        		.attr("height", btnImgH)
+                .attr("xlink:href", function(d, i) {
+                	if(d.time>=thisTime && d.time<=thisTime+40){
+                		console.log(d.time + "yes time");
+	                	if(d.view=="workspace"){
+	                		return d.data;
+	                	} else {
+	                		return btnImg2[thisIndex][0].data; //d.data;
+	                	}
+                	} else{
+                		console.log(d.time+"no time")
+                	}
+                });
+			thunder.exit();
+		});
 	var iconLine2 = timeSVG.selectAll(".button2L")	
 		.data(button2)
 		iconLine2.enter()
