@@ -24,14 +24,16 @@ var timeX = d3.scale.linear()
 
 $(document).ready(function() {
 	getToken(); //returns the token
+	getSession(token);
 	var getSesh = setInterval(function(){  //returns the session
-		getSession(token);
 		if(thisSession>0){
 			console.log(thisSession);
 			getData(thisSession, token);
 			clearInterval(getSesh);	
+		} else{
+			getSession(token);
 		}
-	}, 3000);
+	}, 5000);
 	var getNext = setInterval(function(){
 		if(startFirst>0 && endFirst>startFirst){
 			getMulti(thisSession, token);
@@ -138,18 +140,26 @@ function parseButton(incomingData){
 		return n.data == "b1" && n.data!=undefined;
 	}); 
 	console.log(button2.length + "button 2")
-	drawButton(button1, button2);
 
 	for(i=0; i<button1.length; i++){
 		$.getJSON("http://pelars.sssup.it/pelars/snapshot/"+thisSession+"/"+(button1[i].time/1000000000000)+"E12"+"?token="+token, function(json){
 			btnImg1.push(json);
 		})
 	}
+
 	for(i=0; i<button2.length; i++){
 		$.getJSON("http://pelars.sssup.it/pelars/snapshot/"+thisSession+"/"+(button2[i].time/1000000000000)+"E12"+"?token="+token, function(json){
 			btnImg2.push(json);
 		})
 	}
+
+	var getImage = setInterval(function(){  //returns the session		
+		if(btnImg1.length>0 && btnImg2.length>0){
+			console.log(btnImg1.length+"btn/img1 length")
+			drawButton(button1, button2, btnImg1, btnImg2);
+			clearInterval(getImage);	
+		}
+	}, 1000);
 }
 var topMargin = 100;
 var timeSVGH = h/2;
@@ -176,8 +186,26 @@ var butLineY2 = timeSVGH;
 var btnImgW = 200;
 var btnImgH = btnImgW*1.3;
 var thunder, lightbulb;
-function drawButton(button1, button2){
-	console.log("drawing")
+var timeMargin = 200;
+var btnNest1;
+var btnNest2;
+function drawButton(button1, button2, img1, img2){
+	console.log("draw button")
+	console.log(img1)
+	btnNest1 = d3.nest()
+		.key(function(d) { 
+			return d[0].time; 
+		})
+		.sortKeys(d3.ascending)
+		.entries(btnImg1);
+
+	btnNest2 = d3.nest()
+		.key(function(d) { 
+			return d[0].time; 
+		})
+		.sortKeys(d3.ascending)
+		.entries(btnImg2);
+
 	var iconBut1 = timeSVG.selectAll(".button1")	
 		.data(button1)
 		iconBut1.enter()
@@ -194,35 +222,34 @@ function drawButton(button1, button2){
 			var thisData = d3.select(this);
 			var thisTime = thisData[0][0].__data__.time;
 			console.log(thisTime+"thisTIME")
-			var thisIndex = i;
+			var lIndex = i;
 
-			console.log(thisIndex)
-		    lightbulb = timeSVG.selectAll(".clip-circ"+thisIndex)
-                .data(btnImg1[thisIndex]) 
+			console.log(lIndex)
+		    lightbulb = timeSVG.selectAll(".clip-circ"+lIndex+"l")
+                .data(btnNest1[lIndex].values[0]) 
+                //btnNest1[lIndex].values[0]
                 .attr("id","clip-circ")
                 .attr("x", timeX(thisTime)-btnImgW/2)
             lightbulb
                 .enter()
                 .append("image")
-                .attr("class", "clip-circ"+thisIndex)
+                .attr("class", "clip-circ"+lIndex+"l")
                 .attr("id","clip-circ")
                 .attr("x", timeX(thisTime)-btnImgW/2)
 				.attr("y", butY)
         		.attr("width", btnImgW)
         		.attr("height", btnImgH)
                 .attr("xlink:href", function(d, i) {
-                	// if(d.time>=thisTime && d.time<=thisTime+40){
-                		// console.log(d.time + "yes time");
+                	// if(d.time>=thisTime && d.time<=thisTime+timeMargin){
 	                	if(d.view=="workspace"){
+	                		console.log(d.view)
 	                		return d.data;
 	                	} else {
-	                		return btnImg1[thisIndex][0].data; //d.data;
+	                		return (btnNest1[lIndex].values[0][0].data) 
 	                	}
-                	// } else{
-                		// console.log(d.time+"no time")
-                	// }
                 });
 			lightbulb.exit();
+			d3.selectAll(".button1").each(moveToFront);
 		});
 	var iconLine1 = timeSVG.selectAll(".button1L")	
 		.data(button1)
@@ -255,35 +282,31 @@ function drawButton(button1, button2){
 			var thisData = d3.select(this);
 			var thisTime = thisData[0][0].__data__.time;
 			console.log(thisTime+"thisTIME")
-			var thisIndex = i;
+			var tIndex = i;
 
-			console.log(thisIndex)
-		    thunder = timeSVG.selectAll(".clip-circ"+thisIndex)
-                .data(btnImg2[thisIndex]) //btnImg2[thisIndex].data or take off data 
-                .attr("id","clip-circ")
+			console.log(tIndex)
+		    thunder = timeSVG.selectAll(".clip-circ"+tIndex+"t")
+                .data(btnNest2[tIndex].values[0]) //btnImg2[thisIndex].data 
                 .attr("x", timeX(thisTime)-btnImgW/2)
             thunder
                 .enter()
                 .append("image")
-                .attr("class", "clip-circ"+thisIndex)
+                .attr("class", "clip-circ"+tIndex+"t")
                 .attr("id","clip-circ")
                 .attr("x", timeX(thisTime)-btnImgW/2)
 				.attr("y", butY)
         		.attr("width", btnImgW)
         		.attr("height", btnImgH)
                 .attr("xlink:href", function(d, i) {
-                	if(d.time>=thisTime && d.time<=thisTime+40){
-                		console.log(d.time + "yes time");
 	                	if(d.view=="workspace"){
+	                		console.log(d.view)
 	                		return d.data;
 	                	} else {
-	                		return btnImg2[thisIndex][0].data; //d.data;
+	                		return btnNest2[tIndex].values[0][0].data//btnImg2[tIndex][0].data; 
 	                	}
-                	} else{
-                		console.log(d.time+"no time")
-                	}
                 });
 			thunder.exit();
+			d3.selectAll(".button2").each(moveToFront);
 		});
 	var iconLine2 = timeSVG.selectAll(".button2L")	
 		.data(button2)
@@ -312,6 +335,42 @@ function showPhases(phasesJSON){
 }
 function ready(firstData){
 	console.log(firstData.length+"firstData length");
+}
+function unique(obj) {
+    var uniques = [];
+    var stringify = {};
+    for (var i = 0; i < obj.length; i++) {
+        var keys = Object.keys(obj[i]);
+        keys.sort(function(a, b) {
+            return a - b
+        });
+        var str = '';
+        for (var j = 0; j < keys.length; j++) {
+            str += JSON.stringify(keys[j]);
+            str += JSON.stringify(obj[i][keys[j]]);
+        }
+        if (!stringify.hasOwnProperty(str)) {
+            uniques.push(obj[i]);
+            stringify[str] = true;
+        }
+    }
+    return uniques;
+}
+
+// Will remove all falsy values: undefined, null, 0, false, NaN and "" (empty string)
+function cleanArray(actual) {
+  var newArray = new Array();
+  for (var i = 0; i < actual.length; i++) {
+    if (actual[i]) {
+    	// console.log(actual.time.sort(d3.ascending))
+      newArray.push(actual[i]);
+    }
+  }
+  return newArray;
+}
+
+var moveToFront = function() { 
+    this.parentNode.appendChild(this); 
 }
 function pelars_authenticate(){
 	var email = "d.paiva@ciid.dk";
