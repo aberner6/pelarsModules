@@ -1,3 +1,7 @@
+// $.ajaxSetup({
+// 	async: false
+// });
+
 var thisSession = 0;
 var token = 0;
 
@@ -324,8 +328,179 @@ function drawButton(button1, button2, img1, img2){
 		.attr("stroke","grey");
 }
 
+var autoImg = [];
+var imgData = [];
+var docuImg = [];
+var docuNote = [];
+var researcherCaptions = [];
+var studentCaptions = [];
+var researcherNote = [];
 function parsePhotos(multiData){
+	imgData = multiData;
+	var captionsText = [];
 	console.log(multiData.length+"multiData length - photos");
+		for(i=0; i<imgData[0].length; i++){
+			if(imgData[0][i].creator=="client" && imgData[0][i].type=="image" && imgData[0][i].view=="workspace"){
+				autoImg.push(imgData[0][i]);
+			}
+			if(imgData[0][i].creator=="observer" && imgData[0][i].type=="text"){
+				researcherNote.push(imgData[0][i]);
+			}
+			if(imgData[0][i].creator=="student" && imgData[0][i].type=="text"){
+				docuNote.push(imgData[0][i])
+			}
+			if(imgData[0][i].creator=="student" && imgData[0][i].type=="image"){
+				docuImg.push(imgData[0][i]);
+			}
+		}
+	function processURL(){
+		for(i=0; i<researcherNote.length; i++){
+			var url1 = researcherNote[i].data+"?token="+token;
+			$.get(url1, function(caption){
+				researcherCaptions.push(caption)
+			})
+		}
+		for(i=0; i<docuNote.length; i++){
+			var url1 = docuNote[i].data+"?token="+token;
+			$.get(url1, function(caption){
+				studentCaptions.push(caption)
+			})
+		}
+	}
+	var urlProcessing = setInterval(function(){  //returns the session		
+		if(autoImg.length>0 && researcherNote.length>0 && docuImg.length>0 && docuNote.length>0){
+			console.log(docuImg.length+"docuImg length")
+			processURL();
+			clearInterval(urlProcessing);	
+		}
+	}, 1000);
+	var imageProcessing = setInterval(function(){  //returns the session		
+		if(researcherCaptions.length>0 && studentCaptions.length>0){
+			console.log(researcherCaptions.length+"researcherCaptions length")
+			showPhotos();
+			clearInterval(imageProcessing);	
+		}
+	}, 3000);	
+}
+
+function showPhotos(){
+    var timelineImgWidth = 60; //(w/imgData[0].length)*6;
+    var timelineImgHeight = timelineImgWidth*1.3;
+    var timelineImgY = timeSVGH/2+iconW+25;
+	var timelineThunderY = timeSVGH/2+iconW/2+21;
+	var timelineBottomY = timeSVGH;
+	var bigImgWidth = 8*40; 
+	var bigImgHeight = 6*40; 
+	var caption;
+	var captionDoc;
+//autoImg = system images
+//researcherNote = just caption
+//docuImg = student taken documents = image + caption
+	var overview;
+	overview = timeSVG.selectAll(".clip-rect")
+	    .data(autoImg) 
+	    .attr("x", function(d, i) {
+			return timeX(d.time)+8;
+	    })
+	overview
+	    .enter()
+	    .append("image")
+	    .attr("class", "clip-rect")
+	    .attr("x", function(d, i) {
+			return timeX(d.time)+8;
+	    })
+		.attr("y", timelineBottomY) 
+		.attr("width", timelineImgWidth)
+		.attr("height", timelineImgHeight)
+	    .attr("xlink:href", function(d, i) {
+			return d.data;                    	                       		
+	    })
+	    .on("click", function(d,i){
+			d3.select(this).each(moveToFront);
+	    	d3.select(this)
+	    		.transition()
+	    		.duration(500)
+	    		.attr("width",bigImgWidth)
+	    		.attr("height",bigImgHeight)
+	    		.transition()
+	    		.delay(1000)
+	    		.attr("width", timelineImgWidth)
+	    		.attr("height", timelineImgHeight)   
+	    })    
+//mobile image data back up?
+
+	var resNote;
+	resNote = timeSVG.selectAll(".commentIcon")
+		.data(researcherNote) //when moused over this yields text
+	resNote.enter()
+		.append("image")
+		.attr("class","commentIcon")
+		.attr("xlink:href", "assets/pencil.png") //just checking now put back to thunder
+		.attr("x", function(d){
+			return timeX(d.time);
+		})
+		.attr("y", timelineBottomY)
+		.attr("width",iconW)
+		.attr("height",iconW);
+
+	var studDoc;
+	studDoc = timeSVG.selectAll(".camIcon")
+		.data(docuImg);
+	studDoc.enter()
+		.append("image")
+		.attr("class","camIcon")
+		.attr("xlink:href", "assets/camera.png") //just checking now put back to thunder
+		.attr("x", function(d){
+			return timeX(d.time);
+		})
+		.attr("y", timelineThunderY/4)
+		.attr("width",iconW)
+		.attr("height",iconW);	
+
+	$('.camIcon').tipsy({ 
+			gravity: 'nw', 
+			html: true, 
+			title: function() {
+				var dis = this.__data__;
+		  		var url1 = dis.data+"?token="+token;
+				console.log(dis);
+				var deferit = $.Deferred();
+				deferit
+				  .done(func1)
+				deferit.resolve();
+				function func1(){
+					$.get(url1, function(capt){
+						captionDoc = capt;
+					})
+				}
+					return captionDoc;
+			}
+	});
+
+
+	$('.commentIcon').tipsy({ 
+			gravity: 'nw', 
+			html: true, 
+			title: function() {
+				var dis = this.__data__;
+		  		var url1 = dis.data+"?token="+token;
+				console.log(dis);
+				var deferit = $.Deferred();
+				deferit
+				  .done(func1)
+				deferit.resolve();
+				function func1(){
+					$.get(url1, function(capt){
+						caption = capt;
+					})
+				}
+					return caption;
+				// return caption.responseText;
+			}
+	});
+//BUTTON PRESSES                      
+// console.log("d.properties"+d.properties)
+// updateHoverbox(d.properties, "path");
 }
 
 function showPhases(phasesJSON){
