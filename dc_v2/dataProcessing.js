@@ -827,12 +827,339 @@ function goHands(handData){
 
 }
 
-
+var yHPath, ySPath, minTotal, maxTotal, pathS, pathH, index, lineS, lineH, svgPath;
 function showIDE(){
 	yOther
-	    .rangePoints([topMarg, forceheight-topMarg/2-iconW/2]);
+	    .rangePoints([topMarg, forceheight]);
 
-	timeX2.domain([startTime, endTime]).range([forcewidth/4, forcewidth]);
+	// timeX2.domain([startTime, endTime]).range([forcewidth/4, forcewidth]);
+	timeX2.domain([startTime, endTime]).range([leftMargin, w-leftMargin]);
+
+	var ardRectSVG = svgMain.append("g")
+        .attr("id", "arduinoRect")
+        .attr("transform", "translate(" + (leftMargin) + ", " + (h/2) + ")");
+
+	var ardPathSVG = svgMain.append("g")
+        .attr("id", "arduinoPath")
+        .attr("transform", "translate(" + (leftMargin) + ", " + ((h/2)+forceheight) + ")");
+
+	var g = ardRectSVG.selectAll(".ide")
+		.data(ide_nest2)
+		.enter()
+	  	.append("g")
+	  	.attr("class","ide");
+		g.selectAll(".logs")
+		.data(function(d) {
+				return d.values;				
+		}) 
+		.enter()
+		.append("rect")
+		.attr("class",function(d){
+			if(d.name){
+				if(d.mod=="M"){
+			d.timeEdit = Math.round(d.time/100)*100;
+					hardwareOnly.push(d);
+					hardNames.push(d.name);
+				}
+				if(d.mod=="B"){
+			d.timeEdit = Math.round(d.time/100)*100;
+					softwareOnly.push(d);
+					softNames.push(d.name);
+				}
+				uniqueHards = unique(hardNames);
+				uniqueSofts = unique(softNames);
+				bothHS = uniqueHards.concat(uniqueSofts);
+				yOther.domain(bothHS);
+			}
+			return d.name;
+		})
+		.attr("x", function(d){
+			if(d.mod=="M" || d.mod=="B"){
+				return timeX2(d.time)
+			}
+		})
+        .attr("y", function(d, i) {
+			if(d.mod=="M" || d.mod=="B"){
+	            return yOther(d.name);
+    		}
+        })
+		.attr("width",function(d,i){
+			if(d.mod=="M" || d.mod=="B"){
+				if(d.oc==1){
+					if(d.end){
+						return timeX2(d.end)-timeX2(d.time);
+					}else{
+						return timeX2(endTime)-timeX2(d.time);				
+					}
+				} else{
+					return 0;
+				}
+			}
+		})
+		.attr("height", 5)
+		.attr("fill", function(d){
+			if(yOther(d.name)!=undefined){
+			if(d.mod=="M"){
+				return hardwareColor;
+			} if (d.mod=="B"){
+				return softwareColor;
+					// return colorScale(d.mod);
+				} else{
+					return "none";
+				}
+			} else{
+					return "none";
+				}
+		})
+		.attr("stroke", "none")
+		.attr("opacity",.4);
+
+    var iconsHS;
+    iconsHS = ardRectSVG.selectAll(".iconsHS")
+           .data(bothHS)
+	iconsHS.enter().append("image")
+           .attr("class", "iconsHS")
+           .attr("xlink:href", function(d, i) {
+               return "assets/icons/"+d.toLowerCase() + ".png";
+           })
+           .attr("y", function(d,i) {
+        		return yOther(d)-7;
+           })
+           .attr("width", iconW)
+           .attr("height", iconW)
+           .attr("x", 2)
+
+	ardRectSVG.selectAll(".timeText")
+		.data(bothHS)
+		.enter()
+		.append("text")
+		.attr("class","timeText")
+		.attr("x", iconLMarg)
+        .attr("y", function(d, i) {
+            return yOther(d)+5;
+        })
+		.attr("fill", "black")
+		.text(function(d){
+			return d;
+		})
+		.attr("font-size",8)
+		.attr("text-anchor","start")
+
+	if(endMin>startMin){
+		totalMin = (endMin-startMin);	
+	}else{
+		totalMin = (60-startMin)+endMin;	
+	}
+	console.log("startMin"+startMin+"endMin"+endMin+"totalTime"+totalTime)
+
+	hardwareOnly.sort(function(x, y){
+	   return d3.ascending(x.time, y.time);
+	})
+	console.log(hardwareOnly.length)
+	uniqueHWOnly = 
+	_.uniq(hardwareOnly, function(hware) { return hware.timeEdit; })
+	console.log(hardwareOnly.length+"done")
+
+	softwareOnly.sort(function(x, y){
+	   return d3.ascending(x.time, y.time);
+	})
+	uniqueSWOnly = 
+	_.uniq(softwareOnly, function(sware) { return sware.timeEdit; })
+	console.log(uniqueSWOnly.length+"in sw unique")
+	console.log(uniqueHWOnly.length+"in hw unique")
+
+	for(j=startTime; j<endTime; j++){
+		var thisDate = new Date(j).getMinutes();
+
+		var thisHour = new Date(j).getHours();
+		
+		var thisD = thisHour+thisDate;
+		
+			hardUseComp[thisD] = ({ 
+				"total":hardUseTotals(thisDate), 
+				"time": j,
+				"min":thisDate,
+				"hour":thisHour
+			});
+
+			softUseComp[thisD] = ({ 
+				"total":softUseTotals(thisDate), 
+				"time": j,
+				"min":thisDate,
+				"hour":thisHour
+			});
+	}
+    console.log("hardware in use"+uniqueHards);
+    console.log("software in use"+uniqueSofts);
+	diffSoftHard = _.difference(uniqueSofts, uniqueHards);
+	console.log("this is the difference between hard and soft"+diffSoftHard)
+	var both = uniqueHards.concat(diffSoftHard);
+	var both2 = diffSoftHard.concat(uniqueHards);
+	var bothLength;
+	if(uniqueHards.length>=diffSoftHard.length){
+		bothLength = uniqueHards.length;
+	} else{
+		bothLength = diffSoftHard.length;
+	}
+
+
+	//arrays are dirty with undefined values
+	hardUseComp = cleanArray(hardUseComp)
+
+	softUseComp = cleanArray(softUseComp)
+
+	var howManyHard = [];
+	var howManySoft = [];
+	for (i=0; i<hardUseComp.length; i++){
+		howManyHard.push(hardUseComp[i].total);
+	}
+	for (i=0; i<softUseComp.length; i++){
+		howManySoft.push(softUseComp[i].total);
+	}
+	var maxHeightH = d3.max(howManyHard);
+	var maxHeightS = d3.max(howManySoft);
+	if(maxHeightH>maxHeightS){
+		maxHeight = maxHeightH;
+	} else{
+		maxHeight = maxHeightS;
+	}
+	console.log(bothLength+"bothlength");
+	console.log(maxHeight+"real max height")
+	xPath = d3.scale.linear()
+	      .domain([startTime,endTime]).range([10, w-40]);
+	// var xPath0 = d3.scale.linear()
+	//       .domain([startTime,endTime]).range([0, 0]);
+
+//PATHS
+	yHPath = d3.scale.linear()
+	      .domain([0,maxHeight+1]) //max hardware components
+	      .range([timeSVGH/2-(maxFaces*faceRadius), 0]);
+	ySPath = d3.scale.linear()
+	      .domain([0,maxHeight+1]) //max software components
+	      .range([timeSVGH/2-(maxFaces*faceRadius), 0]);
+
+	lineH = d3.svg.area()
+		.x(function(d, i) { 
+			if(d==undefined){ return 0; }
+				else{
+		       	return xPath(d.time);      			
+				}
+		})
+		.y0(timeSVGH/2-(maxFaces*faceRadius))
+		.y1(function(d, i) { 
+			if(d==undefined){return 0;}
+			if(d.total<0){ return 0}
+				else{
+					return yHPath(d.total);  //actually totals now
+				}
+		})
+		.interpolate("linear");
+
+	lineS = d3.svg.area()
+		.x(function(d, i) { 
+			if(d==undefined){ return 0; }
+				else{
+		       	return xPath(d.time);      			
+				}
+		})
+		.y0(timeSVGH/2-(maxFaces*faceRadius))
+		.y1(function(d, i) { 
+			if(d==undefined){return 0;}
+			if(d.total<0){ return 0}
+				else{
+					return ySPath(d.total); 
+				}
+		})
+		.interpolate("linear");
+
+	var opacityPath = .5;
+	pathH = ardPathSVG.append("g")
+		.append("path")
+		.attr("class","timepathH")
+		.attr("fill",hardwareColor)
+		.attr("opacity",opacityPath)
+		.attr("stroke",hardwareColor);
+	pathH
+		.datum(hardUseComp)
+    	.attr("class","timepathH")
+		.attr("d", lineH);
+
+	pathS = ardPathSVG.append("g")
+		.append("path")
+		.attr("class","timepathS")
+		.attr("fill",softwareColor)
+		.attr("opacity",opacityPath)
+		.attr("stroke",softwareColor);
+	//can go from lineS1 which would be 0 for x to lineS which populates with data like this:
+	// pathS
+	// 	.datum(softUseComp).transition()
+	// 	.attr("d", lineS);
+	pathS
+		.datum(softUseComp)
+		.attr("d", lineS);
+
+    function ardUseTotals(index) {
+        var total = 0;
+        for (i = 0; i < ideData.length; i++) {
+            if (ideData[i].minute == index) {
+                total++;
+            } else {}
+        }
+        return total;
+    }
+    function hardUseTotals(index) {
+        var total = 0;
+        for (i = 0; i < uniqueHWOnly.length; i++) {
+            if (uniqueHWOnly[i].minute == index){ 
+                total++;
+            } 
+        }
+        return total;
+    }
+    function softUseTotals(index) {
+        var total = 0;
+        for (i = 0; i < uniqueSWOnly.length; i++) {
+            if (uniqueSWOnly[i].minute == index) {
+                total++;
+            }  
+        }
+        return total;
+    }
+	var yUniqueH = d3.scale.linear()
+		.domain([0,bothLength])
+	    .range([topMarg, forceheight-topMarg/2]);
+	var yUniqueS = d3.scale.linear()
+		.domain([0,bothLength])
+	    .range([topMarg, forceheight-topMarg/2]);
+
+	// linksNames = Object.keys(nodes);
+	// for (j = 0; j < linksNames.length; j++) {
+	//     totalLinks[j] = ({
+	//     		"totalFrom": linkTotalFrom(linksNames[j]),
+	//     		"totalTo": linkTotalTo(linksNames[j]),
+	//     		"linkName": linksNames[j]
+	//     	})
+	// }
+	// function linkTotalFrom(name) {
+	//     var total = 0;
+	//     for (i = 0; i < links.length; i++) {
+	//         if (links[i].source.name == name) {
+	//             total++;
+	//         } else {}
+	//     }
+	//     return total;
+	// }
+	// function linkTotalTo(name) {
+	//     var total = 0;
+	//     for (i = 0; i < links.length; i++) {
+	//         if (links[i].target.name == name) {
+	//             total++;
+	//         } else {}
+	//     }
+	//     return total;
+	// }
+ //        console.log("total links made to and from")
+ //        console.log(totalLinks)
 }
 
 function makeEdge(linkData, linkNodes, linkLinks){
@@ -840,7 +1167,6 @@ function makeEdge(linkData, linkNodes, linkLinks){
 	var linkNodes = linkNodes;
 	var linkLinks = linkLinks;
 
-	// console.log(linkNodes);
 	for(i=0; i<linkData.length; i++){
 		linkData[i].parent = linkData[i].mod;
 	}	
@@ -848,57 +1174,54 @@ function makeEdge(linkData, linkNodes, linkLinks){
 	var diameter = forcewidth;
 	var radius = diameter / 2;
 	var margin = 60;
-// }
 
   // create plot area within svg image
     var plot = svgMain.append("g")
         .attr("id", "plot")
-        .attr("transform", "translate(" + radius + ", " + (radius-59) + ")");
+        .attr("transform", "translate(" + (w/2+(radius)) + ", " + ((h/2)+(radius-59)) + ")");
+    function drawKey(){
+		var kitColor3 = plot.append("g").attr("class","backlabels")
+				.append("circle")
+			    .attr("cx", forcewidth/3.5-6)
+			    .attr("cy", forceheight-5)
+			    .attr("r", 4)
+			    .attr("fill","lightpink")
+			    .attr("stroke","lightpink")
+		var	kitNameColor3 = plot.append("g").attr("class","backlabels")
+				.append("text")
+			    .attr("x", forcewidth/3.5)
+			    .attr("y", forceheight-3)
+			    .text("Inputs")
+			    .attr("font-size",8)
 
+		var kitColor4 = plot.append("g").attr("class","backlabels")
+				.append("circle")
+			    .attr("cx", forcewidth/2-12)
+			    .attr("cy", forceheight-5)
+			    .attr("r", 4)
+			    .attr("fill","#FF9800")
+			    .attr("stroke","#FF9800")
+		var	kitNameColor4 = plot.append("g").attr("class","backlabels")
+				.append("text")
+			    .attr("x", forcewidth/2-6)
+			    .attr("y", forceheight-3)
+			    .text("Outputs")
+			    .attr("font-size",8)
 
-	var kitColor3 = svgMain.append("g").attr("class","backlabels")
-			.append("circle")
-		    .attr("cx", forcewidth/3.5-6)
-		    .attr("cy", forceheight-5)
-		    .attr("r", 4)
-		    .attr("fill","lightpink")
-		    .attr("stroke","lightpink")
-	var	kitNameColor3 = svgMain.append("g").attr("class","backlabels")
-			.append("text")
-		    .attr("x", forcewidth/3.5)
-		    .attr("y", forceheight-3)
-		    .text("Inputs")
-		    .attr("font-size",8)
-
-	var kitColor4 = svgMain.append("g").attr("class","backlabels")
-			.append("circle")
-		    .attr("cx", forcewidth/2-12)
-		    .attr("cy", forceheight-5)
-		    .attr("r", 4)
-		    .attr("fill","#FF9800")
-		    .attr("stroke","#FF9800")
-	var	kitNameColor4 = svgMain.append("g").attr("class","backlabels")
-			.append("text")
-		    .attr("x", forcewidth/2-6)
-		    .attr("y", forceheight-3)
-		    .text("Outputs")
-		    .attr("font-size",8)
-
-	var kitColor5 = svgMain.append("g").attr("class","backlabels")
-			.append("circle")
-		    .attr("cx", forcewidth/1.5-6)
-		    .attr("cy", forceheight-5)
-		    .attr("r", 4)
-		    .attr("fill","#C71549")
-		    .attr("stroke","#C71549")
-	var	kitNameColor5 = svgMain.append("g").attr("class","backlabels")
-			.append("text")
-		    .attr("x", forcewidth/1.5)
-		    .attr("y", forceheight-3)
-		    .text("Functions")
-		    .attr("font-size",8)
-
-
+		var kitColor5 = plot.append("g").attr("class","backlabels")
+				.append("circle")
+			    .attr("cx", forcewidth/1.5-6)
+			    .attr("cy", forceheight-5)
+			    .attr("r", 4)
+			    .attr("fill","#C71549")
+			    .attr("stroke","#C71549")
+		var	kitNameColor5 = plot.append("g").attr("class","backlabels")
+				.append("text")
+			    .attr("x", forcewidth/1.5)
+			    .attr("y", forceheight-3)
+			    .text("Functions")
+			    .attr("font-size",8)
+	}
 
     // draw border around plot area
     plot.append("circle")
@@ -909,7 +1232,6 @@ function makeEdge(linkData, linkNodes, linkLinks){
         .attr("r", radius - margin+2);
 
     // // calculate node positions
-    // circleLayout(graph.nodes);
     circleLayout(linkNodes);
     console.log("linkNodes")
 	console.log(linkNodes);
@@ -921,12 +1243,10 @@ function makeEdge(linkData, linkNodes, linkLinks){
 
     // draw nodes last
     drawNodes(linkNodes);
-// }
+
 	function circleLayout(nodes) {
 	    // sort nodes by group
 	    nodes.sort(function(a, b) {
-	    	// console.log(a.group);
-	    	// console.log(b.group);
 	        return a.group - b.group;
 	    });
 
@@ -946,38 +1266,6 @@ function makeEdge(linkData, linkNodes, linkLinks){
 	        d.y = radial * Math.cos(theta);
 	    });
 	}
-
-
-	// Generates a tooltip for a SVG circle element based on its ID
-	function addTooltip(circle) {
-	    var x = parseFloat(circle.attr("cx"));
-	    var y = parseFloat(circle.attr("cy"));
-	    var r = parseFloat(circle.attr("r"));
-	    var text = circle.attr("id");
-
-	    var tooltip = d3.select("#plot")
-	        .append("text")
-	        .text(text)
-	        .attr("x", x)
-	        .attr("y", y)
-	        .attr("dy", -r * 2)
-	        .attr("id", "tooltip");
-
-	    var offset = tooltip.node().getBBox().width / 2;
-
-	    if ((x - offset) < -radius) {
-	        tooltip.attr("text-anchor", "start");
-	        tooltip.attr("dx", -r);
-	    }
-	    else if ((x + offset) > (radius)) {
-	        tooltip.attr("text-anchor", "end");
-	        tooltip.attr("dx", r);
-	    }
-	    else {
-	        tooltip.attr("text-anchor", "middle");
-	        tooltip.attr("dx", 0);
-	    }
-	}
 	function drawNodes(nodes) {
 	    // used to assign nodes color by group
 	    var color = d3.scale.category20();
@@ -992,7 +1280,6 @@ function makeEdge(linkData, linkNodes, linkLinks){
 	        .attr("cy", function(d, i) { return d.y; })
 	        .attr("r", radius)
 	        .style("fill",  function(d, i) { 
-	        	addTooltip(d3.select(this))
 	        	for(j=0; j<inputs.length; j++){
 	        		if(d.name.toLowerCase().indexOf(inputs[j].toLowerCase())>-1){
 		        		return "lightpink";
@@ -1054,11 +1341,9 @@ function makeEdge(linkData, linkNodes, linkLinks){
 	    	}
 	    })
 	        .attr("fill","none")
-	        .attr("stroke-dasharray", function(d,i){
-	        	// if(d.)
-	        })
 	        .attr("d", curve);
 	}
+    drawKey(); //should be in the right position
 }
 
 function showPhases(phasesJSON){
