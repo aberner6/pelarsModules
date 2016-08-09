@@ -737,7 +737,91 @@ function goFace(faceData){
 		.attr("stroke-dasharray",1)
 }
 function goIDE(ideData){
+	ideData = ideData[0].values;
+	console.log("in IDE");
+    var patt1 = /[A-Z]/gi; 
+	// console.log(ideData);
+	for(i=0; i<ideData.length; i++){
+		if(ideData[i].opt.match(patt1)!=null) {
+		// if((ideData[i].opt.match(patt1).join().replace(/,/g, '')).toUpperCase()!=null) {
+			ideData[i].name= (ideData[i].opt.match(patt1).join().replace(/,/g, '')).toUpperCase();	
+		}
+		if(ideData[i].action_id.length>2){
+			ideData[i].mod = ideData[i].action_id.substr(0, 2);
+			ideData[i].oc = parseInt(ideData[i].action_id.substr(2, 2));
+		}else{ //doesn't matter about the CC without open close
+			ideData[i].mod = ideData[i].action_id.substr(0, 1);
+			ideData[i].oc = parseInt(ideData[i].action_id.substr(1, 1));
+		}
 
+		if(ideData[i].oc==2){ ideData[i].oc=-1 }
+
+		ideData[i].special_id = ideData[i].mod+ideData[i].opt;
+		ideData[i].hour = (new Date(ideData[i].time)).getHours();
+		ideData[i].minute = (new Date(ideData[i].time)).getMinutes();
+	}
+	ide_nest = d3.nest()
+		.key(function(d) { 
+			return d.time; 
+		})
+		.sortKeys(d3.ascending)
+		.entries(ideData);
+
+	ide_nest2 = d3.nest()
+		.key(function(d) { 
+			return d.special_id; 
+		})		
+		.entries(ideData);
+	for(i=0; i<ide_nest2.length; i++){
+		for(j=0; j<ide_nest2[i].values.length-1; j++){
+			if(ide_nest2[i].values[j].oc==1 && ide_nest2[i].values[j+1].oc==-1){
+				var secondguy = ide_nest2[i].values[j+1].time;
+				ide_nest2[i].values[j].end = secondguy;
+			} else{ 
+				// idenest2[i].values[j].end = +Date.now(); 
+			}
+		}
+	}
+	showIDE();
+	//trying to figure out links here
+    links = ideData.filter(function(d) {
+        return d.mod == "L";
+    });
+	for(i=0; i<links.length; i++){
+		newguy.push(links[i].opt.split(" "));
+		links[i].source = newguy[i][1];
+		links[i].target = newguy[i][3];
+	}
+		for(i=0; i<links.length; i++){
+			for(j=0; j<listComponents.length; j++){
+			    if (links[i].source.indexOf(listComponents[j]) > -1) {
+					links[i].source = listComponents[j];
+				}
+			    if (links[i].target.indexOf(listComponents[j]) > -1) {
+					links[i].target = listComponents[j];
+				}
+			}
+		}
+	console.log(links)
+
+	var circle, path, text;
+	var force;
+
+	// Compute the distinct nodes from the links.
+	links.forEach(function(link) {
+	  link.source = nodes[link.source] || (nodes[link.source] = {name: link.source, mod:link.mod});
+	  link.target = nodes[link.target] || (nodes[link.target] = {name: link.target, mod:link.mod});
+	});
+
+	var linkdist = w/10;
+	force = d3.layout.force()
+	    .nodes(d3.values(nodes))
+	    .links(links)
+	    .size([forcewidth, forceheight-20])
+	    .linkDistance(linkdist)
+	    .charge(-100)
+
+	makeEdge(links,force.nodes(), force.links());
 }
 function goHands(handData){
 
@@ -751,6 +835,231 @@ function showIDE(){
 	timeX2.domain([startTime, endTime]).range([forcewidth/4, forcewidth]);
 }
 
+function makeEdge(linkData, linkNodes, linkLinks){
+	linkData = linkData;
+	var linkNodes = linkNodes;
+	var linkLinks = linkLinks;
+
+	// console.log(linkNodes);
+	for(i=0; i<linkData.length; i++){
+		linkData[i].parent = linkData[i].mod;
+	}	
+
+	var diameter = forcewidth;
+	var radius = diameter / 2;
+	var margin = 60;
+// }
+
+  // create plot area within svg image
+    var plot = svgMain.append("g")
+        .attr("id", "plot")
+        .attr("transform", "translate(" + radius + ", " + (radius-59) + ")");
+
+
+	var kitColor3 = svgMain.append("g").attr("class","backlabels")
+			.append("circle")
+		    .attr("cx", forcewidth/3.5-6)
+		    .attr("cy", forceheight-5)
+		    .attr("r", 4)
+		    .attr("fill","lightpink")
+		    .attr("stroke","lightpink")
+	var	kitNameColor3 = svgMain.append("g").attr("class","backlabels")
+			.append("text")
+		    .attr("x", forcewidth/3.5)
+		    .attr("y", forceheight-3)
+		    .text("Inputs")
+		    .attr("font-size",8)
+
+	var kitColor4 = svgMain.append("g").attr("class","backlabels")
+			.append("circle")
+		    .attr("cx", forcewidth/2-12)
+		    .attr("cy", forceheight-5)
+		    .attr("r", 4)
+		    .attr("fill","#FF9800")
+		    .attr("stroke","#FF9800")
+	var	kitNameColor4 = svgMain.append("g").attr("class","backlabels")
+			.append("text")
+		    .attr("x", forcewidth/2-6)
+		    .attr("y", forceheight-3)
+		    .text("Outputs")
+		    .attr("font-size",8)
+
+	var kitColor5 = svgMain.append("g").attr("class","backlabels")
+			.append("circle")
+		    .attr("cx", forcewidth/1.5-6)
+		    .attr("cy", forceheight-5)
+		    .attr("r", 4)
+		    .attr("fill","#C71549")
+		    .attr("stroke","#C71549")
+	var	kitNameColor5 = svgMain.append("g").attr("class","backlabels")
+			.append("text")
+		    .attr("x", forcewidth/1.5)
+		    .attr("y", forceheight-3)
+		    .text("Functions")
+		    .attr("font-size",8)
+
+
+
+    // draw border around plot area
+    plot.append("circle")
+        .attr("class", "outline")
+        .attr("fill","none")
+        .attr("stroke","black")
+        .attr("stroke-width",.5)
+        .attr("r", radius - margin+2);
+
+    // // calculate node positions
+    // circleLayout(graph.nodes);
+    circleLayout(linkNodes);
+    console.log("linkNodes")
+	console.log(linkNodes);
+    // // draw edges first
+    // drawLinks(graph.links);
+    drawCurves(linkLinks);
+    console.log("linkLinks")
+    console.log(linkLinks)
+
+    // draw nodes last
+    drawNodes(linkNodes);
+// }
+	function circleLayout(nodes) {
+	    // sort nodes by group
+	    nodes.sort(function(a, b) {
+	    	// console.log(a.group);
+	    	// console.log(b.group);
+	        return a.group - b.group;
+	    });
+
+	    // use to scale node index to theta value
+	    var scale = d3.scale.linear()
+	        .domain([0, nodes.length])
+	        .range([0, 2 * Math.PI]);
+
+	    // calculate theta for each node
+	    nodes.forEach(function(d, i) {
+	        // calculate polar coordinates
+	        var theta  = scale(i);
+	        var radial = radius - margin;
+
+	        // convert to cartesian coordinates
+	        d.x = radial * Math.sin(theta);
+	        d.y = radial * Math.cos(theta);
+	    });
+	}
+
+
+	// Generates a tooltip for a SVG circle element based on its ID
+	function addTooltip(circle) {
+	    var x = parseFloat(circle.attr("cx"));
+	    var y = parseFloat(circle.attr("cy"));
+	    var r = parseFloat(circle.attr("r"));
+	    var text = circle.attr("id");
+
+	    var tooltip = d3.select("#plot")
+	        .append("text")
+	        .text(text)
+	        .attr("x", x)
+	        .attr("y", y)
+	        .attr("dy", -r * 2)
+	        .attr("id", "tooltip");
+
+	    var offset = tooltip.node().getBBox().width / 2;
+
+	    if ((x - offset) < -radius) {
+	        tooltip.attr("text-anchor", "start");
+	        tooltip.attr("dx", -r);
+	    }
+	    else if ((x + offset) > (radius)) {
+	        tooltip.attr("text-anchor", "end");
+	        tooltip.attr("dx", r);
+	    }
+	    else {
+	        tooltip.attr("text-anchor", "middle");
+	        tooltip.attr("dx", 0);
+	    }
+	}
+	function drawNodes(nodes) {
+	    // used to assign nodes color by group
+	    var color = d3.scale.category20();
+		var radius = 5;
+	    d3.select("#plot").selectAll(".node")
+	        .data(nodes)
+	        .enter()
+	        .append("circle")
+	        .attr("class", "node")
+	        .attr("id", function(d, i) { return d.name; })
+	        .attr("cx", function(d, i) { return d.x; })
+	        .attr("cy", function(d, i) { return d.y; })
+	        .attr("r", radius)
+	        .style("fill",  function(d, i) { 
+	        	addTooltip(d3.select(this))
+	        	for(j=0; j<inputs.length; j++){
+	        		if(d.name.toLowerCase().indexOf(inputs[j].toLowerCase())>-1){
+		        		return "lightpink";
+	        		}
+	        	}
+	        	for(k=0; k<outputs.length; k++){
+	        		if(d.name.toLowerCase().indexOf(outputs[k].toLowerCase())>-1){
+		        		return "#FF9800";
+	        		}
+	        	}
+	        	for(l=0; l<programming.length; l++){
+	        		if(d.name.toLowerCase().indexOf(programming[l].toLowerCase())>-1){
+		        		return "#C71549";
+	        		}
+	        	}
+	        })
+	}
+	// Draws straight edges between nodes
+	function drawLinks(links) {
+	    d3.select("#plot").selectAll(".link")
+	        .data(links)
+	        .enter()
+	        .append("line")
+	        .attr("class", "link")
+	        .attr("x1", function(d) { return d.source.x; })
+	        .attr("y1", function(d) { return d.source.y; })
+	        .attr("x2", function(d) { return d.target.x; })
+	        .attr("y2", function(d) { return d.target.y; })
+	        .attr("fill","none")
+		    .attr("marker-end", "url(#end)");
+	}
+
+	// Draws curved edges between nodes
+	function drawCurves(links) {
+	    // remember this from tree example?
+	    var curve = d3.svg.diagonal()
+	        .projection(function(d) { return [d.x, d.y]; });
+
+	    d3.select("#plot").selectAll(".link")
+	        .data(links)
+	        .enter()
+	        .append("path")
+	        .attr("class", "link")
+	        .attr("stroke",function(d, i) { 
+	    	for(j=0; j<inputs.length; j++){
+	    		if(d.name.toLowerCase().indexOf(inputs[j].toLowerCase())>-1){
+	        		return "lightpink";
+	    		}
+	    	}
+	    	for(k=0; k<outputs.length; k++){
+	    		if(d.name.toLowerCase().indexOf(outputs[k].toLowerCase())>-1){
+	        		return "#FF9800";
+	    		}
+	    	}
+	    	for(l=0; l<programming.length; l++){
+	    		if(d.name.toLowerCase().indexOf(programming[l].toLowerCase())>-1){
+	        		return "#C71549";
+	    		}
+	    	}
+	    })
+	        .attr("fill","none")
+	        .attr("stroke-dasharray", function(d,i){
+	        	// if(d.)
+	        })
+	        .attr("d", curve);
+	}
+}
 
 function showPhases(phasesJSON){
 	parseButton(firstData);
