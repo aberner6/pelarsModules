@@ -193,14 +193,14 @@ $(document).ready(function() {
 			clearInterval(getNext);
 			//   .done(mobileImages(thisSession, token))
 		}
-	},6000); //500
+	},8000); //500
 	var processNest = setInterval(function(){
 		console.log("two")
 		if(startTime>0 && endTime>startTime && nested_data.length>0){
 			sendNestedData(nested_data);
 			clearInterval(processNest);
 		}
-	},8000); //600
+	},12000); //600
 })
 //in UI
 setSVG();
