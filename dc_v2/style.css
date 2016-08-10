@@ -91,7 +91,7 @@ text.button2 {
     font-size: 8px;
 }
 image.clip-rect {
-    display:none;
+    /*display:none;*/
     -webkit-clip-path:inset(50% 40% 30% 40%);
 }
 
@@ -99,14 +99,17 @@ image.clip-rect:hover{
     -webkit-clip-path: inset(0% 0% 0% 0%);
 }
 image#clip-circ {    
-    display:none;
-    -webkit-clip-path: circle(20% at 50% 50%);
+/*    display:none;
+*/    -webkit-clip-path: circle(20% at 50% 50%);
 }
 
 image#clip-circ:hover{
     -webkit-clip-path: circle(0% at 0% 0%);
 }
-image.commentIcon{
+image{
+    display:none;
+}
+/*image.commentIcon{
     display:none;
 }
 image.button1{
@@ -117,7 +120,7 @@ image.button2{
 }
 image.camIcon{
     display:none;
-}
+}*/
 .kitlabels{
     display:none;
     font-size:8;    
