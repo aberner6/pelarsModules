@@ -1,0 +1,37 @@
+[
+    {
+        "data_id": 1374,
+        "end": 1464081141227,
+        "phase": "setup",
+        "session": 1371,
+        "start": 1464080351879
+    },
+    {
+        "data_id": 1375,
+        "end": 1464081160180,
+        "phase": "obs_plan",
+        "session": 1371,
+        "start": 1464081141227
+    },
+    {
+        "data_id": 1376,
+        "end": 1464083303591,
+        "phase": "obs_document",
+        "session": 1371,
+        "start": 1464081160180
+    },
+    {
+        "data_id": 1377,
+        "end": 1464084064871,
+        "phase": "obs_reflect",
+        "session": 1371,
+        "start": 1464083303591
+    },
+    {
+        "data_id": 1378,
+        "end": 1464084101441,
+        "phase": "obs_rate",
+        "session": 1371,
+        "start": 1464084064871
+    }
+]

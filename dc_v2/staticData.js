@@ -175,32 +175,23 @@ var activeThree = [];
 
 $(document).ready(function() {
 	getToken(); //returns the token
-	getSession(token);
-	var getSesh = setInterval(function(){  //returns the session
-		if(thisSession>0){
-			console.log(thisSession);
-			getData(thisSession, token);
-			clearInterval(getSesh);	
-		} else{
-			getSession(token);
-		}
-	}, 4000);
+	getData(thisSession, token);
+
 	var getNext = setInterval(function(){
 		console.log("one")
 		if(startFirst>0 && endFirst>startFirst){
 			getMulti(thisSession, token);
 			getPhases(thisSession, token);
 			clearInterval(getNext);
-			//   .done(mobileImages(thisSession, token))
 		}
-	},8000); //500
+	},100); 
 	var processNest = setInterval(function(){
 		console.log("two")
 		if(startTime>0 && endTime>startTime && nested_data.length>0){
 			sendNestedData(nested_data);
 			clearInterval(processNest);
 		}
-	},12000); //600
+	},200); 
 })
 //in UI
 setSVG();
@@ -220,25 +211,25 @@ function setSVG(){
 function getToken(){
 	token = pelars_authenticate();
 }
-function getSession(token){
-	console.log(token+"token");
-	$.getJSON("http://pelars.sssup.it:8080/pelars/session?token="+token,function(json1){
-		thisSession = parseInt(1371);//parseInt(json1[json1.length-1].session);
-		//1320
-	})
-}
+thisSession = parseInt(1371);//parseInt(json1[json1.length-1].session);
+// function getSession(token){
+// 	console.log(token+"token");
+// 	$.getJSON("http://pelars.sssup.it:8080/pelars/session?token="+token,function(json1){
+// 		thisSession = parseInt(1371);//parseInt(json1[json1.length-1].session);
+// 		//1320
+// 	})
+// }
 
 // IF START TIME OF overall session IS DIFFERENT THAN START TIME OF phase data...
 function getData(thisSession, token){
-	$.getJSON("http://pelars.sssup.it:8080/pelars/data/"+thisSession+"?token="+token,function(json){
+	d3.json("data/data1.json", function(json){
 		startFirst = json[0].time; //for all of the data, this is the supposed start
 		endFirst = json[json.length-1].time; //for all of the data, this is the supposed end
 		firstData = json; //this is the overall set of data
 		data = json;
 		//first we have to check start and end times with the phases
 		console.log(new Date(startFirst)+"startFirst");
-	// })
-//NEXT STEPS
+
 	nested_data = d3.nest()
 	.key(function(d) { return d.type; })
 	.key(function(d){ return d.num; })
@@ -247,12 +238,12 @@ function getData(thisSession, token){
 	nested_face = d3.nest()
 		.key(function(d) { return d.type; })
 		.entries(data);
-})
+	})
 }
 var tempData = [];
 var multiData = [];
 function getMulti(thisSession,token){
-	$.getJSON("http://pelars.sssup.it:8080/pelars/multimedia/"+thisSession+"?token="+token,function(multiJSON){
+	d3.json("data/multimedia.json", function(multiJSON){
 		tempData.push(multiJSON); 
 		multiData.push(tempData[0]);
 		parsePhotos(multiData);
@@ -268,7 +259,7 @@ function getMulti(thisSession,token){
 // }
 var phaseData;
 function getPhases(thisSession,token){
-	$.getJSON("http://pelars.sssup.it:8080/pelars/phase/"+thisSession+"?token="+token,function(phasesJSON){
+	d3.json("data/phaseData.json", function(phasesJSON){
 		phaseData = phasesJSON;
 		if(phasesJSON[0].phase=="setup"&&phasesJSON.length==1){
 			startTime = startFirst;
