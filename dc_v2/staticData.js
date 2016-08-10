@@ -174,7 +174,7 @@ var activeThree = [];
 
 
 $(document).ready(function() {
-	getToken(); //returns the token
+	// getToken(); //returns the token
 	getData(thisSession, token);
 
 	var getNext = setInterval(function(){
@@ -811,9 +811,273 @@ function goIDE(ideData){
 	    .size([forcewidth, forceheight-20])
 	    .linkDistance(linkdist)
 	    .charge(-100)
+	callOther(nodes, links)
 
 	makeEdge(links,force.nodes(), force.links());
 }
+
+var circNode;
+var drag;
+var force2;
+function callOther(nodes, links){
+	var linkdist = w/10;
+	// var force2 = d3.layout.force()
+	//     .nodes(d3.values(nodes))
+	//     .links(links)
+	//     .size([forcewidth, forceheight-20])
+	//     .linkDistance(linkdist)
+	//     .charge(-100)
+
+var force2 = d3.layout.force()
+    .nodes(d3.values(nodes))
+    .links(links)
+	    .size([forcewidth, forceheight-20])
+    .linkDistance(linkdist)
+	    .charge(-100)
+    .on("tick", tick)
+    .start();
+
+ var vis = svgMain //for the visualization
+    .append('svg:g')
+    .attr("transform",
+      "translate("+ 0 + "," + 0 + ")");  
+
+drag = force2.drag() 
+    .on("dragstart", dragstart);   
+
+
+
+path2 = vis.selectAll("path2")
+    .data(force2.links())
+    .enter().append("path")
+    .attr("class","link2") 
+    .attr("stroke", "pink")
+    .attr("fill","none")
+
+circNode = vis.selectAll("nodez")
+    .data(force2.nodes())
+    .enter().append("circle")
+    .attr("class",function(d){
+        return "nodez";
+    })  
+    circNode
+    .attr("r", 5)
+    .attr("fill", "lightgrey")
+    .on("dblclick", dblclick)
+    .call(drag);
+    function dblclick(d) {
+        d3.select(this).classed("fixed", d.fixed = false);
+    }
+    function dragstart(d) {
+        d3.select(this).classed("fixed", d.fixed = true);
+    }
+}
+function tick() {
+  path2.attr("d", linkArc);
+
+  circNode
+  .attr("transform", transform);
+}
+function transform(d) {
+var radius = 5;
+  d.x = Math.max(radius, Math.min(w - radius, d.x));
+  d.y = Math.max(radius, Math.min(h - radius, d.y));  
+  return "translate(" + d.x+ "," + d.y + ")";
+}
+function linkArc(d) {
+  var dx = d.target.x - d.source.x,
+      dy = d.target.y - d.source.y,
+      dr = Math.sqrt(dx * dx + dy * dy);
+  return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+}
+
+
+
+function makeEdge(linkData, linkNodes, linkLinks){
+	linkData = linkData;
+	var linkNodes = linkNodes;
+	var linkLinks = linkLinks;
+
+	for(i=0; i<linkData.length; i++){
+		linkData[i].parent = linkData[i].mod;
+	}	
+
+	var diameter = forcewidth;
+	var radius = diameter / 2;
+	var margin = 60;
+
+  // create plot area within svg image
+    var plot = svgMain.append("g")
+        .attr("id", "plot")
+        .attr("transform", "translate(" + (w/2+(radius)) + ", " + ((h/2)+(radius-59)) + ")");
+    function drawKey(){
+		var kitColor3 = plot.append("g").attr("class","backlabels")
+				.append("circle")
+			    .attr("cx", forcewidth/3.5-6)
+			    .attr("cy", forceheight-5)
+			    .attr("r", 4)
+			    .attr("fill","lightpink")
+			    .attr("stroke","lightpink")
+		var	kitNameColor3 = plot.append("g").attr("class","backlabels")
+				.append("text")
+			    .attr("x", forcewidth/3.5)
+			    .attr("y", forceheight-3)
+			    .text("Inputs")
+			    .attr("font-size",8)
+
+		var kitColor4 = plot.append("g").attr("class","backlabels")
+				.append("circle")
+			    .attr("cx", forcewidth/2-12)
+			    .attr("cy", forceheight-5)
+			    .attr("r", 4)
+			    .attr("fill","#FF9800")
+			    .attr("stroke","#FF9800")
+		var	kitNameColor4 = plot.append("g").attr("class","backlabels")
+				.append("text")
+			    .attr("x", forcewidth/2-6)
+			    .attr("y", forceheight-3)
+			    .text("Outputs")
+			    .attr("font-size",8)
+
+		var kitColor5 = plot.append("g").attr("class","backlabels")
+				.append("circle")
+			    .attr("cx", forcewidth/1.5-6)
+			    .attr("cy", forceheight-5)
+			    .attr("r", 4)
+			    .attr("fill","#C71549")
+			    .attr("stroke","#C71549")
+		var	kitNameColor5 = plot.append("g").attr("class","backlabels")
+				.append("text")
+			    .attr("x", forcewidth/1.5)
+			    .attr("y", forceheight-3)
+			    .text("Functions")
+			    .attr("font-size",8)
+	}
+
+    // draw border around plot area
+    plot.append("circle")
+        .attr("class", "outline")
+        .attr("fill","none")
+        .attr("stroke","black")
+        .attr("stroke-width",.5)
+        .attr("r", radius - margin+2);
+
+    // // calculate node positions
+    circleLayout(linkNodes);
+    console.log("linkNodes")
+	console.log(linkNodes);
+    // // draw edges first
+    // drawLinks(graph.links);
+    drawCurves(linkLinks);
+    console.log("linkLinks")
+    console.log(linkLinks)
+
+    // draw nodes last
+    drawNodes(linkNodes);
+
+	function circleLayout(nodes) {
+	    // sort nodes by group
+	    nodes.sort(function(a, b) {
+	        return a.group - b.group;
+	    });
+
+	    // use to scale node index to theta value
+	    var scale = d3.scale.linear()
+	        .domain([0, nodes.length])
+	        .range([0, 2 * Math.PI]);
+
+	    // calculate theta for each node
+	    nodes.forEach(function(d, i) {
+	        // calculate polar coordinates
+	        var theta  = scale(i);
+	        var radial = radius - margin;
+
+	        // convert to cartesian coordinates
+	        d.x = radial * Math.sin(theta);
+	        d.y = radial * Math.cos(theta);
+	    });
+	}
+
+	function drawNodes(nodes) {
+	    // used to assign nodes color by group
+	    var color = d3.scale.category20();
+		var radius = 5;
+	    d3.select("#plot").selectAll(".node")
+	        .data(nodes)
+	        .enter()
+	        .append("circle")
+	        .attr("class", "node")
+	        .attr("id", function(d, i) { return d.name; })
+	        .attr("cx", function(d, i) { return d.x; })
+	        .attr("cy", function(d, i) { return d.y; })
+	        .attr("r", radius)
+	        .style("fill",  function(d, i) { 
+	        	for(j=0; j<inputs.length; j++){
+	        		if(d.name.toLowerCase().indexOf(inputs[j].toLowerCase())>-1){
+		        		return "lightpink";
+	        		}
+	        	}
+	        	for(k=0; k<outputs.length; k++){
+	        		if(d.name.toLowerCase().indexOf(outputs[k].toLowerCase())>-1){
+		        		return "#FF9800";
+	        		}
+	        	}
+	        	for(l=0; l<programming.length; l++){
+	        		if(d.name.toLowerCase().indexOf(programming[l].toLowerCase())>-1){
+		        		return "#C71549";
+	        		}
+	        	}
+	        })
+	}
+	// Draws straight edges between nodes
+	function drawLinks(links) {
+	    d3.select("#plot").selectAll(".link")
+	        .data(links)
+	        .enter()
+	        .append("line")
+	        .attr("class", "link")
+	        .attr("x1", function(d) { return d.source.x; })
+	        .attr("y1", function(d) { return d.source.y; })
+	        .attr("x2", function(d) { return d.target.x; })
+	        .attr("y2", function(d) { return d.target.y; })
+	        .attr("fill","none")
+		    .attr("marker-end", "url(#end)");
+	}
+
+	// Draws curved edges between nodes
+	function drawCurves(links) {
+	    // remember this from tree example?
+	    var curve = d3.svg.diagonal()
+	        .projection(function(d) { return [d.x, d.y]; });
+
+	    d3.select("#plot").selectAll(".link")
+	        .data(links)
+	        .enter()
+	        .append("path")
+	        .attr("class", "link")
+	        .attr("stroke",function(d, i) { 
+	    	for(j=0; j<inputs.length; j++){
+	    		if(d.name.toLowerCase().indexOf(inputs[j].toLowerCase())>-1){
+	        		return "lightpink";
+	    		}
+	    	}
+	    	for(k=0; k<outputs.length; k++){
+	    		if(d.name.toLowerCase().indexOf(outputs[k].toLowerCase())>-1){
+	        		return "#FF9800";
+	    		}
+	    	}
+	    	for(l=0; l<programming.length; l++){
+	    		if(d.name.toLowerCase().indexOf(programming[l].toLowerCase())>-1){
+	        		return "#C71549";
+	    		}
+	    	}
+	    })
+	        .attr("fill","none")
+	        .attr("d", curve);
+	}
+    drawKey(); //should be in the right position
+}
+
 function goHands(handData){
 	var numPanels = handData.values.length;
 
@@ -1371,192 +1635,9 @@ function showIDE(){
  //        console.log(totalLinks)
 }
 
-function makeEdge(linkData, linkNodes, linkLinks){
-	linkData = linkData;
-	var linkNodes = linkNodes;
-	var linkLinks = linkLinks;
-
-	for(i=0; i<linkData.length; i++){
-		linkData[i].parent = linkData[i].mod;
-	}	
-
-	var diameter = forcewidth;
-	var radius = diameter / 2;
-	var margin = 60;
-
-  // create plot area within svg image
-    var plot = svgMain.append("g")
-        .attr("id", "plot")
-        .attr("transform", "translate(" + (w/2+(radius)) + ", " + ((h/2)+(radius-59)) + ")");
-    function drawKey(){
-		var kitColor3 = plot.append("g").attr("class","backlabels")
-				.append("circle")
-			    .attr("cx", forcewidth/3.5-6)
-			    .attr("cy", forceheight-5)
-			    .attr("r", 4)
-			    .attr("fill","lightpink")
-			    .attr("stroke","lightpink")
-		var	kitNameColor3 = plot.append("g").attr("class","backlabels")
-				.append("text")
-			    .attr("x", forcewidth/3.5)
-			    .attr("y", forceheight-3)
-			    .text("Inputs")
-			    .attr("font-size",8)
-
-		var kitColor4 = plot.append("g").attr("class","backlabels")
-				.append("circle")
-			    .attr("cx", forcewidth/2-12)
-			    .attr("cy", forceheight-5)
-			    .attr("r", 4)
-			    .attr("fill","#FF9800")
-			    .attr("stroke","#FF9800")
-		var	kitNameColor4 = plot.append("g").attr("class","backlabels")
-				.append("text")
-			    .attr("x", forcewidth/2-6)
-			    .attr("y", forceheight-3)
-			    .text("Outputs")
-			    .attr("font-size",8)
-
-		var kitColor5 = plot.append("g").attr("class","backlabels")
-				.append("circle")
-			    .attr("cx", forcewidth/1.5-6)
-			    .attr("cy", forceheight-5)
-			    .attr("r", 4)
-			    .attr("fill","#C71549")
-			    .attr("stroke","#C71549")
-		var	kitNameColor5 = plot.append("g").attr("class","backlabels")
-				.append("text")
-			    .attr("x", forcewidth/1.5)
-			    .attr("y", forceheight-3)
-			    .text("Functions")
-			    .attr("font-size",8)
-	}
-
-    // draw border around plot area
-    plot.append("circle")
-        .attr("class", "outline")
-        .attr("fill","none")
-        .attr("stroke","black")
-        .attr("stroke-width",.5)
-        .attr("r", radius - margin+2);
-
-    // // calculate node positions
-    circleLayout(linkNodes);
-    console.log("linkNodes")
-	console.log(linkNodes);
-    // // draw edges first
-    // drawLinks(graph.links);
-    drawCurves(linkLinks);
-    console.log("linkLinks")
-    console.log(linkLinks)
-
-    // draw nodes last
-    drawNodes(linkNodes);
-
-	function circleLayout(nodes) {
-	    // sort nodes by group
-	    nodes.sort(function(a, b) {
-	        return a.group - b.group;
-	    });
-
-	    // use to scale node index to theta value
-	    var scale = d3.scale.linear()
-	        .domain([0, nodes.length])
-	        .range([0, 2 * Math.PI]);
-
-	    // calculate theta for each node
-	    nodes.forEach(function(d, i) {
-	        // calculate polar coordinates
-	        var theta  = scale(i);
-	        var radial = radius - margin;
-
-	        // convert to cartesian coordinates
-	        d.x = radial * Math.sin(theta);
-	        d.y = radial * Math.cos(theta);
-	    });
-	}
-	function drawNodes(nodes) {
-	    // used to assign nodes color by group
-	    var color = d3.scale.category20();
-		var radius = 5;
-	    d3.select("#plot").selectAll(".node")
-	        .data(nodes)
-	        .enter()
-	        .append("circle")
-	        .attr("class", "node")
-	        .attr("id", function(d, i) { return d.name; })
-	        .attr("cx", function(d, i) { return d.x; })
-	        .attr("cy", function(d, i) { return d.y; })
-	        .attr("r", radius)
-	        .style("fill",  function(d, i) { 
-	        	for(j=0; j<inputs.length; j++){
-	        		if(d.name.toLowerCase().indexOf(inputs[j].toLowerCase())>-1){
-		        		return "lightpink";
-	        		}
-	        	}
-	        	for(k=0; k<outputs.length; k++){
-	        		if(d.name.toLowerCase().indexOf(outputs[k].toLowerCase())>-1){
-		        		return "#FF9800";
-	        		}
-	        	}
-	        	for(l=0; l<programming.length; l++){
-	        		if(d.name.toLowerCase().indexOf(programming[l].toLowerCase())>-1){
-		        		return "#C71549";
-	        		}
-	        	}
-	        })
-	}
-	// Draws straight edges between nodes
-	function drawLinks(links) {
-	    d3.select("#plot").selectAll(".link")
-	        .data(links)
-	        .enter()
-	        .append("line")
-	        .attr("class", "link")
-	        .attr("x1", function(d) { return d.source.x; })
-	        .attr("y1", function(d) { return d.source.y; })
-	        .attr("x2", function(d) { return d.target.x; })
-	        .attr("y2", function(d) { return d.target.y; })
-	        .attr("fill","none")
-		    .attr("marker-end", "url(#end)");
-	}
-
-	// Draws curved edges between nodes
-	function drawCurves(links) {
-	    // remember this from tree example?
-	    var curve = d3.svg.diagonal()
-	        .projection(function(d) { return [d.x, d.y]; });
-
-	    d3.select("#plot").selectAll(".link")
-	        .data(links)
-	        .enter()
-	        .append("path")
-	        .attr("class", "link")
-	        .attr("stroke",function(d, i) { 
-	    	for(j=0; j<inputs.length; j++){
-	    		if(d.name.toLowerCase().indexOf(inputs[j].toLowerCase())>-1){
-	        		return "lightpink";
-	    		}
-	    	}
-	    	for(k=0; k<outputs.length; k++){
-	    		if(d.name.toLowerCase().indexOf(outputs[k].toLowerCase())>-1){
-	        		return "#FF9800";
-	    		}
-	    	}
-	    	for(l=0; l<programming.length; l++){
-	    		if(d.name.toLowerCase().indexOf(programming[l].toLowerCase())>-1){
-	        		return "#C71549";
-	    		}
-	    	}
-	    })
-	        .attr("fill","none")
-	        .attr("d", curve);
-	}
-    drawKey(); //should be in the right position
-}
 
 function showPhases(phasesJSON){
-	parseButton(firstData);
+	// parseButton(firstData);
 	console.log(phasesJSON.length+"phasesJSON length");
 	ready(firstData)
 }
