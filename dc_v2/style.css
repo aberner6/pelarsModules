@@ -107,7 +107,7 @@ image#clip-circ:hover{
     -webkit-clip-path: circle(0% at 0% 0%);
 }
 image{
-    display:none;
+    /*display:none;*/
 }
 /*image.commentIcon{
     display:none;

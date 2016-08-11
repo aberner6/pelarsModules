@@ -174,7 +174,7 @@ var activeThree = [];
 
 
 $(document).ready(function() {
-	// getToken(); //returns the token
+	getToken(); //returns the token
 	getData(thisSession, token);
 
 	var getNext = setInterval(function(){
@@ -366,6 +366,7 @@ var thunder, lightbulb;
 var timeMargin = 200;
 var btnNest1;
 var btnNest2;
+var button1Images = [];
 function drawButton(button1, button2, img1, img2){
 	console.log("draw button")
 	console.log(img1)
@@ -382,7 +383,9 @@ function drawButton(button1, button2, img1, img2){
 		})
 		.sortKeys(d3.ascending)
 		.entries(btnImg2);
-
+// for (i=0; i<button1.length; i++){
+// 	button1Images.push(btnNest1[i].values[0][0].data)
+// }
 	var iconBut1 = timeSVG.selectAll(".button1")	
 		.data(button1)
 		iconBut1.enter()
@@ -426,7 +429,7 @@ function drawButton(button1, button2, img1, img2){
 	                	}
                 });
 			lightbulb.exit();
-			d3.selectAll(".button1").each(moveToFront);
+			moveAllToFront();
 		});
 	// var iconLine1 = timeSVG.selectAll(".button1L")	
 	// 	.data(button1)
@@ -483,7 +486,7 @@ function drawButton(button1, button2, img1, img2){
 	                	}
                 });
 			thunder.exit();
-			d3.selectAll(".button2").each(moveToFront);
+			moveAllToFront();
 		});
 	// var iconLine2 = timeSVG.selectAll(".button2L")	
 	// 	.data(button2)
@@ -616,10 +619,27 @@ function showPhotos(){
 		.attr("width",iconW)
 		.attr("height",iconW);
 
-	var studDoc;
-	studDoc = timeSVG.selectAll(".camIcon")
+
+
+
+	var studCommentDoc;
+	studCommentDoc = timeSVG.selectAll(".studCommentIcon")
+		.data(docuNote);
+	studCommentDoc.enter()
+		.append("image")
+		.attr("class","studCommentIcon")
+		.attr("xlink:href", "assets/pencil.png") //just checking now put back to thunder
+		.attr("x", function(d){
+			return timeX(d.time);
+		})
+		.attr("y", timelineThunderY/4)
+		.attr("width",iconW)
+		.attr("height",iconW);	
+
+	var studImgDoc;
+	studImgDoc = timeSVG.selectAll(".camIcon")
 		.data(docuImg);
-	studDoc.enter()
+	studImgDoc.enter()
 		.append("image")
 		.attr("class","camIcon")
 		.attr("xlink:href", "assets/camera.png") //just checking now put back to thunder
@@ -628,49 +648,78 @@ function showPhotos(){
 		})
 		.attr("y", timelineThunderY/4)
 		.attr("width",iconW)
-		.attr("height",iconW);	
+		.attr("height",iconW)
+		.on("click", function(d,i){
+			var thisData = d3.select(this);
+			var thisTime = thisData[0][0].__data__.time;
+			console.log(thisTime+"docuImg time")
+			var lIndex = i;
+			console.log(docuImg[lIndex]);
 
-	$('.camIcon').tipsy({ 
-			gravity: 'nw', 
-			html: true, 
-			title: function() {
-				var dis = this.__data__;
-		  		var url1 = dis.data+"?token="+token;
-				console.log(dis);
-				var deferit = $.Deferred();
-				deferit
-				  .done(func1)
-				deferit.resolve();
-				function func1(){
-					$.get(url1, function(capt){
-						captionDoc = capt;
-					})
-				}
-					return captionDoc;
-			}
-	});
+		    var docImg = svgMain.selectAll(".clip-circ"+lIndex+"SD")
+                .data(docuImg) 
+                .attr("id","clip-circ")
+                .attr("x", timeX(thisTime)-btnImgW/2)
+            docImg
+                .enter()
+                .append("image")
+                .attr("class", "clip-circ"+lIndex+"SD")
+                .attr("id","clip-circ")
+                .attr("x", timeX(thisTime)-btnImgW/2)
+				.attr("y", topMarg/2)
+        		.attr("width", btnImgW)
+        		.attr("height", btnImgH)
+                .attr("xlink:href", function(d, i) {
+	                return docuImg[lIndex].data;
+                });
+
+			docImg.exit();
+			moveAllToFront();
+		});
+	// for (i=0; i<docuImg.length; i++){
+	// 	insideDoc.push(docuImg[i].data)		
+	// }
+//not working
+	// $('.studCommentIcon').tipsy({ 
+	// 		gravity: 'nw', 
+	// 		html: true, 
+	// 		title: function() {
+	// 			var dis = this.__data__;
+	// 	  		var url1 = dis.data+"?token="+token;
+	// 			console.log(dis);
+	// 			var deferit = $.Deferred();
+	// 			deferit
+	// 			  .done(func1)
+	// 			deferit.resolve();
+	// 			function func1(){
+	// 				$.get(url1, function(capt){
+	// 					captionDoc = capt;
+	// 				})
+	// 			}
+	// 				return captionDoc;
+	// 		}
+	// });
 
 
-	$('.commentIcon').tipsy({ 
-			gravity: 'nw', 
-			html: true, 
-			title: function() {
-				var dis = this.__data__;
-		  		var url1 = dis.data+"?token="+token;
-				console.log(dis);
-				var deferit = $.Deferred();
-				deferit
-				  .done(func1)
-				deferit.resolve();
-				function func1(){
-					$.get(url1, function(capt){
-						caption = capt;
-					})
-				}
-					return caption;
-				// return caption.responseText;
-			}
-	});
+	// $('.commentIcon').tipsy({ 
+	// 		gravity: 'nw', 
+	// 		html: true, 
+	// 		title: function() {
+	// 			var dis = this.__data__;
+	// 	  		var url1 = dis.data+"?token="+token;
+	// 			console.log(dis);
+	// 			var deferit = $.Deferred();
+	// 			deferit
+	// 			  .done(func1)
+	// 			deferit.resolve();
+	// 			function func1(){
+	// 				$.get(url1, function(capt){
+	// 					caption = capt;
+	// 				})
+	// 			}
+	// 				return caption;
+	// 		}
+	// });
 //BUTTON PRESSES                      
 // console.log("d.properties"+d.properties)
 // updateHoverbox(d.properties, "path");
@@ -1637,7 +1686,7 @@ function showIDE(){
 
 
 function showPhases(phasesJSON){
-	// parseButton(firstData);
+	parseButton(firstData);
 	console.log(phasesJSON.length+"phasesJSON length");
 	ready(firstData)
 }
@@ -1677,6 +1726,14 @@ function cleanArray(actual) {
   return newArray;
 }
 
+function moveAllToFront(){
+	d3.selectAll(".button1").each(moveToFront);
+	d3.selectAll(".button2").each(moveToFront);
+	d3.selectAll(".commentIcon").each(moveToFront); 
+	d3.selectAll(".studCommentIcon").each(moveToFront);
+	// d3.selectAll(".Icon").each(moveToFront);	
+	d3.selectAll(".camIcon").each(moveToFront);
+}
 var moveToFront = function() { 
     this.parentNode.appendChild(this); 
 }
