@@ -1,5 +1,5 @@
 var h = $("#container").height();
-var w = $("#container").width()-55;
+var w = $("#container").width();
 var leftMargin = 20;
 var rightMargin = 35;
 var cwidth=200,cheight=200,cmargin=25,maxr=5;
@@ -23,15 +23,17 @@ var howManyDataStreams = 6;
 var pressW = 20;
 // var pressH = 30;
 var center =  w/2 - pressW/2;
-var leftThird = center-w/4;
-var rightThird = center+w/4;
+
 var topHalf = h/3;
 var bottomHalf = h/2+pressW;
-var anchor = "start";
+
+var rectWidth = w/(howManyDataStreams);
+var leftThird = rectWidth;//center-(rectWidth/2);
+var rightThird = w-rectWidth; //center+(rectWidth/2);
 
 var xRectScale = d3.scale.linear()
-	.domain([0, howManyDataStreams])
-	.range([w/8, w-w/10])
+	.domain([0, howManyDataStreams/2])
+	.range([leftThird, rightThird])
 
 //colors
 var hardwareColor = "#15989C";
@@ -52,6 +54,7 @@ function setSVG(){
 		.attr("height", timeSVGH)  
 		.style("margin-top","1px");
 
+	var rectHeight = h/2-topHalf;
 	var backR = svgMain.selectAll(".backRects")
 		.data(d3.range(howManyDataStreams))
 		.enter()
@@ -59,9 +62,9 @@ function setSVG(){
 		.attr("class","backRects")
 		.attr("x", function(d,i){
 			if(i<howManyDataStreams/2){
-				return xRectScale(i);
+				return xRectScale(i); //-rectWidth/2
 			} else{
-				return xRectScale(i-(howManyDataStreams/2));
+				return xRectScale(i-(howManyDataStreams/2)); //-rectWidth/2
 			}
 		})
 		.attr("y", function(d,i){
@@ -71,14 +74,15 @@ function setSVG(){
 				return bottomHalf;
 			}
 		})
-		.attr("width", w/(howManyDataStreams/2))
-		.attr("height", h/2-topHalf)
-		.attr("fill","blue")
-		.attr("stroke","white")
+		.attr("width", rectWidth)
+		.attr("height", rectHeight)
+		.attr("fill","none")
+		.attr("stroke","blue")
 
 
-
-
+	var textXPad = rectWidth/2;
+	var textYPad = rectHeight/2;
+	var anchor = "middle";
 
 	var	handPic = svgMain.append("g").attr("class","backlabels")
 		.append("image")
@@ -89,8 +93,8 @@ function setSVG(){
         .attr("xlink:href","assets/hand.png")
 	var	labelsHand = svgMain.append("g").attr("class","backlabels")
 		.append("text")
-	    .attr("x", leftThird)
-	    .attr("y", topHalf)
+	    .attr("x", leftThird+textXPad)
+	    .attr("y", topHalf+textYPad)
 	    .text("Hands")
 	    .attr("dy", "-1em")
 	    .attr("text-anchor",anchor)
@@ -103,8 +107,8 @@ function setSVG(){
         .attr("xlink:href", "assets/face2.png")
 	var	labelsFace = svgMain.append("g").attr("class","backlabels")
 		.append("text")
-	    .attr("x", leftThird)
-	    .attr("y", bottomHalf)
+	    .attr("x", leftThird+textXPad)
+	    .attr("y", bottomHalf+textYPad)
 	    .text("Faces")
 	    .attr("dy", "-1em")
 	    .attr("text-anchor",anchor)
@@ -112,15 +116,15 @@ function setSVG(){
 //center top
 	var buttonP = svgMain.append("g").attr("class","buttonPress")
 		.append("image")
-	    .attr("x", center)
+	    .attr("x", xRectScale(1))
 	    .attr("y", topHalf)
 		.attr("width",pressW)
 		.attr("height",pressW)
 		.attr("xlink:href", "assets/icons/idea.png")
 	var	labelsButton = svgMain.append("g").attr("class","backlabels")
 		.append("text")
-	    .attr("x", center)
-	    .attr("y", topHalf)
+	    .attr("x", xRectScale(1)+textXPad)
+	    .attr("y", topHalf+textYPad)
 	    .text("Button Press")
 	    .attr("dy", "-1em")
 	    .attr("text-anchor",anchor)
@@ -129,15 +133,15 @@ function setSVG(){
 //sized according to width/number of inputs to docu tool
 	var cameraS = svgMain.append("g").attr("class","cameraStudent")
 		.append("image")
-	    .attr("x", center)
+	    .attr("x", xRectScale(1))
 	    .attr("y", bottomHalf)
 		.attr("width",pressW)
 		.attr("height",pressW)
 		.attr("xlink:href", "assets/camera.png")
 	var	labelsCameraS = svgMain.append("g").attr("class","backlabels")
 		.append("text")
-	    .attr("x", center)
-	    .attr("y", bottomHalf)
+	    .attr("x", xRectScale(1)+textXPad)
+	    .attr("y", bottomHalf+textYPad)
 	    .text("Documentation")
 	    .attr("dy", "-1em")
 	    .attr("text-anchor",anchor)
@@ -145,30 +149,30 @@ function setSVG(){
 //right side top half
 	var kitPic = svgMain.append("g").attr("class","backlabels")
 		.append("image")
-	    .attr("x", rightThird)
+	    .attr("x", xRectScale(2))
 	    .attr("y", topHalf)
 	    .attr("width", pressW)
 	    .attr("height",pressW)
         .attr("xlink:href", "assets/kit.png")
 	var	labelsKit = svgMain.append("g").attr("class","backlabels")
 		.append("text")
-	    .attr("x", rightThird)
-	    .attr("y", topHalf)
+	    .attr("x", xRectScale(2)+textXPad)
+	    .attr("y", topHalf+textYPad)
 	    .text("Kit")
 	    .attr("dy", "-1em")
 	    .attr("text-anchor",anchor)
 //right side bottom half
 	var linksMade = svgMain.append("g").attr("class","backlabels")
 		.append("image")
-	    .attr("x", rightThird)
+	    .attr("x", xRectScale(2))
 	    .attr("y", bottomHalf)
 	    .attr("width", pressW)
 	    .attr("height",pressW)
         .attr("xlink:href", "assets/links.jpg")
 	var	labelsLinks = svgMain.append("g").attr("class","backlabels")
 		.append("text")
-	    .attr("x", rightThird)
-	    .attr("y", bottomHalf)
+	    .attr("x", xRectScale(2)+textXPad)
+	    .attr("y", bottomHalf+textYPad)
 	    .text("Links Made")
 	    .attr("dy", "-1em")
 	    .attr("text-anchor",anchor)

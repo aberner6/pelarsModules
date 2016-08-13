@@ -220,6 +220,8 @@ thisSession = parseInt(1371);//parseInt(json1[json1.length-1].session);
 // 	})
 // }
 
+var nest_again;
+var overallVals;
 // IF START TIME OF overall session IS DIFFERENT THAN START TIME OF phase data...
 function getData(thisSession, token){
 	d3.json("data/data1.json", function(json){
@@ -230,6 +232,34 @@ function getData(thisSession, token){
 		//first we have to check start and end times with the phases
 		console.log(new Date(startFirst)+"startFirst");
 
+	nest_again = d3.nest()
+		.key(function(d) { return d.type; })
+		.key(function(d){ return d.num; })
+		.rollup(function(leaves) { 
+			return { 
+					"max_time": d3.max(leaves, function(d) {
+						return parseFloat(d.time);
+					}),
+					"min_time": d3.min(leaves, function(d) {
+						return parseFloat(d.time);
+					}),
+					"meanX": d3.mean(leaves, function(d) {
+						return parseFloat(d.rx);
+					}),
+					"meanY": d3.mean(leaves, function(d) {
+						return parseFloat(d.ry);
+					}),
+					"deviationX": d3.mean(leaves, function(d){ 
+						return parseFloat(d.rx) 
+					}),
+					"deviationY": d3.mean(leaves, function(d){ 
+						return parseFloat(d.ry) 
+					})
+				} 
+			})
+		.entries(data);
+	console.log(nest_again + "nest again for summary");
+
 	nested_data = d3.nest()
 	.key(function(d) { return d.type; })
 	.key(function(d){ return d.num; })
@@ -239,7 +269,12 @@ function getData(thisSession, token){
 		.key(function(d) { return d.type; })
 		.entries(data);
 	})
+	d3.json("data/content.json", function(json){
+		overallVals = json;
+	})
+	console.log(overallVals+"overall summary")
 }
+
 var tempData = [];
 var multiData = [];
 function getMulti(thisSession,token){
@@ -877,43 +912,75 @@ function callOther(nodes, links){
 	//     .linkDistance(linkdist)
 	//     .charge(-100)
 
-var force2 = d3.layout.force()
-    .nodes(d3.values(nodes))
-    .links(links)
-	    .size([forcewidth, forceheight-20])
-    .linkDistance(linkdist)
-	    .charge(-100)
-    .on("tick", tick)
-    .start();
+	var force2 = d3.layout.force()
+	    .nodes(d3.values(nodes))
+	    .links(links)
+		    .size([forcewidth, forceheight-20])
+	    .linkDistance(linkdist)
+		    .charge(-100)
+	    .on("tick", tick)
+	    .start();
 
- var vis = svgMain //for the visualization
-    .append('svg:g')
-    .attr("transform",
-      "translate("+ 0 + "," + 0 + ")");  
+	var vis = svgMain //for the visualization
+	    .append('svg:g')
+	    .attr("transform",
+	      "translate("+ 0 + "," + 0 + ")");  
 
-drag = force2.drag() 
-    .on("dragstart", dragstart);   
+		drag = force2.drag() 
+	    .on("dragstart", dragstart);   
 
 
 
-path2 = vis.selectAll("path2")
-    .data(force2.links())
-    .enter().append("path")
-    .attr("class","link2") 
-    .attr("stroke", "pink")
-    .attr("fill","none")
+	path2 = vis.selectAll("path2")
+	    .data(force2.links())
+	    .enter().append("path")
+	    .attr("class","link2") 
+	    .attr("stroke", function(d,i){
+	    	for(j=0; j<inputs.length; j++){
+		    		if(d.name.toLowerCase().indexOf(inputs[j].toLowerCase())>-1){
+		        		return "lightpink";
+		    		}
+		    	}
+		    	for(k=0; k<outputs.length; k++){
+		    		if(d.name.toLowerCase().indexOf(outputs[k].toLowerCase())>-1){
+		        		return "#FF9800";
+		    		}
+		    	}
+		    	for(l=0; l<programming.length; l++){
+		    		if(d.name.toLowerCase().indexOf(programming[l].toLowerCase())>-1){
+		        		return "#C71549";
+		    		}
+		    	}
+		})
+	    .attr("fill","none")
 
-circNode = vis.selectAll("nodez")
-    .data(force2.nodes())
-    .enter().append("circle")
-    .attr("class",function(d){
-        return "nodez";
-    })  
+	circNode = vis.selectAll("nodez")
+	    .data(force2.nodes())
+	    .enter().append("circle")
+	    .attr("class",function(d){
+	        return "nodez";
+	    })  
     circNode
-    .attr("r", 5)
-    .attr("fill", "lightgrey")
-    .on("dblclick", dblclick)
-    .call(drag);
+		.attr("r", 5)
+	        .style("fill",  function(d, i) { 
+	        	for(j=0; j<inputs.length; j++){
+	        		if(d.name.toLowerCase().indexOf(inputs[j].toLowerCase())>-1){
+		        		return "lightpink";
+	        		}
+	        	}
+	        	for(k=0; k<outputs.length; k++){
+	        		if(d.name.toLowerCase().indexOf(outputs[k].toLowerCase())>-1){
+		        		return "#FF9800";
+	        		}
+	        	}
+	        	for(l=0; l<programming.length; l++){
+	        		if(d.name.toLowerCase().indexOf(programming[l].toLowerCase())>-1){
+		        		return "#C71549";
+	        		}
+	        	}
+	        })
+		.on("dblclick", dblclick)
+		.call(drag);
     function dblclick(d) {
         d3.select(this).classed("fixed", d.fixed = false);
     }
@@ -922,7 +989,8 @@ circNode = vis.selectAll("nodez")
     }
 }
 function tick() {
-  path2.attr("d", linkArc);
+  path2
+  .attr("d", linkArc);
 
   circNode
   .attr("transform", transform);
@@ -1105,28 +1173,30 @@ function makeEdge(linkData, linkNodes, linkLinks){
 	        .append("path")
 	        .attr("class", "link")
 	        .attr("stroke",function(d, i) { 
-	    	for(j=0; j<inputs.length; j++){
-	    		if(d.name.toLowerCase().indexOf(inputs[j].toLowerCase())>-1){
-	        		return "lightpink";
-	    		}
-	    	}
-	    	for(k=0; k<outputs.length; k++){
-	    		if(d.name.toLowerCase().indexOf(outputs[k].toLowerCase())>-1){
-	        		return "#FF9800";
-	    		}
-	    	}
-	    	for(l=0; l<programming.length; l++){
-	    		if(d.name.toLowerCase().indexOf(programming[l].toLowerCase())>-1){
-	        		return "#C71549";
-	    		}
-	    	}
-	    })
+		    	for(j=0; j<inputs.length; j++){
+		    		if(d.name.toLowerCase().indexOf(inputs[j].toLowerCase())>-1){
+		        		return "lightpink";
+		    		}
+		    	}
+		    	for(k=0; k<outputs.length; k++){
+		    		if(d.name.toLowerCase().indexOf(outputs[k].toLowerCase())>-1){
+		        		return "#FF9800";
+		    		}
+		    	}
+		    	for(l=0; l<programming.length; l++){
+		    		if(d.name.toLowerCase().indexOf(programming[l].toLowerCase())>-1){
+		        		return "#C71549";
+		    		}
+		    	}
+		    })
 	        .attr("fill","none")
 	        .attr("d", curve);
 	}
     drawKey(); //should be in the right position
 }
 
+var maxActiveOverall;
+var maxActive1, maxActive2, maxActive3;
 function goHands(handData){
 	var numPanels = handData.values.length;
 
@@ -1269,18 +1339,16 @@ function goHands(handData){
 
 	}else{console.log("nothree")}
 
-	var maxActive1, maxActive2, maxActive3;
 	if(softS1.length>0){
-		var maxActive1 = d3.max(softS1)//d3.max(justSpeed);//d3.max(justDelta);	
+		maxActive1 = d3.max(softS1)//d3.max(justSpeed);//d3.max(justDelta);	
 	}
 	if(softS2.length>0){
-		var maxActive2 = d3.max(softS2)//d3.max(justSpeed);//d3.max(justDelta);	
+		maxActive2 = d3.max(softS2)//d3.max(justSpeed);//d3.max(justDelta);	
 	}
 	if(softS3.length>0){
-		var maxActive3 = d3.max(softS3)//d3.max(justSpeed);//d3.max(justDelta);
+		maxActive3 = d3.max(softS3)//d3.max(justSpeed);//d3.max(justDelta);
 	}
 	// console.log(maxActive1+"maxactive1"+maxActive2);
-	var maxActiveOverall;
 
 	if(maxActive2>maxActive1){
 		maxActiveOverall = maxActive2;
@@ -1295,7 +1363,14 @@ function goHands(handData){
 	console.log(maxActive3);
 	//which is the most active
 
-	var pathActive1, lineActive1, pathActive2, lineActive2, pathActive3, lineActive3;
+	var pathActive1, lineActive1, pathActive2, lineActive2, pathActive3, lineActive3, pathActive0, lineActive0;
+//should the max just be represented as the max value for Y?
+	var BigMax = overallVals.hand_speed.mean;
+	// var yActivePath;
+  	// yActivePath = d3.scale.linear() 
+		// .domain([0,BigMax]).range([timeSVGH-maxRadius, timeSVGH/2+(maxFaces*faceRadius)]); //timeSVGH/2
+
+// at any given point in time (Y) X-value represents the average speed over the previous 80 data records
 
 	var yActivePath;
   	yActivePath = d3.scale.linear() 
@@ -1303,6 +1378,22 @@ function goHands(handData){
 
  	 xActivePath = d3.scale.linear() //startTime, endTime
 		.domain([startTime, endTime]).range([10, w-40]);
+
+  // 	lineActive0 = d3.svg.line()
+		// .x(function(d, i) { return xActivePath(activeOne[i].thisTime); })
+		// .y(function(d, i) { return yActivePath(overallVals.hand_speed.mean); })
+		// .interpolate("bundle")
+ 	// pathActive0 = timeSVG.append("g")
+	 //    .append("path")
+	 //    .attr("class","activepath1")
+	 //    .attr("fill","none")
+	 //    .attr("stroke","orange")
+	 //    .attr("stroke-dasharray",1)
+	 //    .attr("stroke-width",2);
+  // 	pathActive0
+  // 		.datum(softS1)
+  // 		.attr("d", lineActive0);
+
 
   	lineActive1 = d3.svg.line()
 		.x(function(d, i) { return xActivePath(activeOne[i].thisTime); })
@@ -1688,11 +1779,207 @@ function showIDE(){
 function showPhases(phasesJSON){
 	parseButton(firstData);
 	console.log(phasesJSON.length+"phasesJSON length");
-	ready(firstData)
+
+	console.log(phasesJSON)
+	phaseData = phasesJSON;
+	var phaseNum = 0;
+	for(i=1; i<phaseData.length; i++){ //change this
+		if(phaseData[i].phase!=phaseData[i-1].phase){
+			if(phaseData[i].phase=="obs_rate" || phaseData[i].phase=="setup"){}
+				else{
+					phaseNum+=1;
+					obs[phaseNum]=({
+						"num":phaseNum,
+						"phase": phaseData[i].phase,
+						"start": phaseData[i].start,
+						"end": phaseData[i].end
+					})
+					if(phaseData[i].phase=="obs_plan"){
+						obsPlan.push(phaseData[i])
+					}
+					if(phaseData[i].phase=="obs_document"){
+						obsDoc.push(phaseData[i])
+					}
+					if(phaseData[i].phase=="obs_reflect"){
+						obsReflect.push(phaseData[i])
+					}
+			}
+		}	
+	}
+
+	var totalPlan, totalReflect, totalDoc;
+	for(i=0; i<obsPlan.length; i++){ 
+		totalPlan = obsPlan[obsPlan.length-1].end-obsPlan[0].start;
+	}
+	for(i=0; i<obsReflect.length; i++){ 
+		totalReflect = obsReflect[obsReflect.length-1].end-obsReflect[0].start 
+	}
+	for(i=0; i<obsDoc.length; i++){ 
+		totalDoc = obsDoc[obsDoc.length-1].end-obsDoc[0].start 
+	}
+	var phaseArray = [];
+	phaseArray.push(totalPlan, totalDoc, totalReflect)
+	console.log(phaseArray+"phasearray")
+
+	var width = forcewidth,
+	    height = forceheight;
+	var diameter = forcewidth;
+	var margin = 60;
+	var radius = (diameter / 2)-margin+3;
+	    // radius = Math.min(width, height) / 2.4;
+
+	var color = ["#3F51B5","#607D8B","#7986CB"];
+
+	var pie = d3.layout.pie()
+	    .sort(null);
+
+	var outerRadius = radius;//-10;
+	var innerRadius = radius-20;//-30;
+	var arc = d3.svg.arc()
+	    .innerRadius(innerRadius)
+	    .outerRadius(outerRadius);
+	var labelr = radius/1.7 + 22; // radius for label anchor
+
+	var netSVG = svgMain
+		.append("g")
+		.attr("class","piePhase")
+		.attr("width",forcewidth)
+		.attr("height",forceheight)  
+		.append("g")
+		.style("border","1px solid white") 
+		.style("margin-top","1px")
+		.attr("transform", "translate(" + radius+margin + "," + (timeSVGH+radius+topMargin) + ")")
+
+	var pathPie = netSVG.selectAll("pathPie")
+	    .data(pie(phaseArray))
+	  	.enter().append("path")
+	    .attr("fill", function(d, i) { return color[i]; })
+	    .attr("d", arc);
+
+	var label_group = netSVG.append("svg:g")
+	    .attr("class", "lblGroup")
+	// DRAW SLICE LABELS
+	var sliceLabel = label_group.selectAll("text")
+	    .data(pie(phaseArray))
+	sliceLabel.enter().append("svg:text")
+	    .attr("class", "arcLabel")
+	    .attr("transform", function(d) {
+	        var c = arc.centroid(d),
+	            x = c[0],
+	            y = c[1],
+	            // pythagorean theorem for hypotenuse
+	            h = Math.sqrt(x*x + y*y);
+	        return "translate(" + (x/h * labelr) +  ',' +
+	           (y/h * labelr) +  ")"; 
+	    })
+	    .attr("dy",  function(d){
+	        var c = arc.centroid(d),
+	            x = c[0],
+	            y = c[1],
+	            // pythagorean theorem for hypotenuse
+	            h = Math.sqrt(x*x + y*y);
+	    	if ((y/h * labelr)>outerRadius/2) {
+	    		return "1.5em"
+	    	}
+			else{
+				return ("-.8em")
+			}
+	    })
+	    .attr("dx",  function(d){
+	        var c = arc.centroid(d),
+	            x = c[0],
+	            y = c[1],
+	            // pythagorean theorem for hypotenuse
+	            h = Math.sqrt(x*x + y*y);
+	    	if ((x/h * labelr)>outerRadius/2) {
+	    		return "1.5em"
+	    	}
+			else{
+				return ("-2.5em")
+			}
+	    })
+	    .attr("text-anchor", "middle")
+	    .text(function(d, i) { 
+	    	if(i==0){
+	    		return "Plan"
+	    	}
+	    	if(i==1){
+	    		return "Document"
+	    	}
+	    	if(i==2){
+	    		return "Reflect"
+	    	}
+	    })
+	    .attr("fill", function(d, i) { return color[i]; })
+
+	obs = cleanArray(obs)
+
+	console.log(obs);
+	//draw a rectangle for each key
+	var rectPhase = timeSVG.selectAll(".phase")
+		.data(obs)
+		.enter()
+	  	.append("rect")
+	  	.attr("class","phase")
+		  .attr("x",function(d,i){
+		  	console.log(d);
+		  	console.log(timeX(d.start))
+		  	return timeX(d.start); 
+		  })
+		  .attr("y",0)
+		  .attr("width",function(d,i){
+		  	return timeX(d.end)-timeX(d.start);
+		  })
+		  .attr("height",timeSVGH)//-2*cmargin)
+		  .attr("fill",function(d,i){
+		  	if(d.num%2==0){
+		  		return "none"
+		  	} else{
+		  		return "lightgray";
+		  	}
+		  })
+		  .attr("opacity",.1)
+		  .attr("stroke","grey")
+
+	var textPhase = timeSVG.selectAll(".phaseText")
+		.data(obs)
+		.enter()
+	  	.append("text")
+	  	.attr("class","phaseText")
+		.attr("x",function(d,i){
+			var currentX = timeX(d.start)+(timeX(d.end)-timeX(d.start))/2;
+			return currentX;	
+		})
+		.attr("y",function(d,i){
+			if(i>0){
+				var currentX = timeX(d.start)+(timeX(d.end)-timeX(d.start))/2;
+				var oneBefore = (timeX(obs[i-1].start)+timeX(obs[i-1].end)-timeX(obs[i-1].start))/2;
+				var whichIndex=1; 
+				if((currentX-oneBefore)>70){
+					return 15;
+				} else{
+					whichIndex++;
+					return 15*whichIndex;
+				}
+			}
+				if(i==0){
+					return 15;
+				}
+		})
+		.text(function(d){
+			if(d.phase=="obs_reflect"){
+				return "REFLECTION"
+			}
+			if(d.phase=="obs_document"){
+				return "DOCUMENTATION"
+			}
+			if(d.phase=="obs_plan"){
+				return "PLANNING"
+			}
+		})
+		.attr("text-anchor","middle")
 }
-function ready(firstData){
-	console.log(firstData.length+"firstData length");
-}
+
 function unique(obj) {
     var uniques = [];
     var stringify = {};
