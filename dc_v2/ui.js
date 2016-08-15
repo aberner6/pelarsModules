@@ -49,6 +49,8 @@ var topMargin = leftMargin;
 setSVG();
 var data = [];
 var theseRects;
+var unClicked = 0;
+
 function setSVG(){
 	d3.tsv("data/descrips.tsv", function(error, dataIs) {
 	  // x.domain([0, d3.max(data, function(d) { return d.value; })]);
@@ -57,6 +59,7 @@ function setSVG(){
 	  makeThings(data);
 	})
 }
+
 function makeThings(data){
 	svgMain = d3.select("#container").append("svg")
 		.attr("class", "mainSVG")
@@ -96,14 +99,15 @@ console.log(data);
       	});
     var origStroke = 2;
   	theseRects = backR.append("rect")
+		.attr("id","rectangle")
 		.attr("class",function(d,i){
 			return i;
 		})
 		.attr("width", rectWidth)
 		.attr("height", rectHeight)
 		.attr("fill","white")
-		.attr("stroke-width", origStroke)
-		.attr("stroke", hardwareColor);
+		.attr("stroke","lightgray")  
+		.attr("stroke-width",1) 
 
 	var center = svgMain
 		.append("circle")
@@ -119,6 +123,7 @@ console.log(data);
 	    .attr("fill","pink");
 
 	var textName = backR.append("text")
+		.attr("id","name")
 		.attr("class",function(d,i){
 			return "name"+i;
 		})
@@ -130,6 +135,7 @@ console.log(data);
 	      	return rectWidth/2-adjust/2;
 	      });
 	var textIcon = backR.append("image")
+		.attr("id","capt")
 		.attr("class",function(d,i){
 			return "capt"+i;
 		})
@@ -141,8 +147,6 @@ console.log(data);
 		.attr("width", pressW)
 		.attr("height", pressW)
 		.attr("opacity", 1);
-
-
 
 	var textDescrip = backR.append("text")
 		.attr("id","textDescrip")
@@ -158,42 +162,66 @@ console.log(data);
 				return d.descrip;
 			})
           .call(wrap, rectWidth-20);
-    // if(clicked==false){
-    	theseRects
-	        .on("mouseover", function(d,i){
-	        	d3.select("text.capt"+i)
-	        		.attr("opacity",1);
-	        	d3.select("image.capt"+i)
-	        		.attr("opacity",0);
-	        })
-	        .on("mouseout", function(d,i){
-	        	d3.select("text.capt"+i)
-	        		.attr("opacity",0);
-	        	d3.select("image.capt"+i)
-	        		.attr("opacity",1);
-	        });
-    // }
+
+    var specialHeight = (h/howManyDataStreams)-10;
+
     theseRects
         .on("click", function(d,i){
-        	clicked = true;
-        	d3.select(this)
-        		.transition()
-        		.attr("stroke-width", origStroke*4);
-        		// .attr("")
         	d3.selectAll("g.backRects")
         		.transition()
 		      	.attr("transform", function(d, i) { 
 		      		var x = 0;
-					var y = i*rectHeight;		
-		      		return "translate(" + x + "," + y + ")"; 
+					var y = specialHeight+(i*specialHeight);//rectHeight/3+(i*rectHeight/3);		
+		      		return "translate(" + x + "," + (specialHeight/2+y) + ")"; 
 		      	});
-
-        	d3.selectAll("theseRects")
+			d3.selectAll("#rectangle")
         		.transition()
-        		.attr("width", rectWidth/4)
-        		.attr("height", rectWidth/4);
-   			
+        		.attr("width", rectWidth/3)
+        		.attr("height", specialHeight)
+			
+        	d3.selectAll("#capt")
+        		.transition()
+        		.attr("x", rectWidth/6-pressW/4)
+        		.attr("y", specialHeight/2-pressW/4)
+        		.attr("width", pressW/2)
+        		.attr("height", pressW/2)
+        		.attr("opacity",1);
+	    	d3.selectAll("#name").attr("opacity",0)
+	    	d3.selectAll("#textDescrip").attr("opacity",0)
+
+	    	d3.select(this)
+        		.attr("stroke-width", origStroke*2)
+        		.attr("stroke","black")
+
+        	unClicked = 1;
+        	console.log(unClicked+"unClicked")
         })
+        console.log(unClicked)
+
+    	theseRects
+	        .on("mouseover", function(d,i){
+	        	if(unClicked ==0){
+		        	d3.select("text.capt"+i)
+		        		.attr("opacity",1);
+		        	d3.select("image.capt"+i)
+		        		.attr("opacity",0);
+	        	}else{
+					d3.selectAll("#name").attr("opacity",0)
+				    d3.selectAll("#textDescrip").attr("opacity",0)		        		
+		        }
+	        })
+	        .on("mouseout", function(d,i){
+	        	if(unClicked==0){
+		        	d3.select("text.capt"+i)
+		        		.attr("opacity",0);
+		        	d3.select("image.capt"+i)
+		        		.attr("opacity",1);
+	        	}
+	        	else{
+					d3.selectAll("#name").attr("opacity",0)
+				    d3.selectAll("#textDescrip").attr("opacity",0)		        			        		
+	        	}
+	        });
 
 	function wrap(text, width) {
 	  text.each(function() {
