@@ -10,6 +10,7 @@ var textH = 30;
 var iconW = 15;
 var iconLMarg = 27;
 var textL = 10;
+var anchor = "middle";
 
 // var topMargin = 100;
 var svgMain, timeSVG;
@@ -47,6 +48,7 @@ var leftMargin = 5;
 var topMargin = leftMargin;
 setSVG();
 var data = [];
+var theseRects;
 function setSVG(){
 	d3.tsv("data/descrips.tsv", function(error, dataIs) {
 	  // x.domain([0, d3.max(data, function(d) { return d.value; })]);
@@ -72,6 +74,7 @@ console.log(data);
 		.data(data[0])
 		.enter()
 		.append("g")
+		.attr("class", "backRects")
       	.attr("transform", function(d, i) { 
       		console.log(i)
       		console.log(d.name);
@@ -91,17 +94,16 @@ console.log(data);
 			}			
       		return "translate(" + x + "," + y + ")"; 
       	});
-  	backR.append("rect")
+    var origStroke = 2;
+  	theseRects = backR.append("rect")
 		.attr("class",function(d,i){
-			return "rect"+d;
+			return i;
 		})
 		.attr("width", rectWidth)
 		.attr("height", rectHeight)
-		.attr("fill","none")
-		.style("stroke-width",2)
-		.attr("stroke", hardwareColor)
-
-
+		.attr("fill","white")
+		.attr("stroke-width", origStroke)
+		.attr("stroke", hardwareColor);
 
 	var center = svgMain
 		.append("circle")
@@ -116,13 +118,82 @@ console.log(data);
 	    .attr("r",5)
 	    .attr("fill","pink");
 
-	backR.append("text").attr("class","textie")
-	      .attr("x", rectWidth/4)
-	      .attr("y", rectHeight / 2)
+	var textName = backR.append("text")
+		.attr("class",function(d,i){
+			return "name"+i;
+		})
+	      .attr("y", 15)
 	      .attr("dy", ".35em")
-	      .text(function(d) { return d.descrip })
-        // New added line to call the function to wrap after a given width
-        .call(wrap, rectWidth-20);
+	      .text(function(d) { return d.name })
+	      .attr("x", function(d,i){
+	      	var adjust = $(".name"+i).width();
+	      	return rectWidth/2-adjust/2;
+	      });
+	var textIcon = backR.append("image")
+		.attr("class",function(d,i){
+			return "capt"+i;
+		})
+        .attr("xlink:href",function(d,i){
+        	return "assets/icons0/"+d.name+".png"
+        })
+		.attr("x", rectWidth/2-pressW/2)
+		.attr("y", rectHeight/2-pressW/2)
+		.attr("width", pressW)
+		.attr("height", pressW)
+		.attr("opacity", 1);
+
+
+
+	var textDescrip = backR.append("text")
+		.attr("id","textDescrip")
+		.attr("class",function(d,i){
+			return "capt"+i;
+		});
+		textDescrip
+	      .attr("x", rectWidth/4)
+	      .attr("y", rectHeight/2-pressW/2)
+	      .attr("dy", ".35em")
+	      .attr("opacity",0)
+	      .text(function(d,i) {    
+				return d.descrip;
+			})
+          .call(wrap, rectWidth-20);
+    // if(clicked==false){
+    	theseRects
+	        .on("mouseover", function(d,i){
+	        	d3.select("text.capt"+i)
+	        		.attr("opacity",1);
+	        	d3.select("image.capt"+i)
+	        		.attr("opacity",0);
+	        })
+	        .on("mouseout", function(d,i){
+	        	d3.select("text.capt"+i)
+	        		.attr("opacity",0);
+	        	d3.select("image.capt"+i)
+	        		.attr("opacity",1);
+	        });
+    // }
+    theseRects
+        .on("click", function(d,i){
+        	clicked = true;
+        	d3.select(this)
+        		.transition()
+        		.attr("stroke-width", origStroke*4);
+        		// .attr("")
+        	d3.selectAll("g.backRects")
+        		.transition()
+		      	.attr("transform", function(d, i) { 
+		      		var x = 0;
+					var y = i*rectHeight;		
+		      		return "translate(" + x + "," + y + ")"; 
+		      	});
+
+        	d3.selectAll("theseRects")
+        		.transition()
+        		.attr("width", rectWidth/4)
+        		.attr("height", rectWidth/4);
+   			
+        })
 
 	function wrap(text, width) {
 	  text.each(function() {
@@ -147,170 +218,6 @@ console.log(data);
 	    }
 	  });
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	// var backR = svgMain.selectAll(".rect")
-	// 	.data(d3.range(howManyDataStreams))
-	// 	.enter()
-	// 	.append("rect")
-	// 	.attr("class",function(d,i){
-	// 		return "rect"+d;
-	// 	})
-	// 	.attr("x", function(d,i){
-	// 		if(i<howManyDataStreams/2){
-	// 			return xRectScale(i)-leftMargin; //-rectWidth/2
-	// 		} else{
-	// 			return x2RectScale(i)-leftMargin; //-rectWidth/2
-	// 		}
-	// 	})
-	// 	.attr("y", function(d,i){
-	// 		if(i<howManyDataStreams/2){
-	// 			return topHalf-topMargin;
-	// 		}else{
-	// 			return bottomHalf-topMargin;
-	// 		}
-	// 	})
-	// 	.attr("width", rectWidth)
-	// 	.attr("height", rectHeight)
-	// 	.attr("fill","none")
-	// 	.style("stroke-width",2)
-	// 	.attr("stroke", hardwareColor)
-// d3.select("rect.rect0").on("mouseover", function(d){ $(".
-
-// 	var textXPad = rectWidth/2;
-// 	var textYPad = rectHeight/2;
-	var anchor = "middle";
-
-// 	var	handPic = svgMain.append("g").attr("class","card_hand")
-// 		.append("image")
-// 	    .attr("x", xRectScale(0))
-// 	    .attr("y",topHalf)
-// 	    .attr("width", pressW)
-// 	    .attr("height",pressW)
-//         .attr("xlink:href","assets/icons0/mainIcon-04.png")
-// 	var	labelsHand = svgMain.append("g").attr("class","card_hand")
-// 		.append("text")
-// 	    .attr("x", xRectScale(0)+textXPad)
-// 	    .attr("y", topHalf+textYPad)
-// 	    .text("Hands")
-// 	    .attr("dy", "-1em")
-// 	    .attr("text-anchor",anchor)
-
-// 	var	facePic = svgMain.append("g").attr("class","backlabels")
-// 		.append("image")
-// 	    .attr("x", x2RectScale(4))
-// 	    .attr("y", bottomHalf)
-// 	    .attr("width", pressW)
-// 	    .attr("height", pressW)
-//         .attr("xlink:href", "assets/icons0/mainIcon-06.png")
-// 	var	labelsFace = svgMain.append("g").attr("class","backlabels")
-// 		.append("text")
-// 	    .attr("x", x2RectScale(4)+textXPad)
-// 	    .attr("y", bottomHalf+textYPad)
-// 	    .text("Faces")
-// 	    .attr("dy", "-1em")
-// 	    .attr("text-anchor",anchor)
-
-// //center top
-// 	var buttonP = svgMain.append("g").attr("class","buttonPress")
-// 		.append("image")
-// 	    .attr("x", xRectScale(1))
-// 	    .attr("y", topHalf)
-// 		.attr("width",pressW)
-// 		.attr("height",pressW)
-// 		.attr("xlink:href", "assets/icons0/mainIcon-07.png")
-// 	var	labelsButton = svgMain.append("g").attr("class","backlabels")
-// 		.append("text")
-// 	    .attr("x", xRectScale(1)+textXPad)
-// 	    .attr("y", topHalf+textYPad)
-// 	    .text("Button Press")
-// 	    .attr("dy", "-1em")
-// 	    .attr("text-anchor",anchor)
-
-// //if just this is clicked, we see panels of images and comments
-// //sized according to width/number of inputs to docu tool
-// 	var cameraS = svgMain.append("g").attr("class","cameraStudent")
-// 		.append("image")
-// 	    .attr("x", x2RectScale(5))
-// 	    .attr("y", bottomHalf)
-// 		.attr("width",pressW)
-// 		.attr("height",pressW)
-// 		.attr("xlink:href", "assets/icons0/mainIcon-03.png")
-// 	var	labelsCameraS = svgMain.append("g").attr("class","backlabels")
-// 		.append("text")
-// 	    .attr("x", x2RectScale(5)+textXPad)
-// 	    .attr("y", bottomHalf+textYPad)
-// 	    .text("Documentation")
-// 	    .attr("dy", "-1em")
-// 	    .attr("text-anchor",anchor)
-
-// //right side top half
-// 	var kitPic = svgMain.append("g").attr("class","backlabels")
-// 		.append("image")
-// 	    .attr("x", xRectScale(2))
-// 	    .attr("y", topHalf)
-// 	    .attr("width", pressW)
-// 	    .attr("height",pressW)
-//         .attr("xlink:href", "assets/icons0/mainIcon-05.png")
-// 	var	labelsKit = svgMain.append("g").attr("class","backlabels")
-// 		.append("text")
-// 	    .attr("x", xRectScale(2)+textXPad)
-// 	    .attr("y", topHalf+textYPad)
-// 	    .text("Kit")
-// 	    .attr("dy", "-1em")
-// 	    .attr("text-anchor",anchor)
-// //right side bottom half
-// 	var linksMade = svgMain.append("g").attr("class","backlabels")
-// 		.append("image")
-// 	    .attr("x", x2RectScale(6))
-// 	    .attr("y", bottomHalf)
-// 	    .attr("width", pressW)
-// 	    .attr("height",pressW)
-//         .attr("xlink:href", "assets/icons0/mainIcon-02.png")
-// 	var	labelsLinks = svgMain.append("g").attr("class","backlabels")
-// 		.append("text")
-// 	    .attr("x", x2RectScale(6)+textXPad)
-// 	    .attr("y", bottomHalf+textYPad)
-// 	    .text("Links Made")
-// 	    .attr("dy", "-1em")
-// 	    .attr("text-anchor",anchor)
-
-// //right side bottom half
-// 	var phasePic = svgMain.append("g").attr("class","backlabels")
-// 		.append("image")
-// 	    .attr("x", xRectScale(3))
-// 	    .attr("y", topHalf)
-// 	    .attr("width", pressW)
-// 	    .attr("height",pressW)
-//         .attr("xlink:href", "assets/icons0/mainIcon-01.png")
-// 	var	labelsPhase = svgMain.append("g").attr("class","backlabels")
-// 		.append("text")
-// 	    .attr("x", xRectScale(3)+textXPad)
-// 	    .attr("y", topHalf+textYPad)
-// 	    .text("Project Phases")
-// 	    .attr("dy", "-1em")
-// 	    .attr("text-anchor",anchor)
-
-
-
-
-
-
-
-
-
 
 	var hardwareKeyX = w+iconW;
 	var softwareKeyX = hardwareKeyX;
