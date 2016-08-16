@@ -7,12 +7,12 @@ var token = 0;
 
 
 //in UI
-var h = $("#container").height();
-var w = $("#container").width()-55;
+// var h = $("#container").height();
+// var w = $("#container").width()-55;
 //FIDGETING
-var leftMargin = 20;
-var rightMargin = 35;
-var cwidth=200,cheight=200,cmargin=25,maxr=5;
+// var leftMargin = 20;
+// var rightMargin = 35;
+// var cwidth=200,cheight=200,cmargin=25,maxr=5;
 
 //more values
 var topMarg = 10;
@@ -21,13 +21,13 @@ var iconW = 15;
 var iconLMarg = 27;
 var textL = 10;
 
-var topMargin = 100;
-var svgMain, timeSVG;
+// var topMargin = 100;
+// var svgMain, timeSVG;
 //forcediagram width, height
-var forcewidth = w/3-15;
-var forceheight = h/3.5;
+// var forcewidth = w/3-15;
+// var forceheight = h/3.5;
 //small height
-var timeSVGH = h/2;
+// var timeSVGH = h/2;
 //in UI
 
 
@@ -194,7 +194,7 @@ $(document).ready(function() {
 	},200); 
 })
 //in UI
-setSVG();
+// setSVG();
 function setSVG(){
 	svgMain = d3.select("#container").append("svg")
 		.attr("width",w+55).attr("height",h+topMargin)
@@ -426,7 +426,7 @@ function drawButton(button1, button2, img1, img2){
 		iconBut1.enter()
 		.append("image")
 		.attr("class","button1")
-		.attr("xlink:href", "assets/icons/idea.png")
+		.attr("xlink:href", "assets/icons0/Button.png")
 		.attr("x", function(d){
 			return timeX(d.time);
 		})
@@ -442,7 +442,6 @@ function drawButton(button1, button2, img1, img2){
 			console.log(lIndex)
 		    lightbulb = timeSVG.selectAll(".clip-circ"+lIndex+"l")
                 .data(btnNest1[lIndex].values[0]) 
-                //btnNest1[lIndex].values[0]
                 .attr("id","clip-circ")
                 .attr("x", timeX(thisTime)-btnImgW/2)
             lightbulb
@@ -502,6 +501,7 @@ function drawButton(button1, button2, img1, img2){
 			console.log(tIndex)
 		    thunder = timeSVG.selectAll(".clip-circ"+tIndex+"t")
                 .data(btnNest2[tIndex].values[0]) //btnImg2[thisIndex].data 
+                .attr("id","clip-circ")
                 .attr("x", timeX(thisTime)-btnImgW/2)
             thunder
                 .enter()
@@ -677,7 +677,7 @@ function showPhotos(){
 	studImgDoc.enter()
 		.append("image")
 		.attr("class","camIcon")
-		.attr("xlink:href", "assets/camera.png") //just checking now put back to thunder
+		.attr("xlink:href", "assets/icons0/Documentation.png") //just checking now put back to thunder
 		.attr("x", function(d){
 			return timeX(d.time);
 		})
@@ -771,11 +771,6 @@ function goFace(faceData){
 	var yPath = d3.scale.linear()
 	  .domain([0, maxTotal])
 	  .range([timeSVGH/2, 0]);
-
-  	lineFace = d3.svg.line()
-      .x(function(d, i) { return timeX(d.time); })
-      .y(function(d, i) { return yPath(d.num); })
-      .interpolate("cardinal")
 
 
 	var faceColor = "#AB47BC"
@@ -1208,7 +1203,7 @@ function goHands(handData){
 	  		handColor.domain([d.key])
 	  		theseTotals.push(d.values.length);
 			theseTotals.sort(d3.descending); 			
-	  		return "translate("+(cwidth*i)+",0)";
+	  		// return "translate("+(cwidth*i)+",0)";
 	  	})
 	  	.attr("class", function(d,i){
 	  			if(d.values.length==theseTotals[0]){

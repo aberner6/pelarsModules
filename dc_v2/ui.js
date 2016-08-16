@@ -1,8 +1,9 @@
 var h = $("#container").height();
-var w = 1425//$("#container").innerWidth();
-// var leftMargin = 20;
+var w = $("#container").innerWidth();
+
+var leftMargin = 20;
 var rightMargin = 35;
-var cwidth=200,cheight=200,cmargin=25,maxr=5;
+// var cwidth=200,cheight=200,cmargin=25,maxr=5;
 
 //more values
 var topMarg = 10;
@@ -12,7 +13,7 @@ var iconLMarg = 27;
 var textL = 10;
 var anchor = "middle";
 
-// var topMargin = 100;
+var topMargin = 100;
 var svgMain, timeSVG;
 //forcediagram width, height
 var forcewidth = w/3-15;
@@ -280,5 +281,5 @@ console.log(data);
 	    .attr("y", softwareKeyY)
 	    .text("Software")
 	    .attr("text-anchor",anchor)
-
+	$.getScript('staticData.js');
 }
