@@ -1,6 +1,7 @@
 // $.ajaxSetup({
 // 	async: false
 // });
+// importScripts('assets/d3.min.js'); 
 
 var thisSession = 0;
 var token = 0;
@@ -117,7 +118,7 @@ var whatTime = [];
 var yOther = d3.scale.ordinal()
 var xPath;
 var timeX = d3.scale.linear()
-	.range([leftMargin, w-rightMargin]);
+	.range([0, 0]);
 var timeX2 = d3.scale.linear();
 var y = d3.scale.ordinal()
     .domain(interactionTypes)
@@ -174,13 +175,13 @@ var activeThree = [];
 
 
 $(document).ready(function() {
-	getToken(); //returns the token
+	// getToken(); //returns the token
 	getData(thisSession, token);
 
 	var getNext = setInterval(function(){
 		console.log("one")
 		if(startFirst>0 && endFirst>startFirst){
-			getMulti(thisSession, token);
+			// getMulti(thisSession, token);
 			getPhases(thisSession, token);
 			clearInterval(getNext);
 		}
@@ -195,18 +196,18 @@ $(document).ready(function() {
 })
 //in UI
 // setSVG();
-function setSVG(){
-	svgMain = d3.select("#container").append("svg")
-		.attr("width",w+55).attr("height",h+topMargin)
-		.attr("transform", "translate(" + 0 + "," + 0 + ")")
-		.attr("class","mainSVG") 
-	timeSVG = svgMain
-		.append("g")
-		.attr("class","timelineSVG")
-		.attr("width", w)
-		.attr("height", timeSVGH)  
-		.style("margin-top","1px");
-}
+// function setSVG(){
+// 	svgMain = d3.select("#container").append("svg")
+// 		.attr("width",w+55).attr("height",h+topMargin)
+// 		.attr("transform", "translate(" + 0 + "," + 0 + ")")
+// 		.attr("class","mainSVG") 
+// 	timeSVG = svgMain
+// 		.append("g")
+// 		.attr("class","timelineSVG")
+// 		.attr("width", w)
+// 		.attr("height", timeSVGH)  
+// 		.style("margin-top","1px");
+// }
 //in UI
 function getToken(){
 	token = pelars_authenticate();
@@ -329,6 +330,26 @@ function getPhases(thisSession,token){
 }
 function sendNestedData(){
 	if (typeof nested_data !== "undefined"){
+	    var xAxisCall = svgMain.append('g');
+	    
+		var leftMargin = 100;
+	    var xAxis = d3.svg.axis();
+	    var xAxisScale = d3.time.scale()
+	        .domain([startTime, endTime])
+	        .range([leftMargin, w-rightMargin]);
+	    var timeFormat = d3.time.format("%H:%M");
+
+	    xAxis
+	        .scale(xAxisScale)
+	        .orient("top")
+	        .ticks(7)
+	        .tickPadding(1)
+	        .tickFormat(timeFormat);
+	    xAxisCall.call(xAxis)
+	        .attr("class", "axis") //Assign "axis" class
+	        .attr("text-anchor", "end")
+	        .attr('transform', 'translate(0, ' + (h-100) + ')');
+
 	console.log(nested_data)
 	for(i=0; i<nested_data.length; i++){
 		// console.log(nested_data[i])
@@ -426,7 +447,7 @@ function drawButton(button1, button2, img1, img2){
 		iconBut1.enter()
 		.append("image")
 		.attr("class","button1")
-		.attr("xlink:href", "assets/icons0/Button.png")
+		.attr("xlink:href", "assets/icons/idea.png")//"assets/icons0/Button.png")
 		.attr("x", function(d){
 			return timeX(d.time);
 		})
@@ -1192,6 +1213,7 @@ function makeEdge(linkData, linkNodes, linkLinks){
 
 var maxActiveOverall;
 var maxActive1, maxActive2, maxActive3;
+var pathActive1, lineActive1, pathActive2, lineActive2, pathActive3, lineActive3, pathActive0, lineActive0;
 function goHands(handData){
 	var numPanels = handData.values.length;
 
@@ -1358,7 +1380,6 @@ function goHands(handData){
 	console.log(maxActive3);
 	//which is the most active
 
-	var pathActive1, lineActive1, pathActive2, lineActive2, pathActive3, lineActive3, pathActive0, lineActive0;
 //should the max just be represented as the max value for Y?
 	var BigMax = overallVals.hand_speed.mean;
 	// var yActivePath;
@@ -1371,24 +1392,17 @@ function goHands(handData){
   	yActivePath = d3.scale.linear() 
 		.domain([0,maxActiveOverall]).range([timeSVGH-maxRadius, timeSVGH/2+(maxFaces*faceRadius)]); //timeSVGH/2
 
- 	 xActivePath = d3.scale.linear() //startTime, endTime
+ 	xActivePath = d3.scale.linear() //startTime, endTime
 		.domain([startTime, endTime]).range([10, w-40]);
 
-  // 	lineActive0 = d3.svg.line()
-		// .x(function(d, i) { return xActivePath(activeOne[i].thisTime); })
-		// .y(function(d, i) { return yActivePath(overallVals.hand_speed.mean); })
-		// .interpolate("bundle")
- 	// pathActive0 = timeSVG.append("g")
-	 //    .append("path")
-	 //    .attr("class","activepath1")
-	 //    .attr("fill","none")
-	 //    .attr("stroke","orange")
-	 //    .attr("stroke-dasharray",1)
-	 //    .attr("stroke-width",2);
-  // 	pathActive0
-  // 		.datum(softS1)
-  // 		.attr("d", lineActive0);
-
+	// can go from lineS1 which would be 0 for x to lineS which populates with data like this:
+	// pathS
+	// 	.datum(softUseComp).transition()
+	// 	.attr("d", lineActive1)
+	lineActiveZip = d3.svg.line()
+		.x(function(d, i) { return 0 })
+		.y(function(d, i) { return yActivePath(d); })
+		.interpolate("bundle")
 
   	lineActive1 = d3.svg.line()
 		.x(function(d, i) { return xActivePath(activeOne[i].thisTime); })
@@ -1403,7 +1417,7 @@ function goHands(handData){
 	    .attr("stroke-width",2);
   	pathActive1
   		.datum(softS1)
-  		.attr("d", lineActive1);
+  		.attr("d", lineActiveZip);
 
   	lineActive2 = d3.svg.line()
 		.x(function(d, i) { return xActivePath(activeTwo[i].thisTime); })
@@ -1418,7 +1432,7 @@ function goHands(handData){
 		.attr("stroke-width",2);
   	pathActive2
   		.datum(softS2)
-  		.attr("d", lineActive2);
+  		.attr("d", lineActiveZip);
 
 	lineActive3 = d3.svg.line()
 		.x(function(d, i) { return xActivePath(activeThree[i].thisTime); })
@@ -1432,31 +1446,39 @@ function goHands(handData){
 	    .attr("stroke-width",2)
   	pathActive3
   		.datum(softS3)
-  		.attr("d", lineActive3);
+  		.attr("d", lineActiveZip);
 }
 
 var yHPath, ySPath, minTotal, maxTotal, pathS, pathH, index, lineS, lineH, svgPath;
+var ardRectSVG;
+var arduinoRectangles;
 function showIDE(){
 	yOther
 	    .rangePoints([topMarg, forceheight]);
 
 	// timeX2.domain([startTime, endTime]).range([forcewidth/4, forcewidth]);
-	timeX2.domain([startTime, endTime]).range([leftMargin, w-leftMargin]);
+	// timeX2
+	// 	.domain([startTime, endTime])
+	// 	.range([0,0]);
+var timeXTrue = d3.scale.linear()
+	.domain([startTime, endTime])
+	.range([leftMargin, w-rightMargin]);
 
-	var ardRectSVG = svgMain.append("g")
+	ardRectSVG = svgMain.append("g")
         .attr("id", "arduinoRect")
-        .attr("transform", "translate(" + (leftMargin) + ", " + (h/2) + ")");
+        .attr("transform", "translate(" + (-w) + ", " + (h/2) + ")");
+        // .attr("transform", "translate(" + (leftMargin) + ", " + (h/2) + ")");
 
 	var ardPathSVG = svgMain.append("g")
         .attr("id", "arduinoPath")
         .attr("transform", "translate(" + (leftMargin) + ", " + ((h/2)+forceheight) + ")");
 
-	var g = ardRectSVG.selectAll(".ide")
+	arduinoRectangles = ardRectSVG.selectAll(".ide")
 		.data(ide_nest2)
 		.enter()
 	  	.append("g")
 	  	.attr("class","ide");
-		g.selectAll(".logs")
+	arduinoRectangles.selectAll(".logs")
 		.data(function(d) {
 				return d.values;				
 		}) 
@@ -1481,9 +1503,11 @@ function showIDE(){
 			}
 			return d.name;
 		})
+		.attr("id","ardRectz")
 		.attr("x", function(d){
 			if(d.mod=="M" || d.mod=="B"){
-				return timeX2(d.time)
+				// return timeX2(d.time)
+				return timeX(d.time)
 			}
 		})
         .attr("y", function(d, i) {
@@ -1495,9 +1519,9 @@ function showIDE(){
 			if(d.mod=="M" || d.mod=="B"){
 				if(d.oc==1){
 					if(d.end){
-						return timeX2(d.end)-timeX2(d.time);
+						return timeXTrue(d.end)-timeXTrue(d.time);
 					}else{
-						return timeX2(endTime)-timeX2(d.time);				
+						return timeXTrue(endTime)-timeXTrue(d.time);				
 					}
 				} else{
 					return 0;
@@ -1772,7 +1796,7 @@ function showIDE(){
 
 
 function showPhases(phasesJSON){
-	parseButton(firstData);
+	// parseButton(firstData);
 	console.log(phasesJSON.length+"phasesJSON length");
 
 	console.log(phasesJSON)

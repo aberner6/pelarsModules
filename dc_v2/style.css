@@ -4,10 +4,10 @@
 }
 
 @font-face {
-    font-family: 'Officina';
+    font-family: 'Gotham';
     font-style: normal;
     font-weight: 100;
-    src: url('assets/itc-officina-sans-lt-book.ttf') format('truetype');
+    src: url('assets/Fonts/Gotham-Book.otf');
 }
 
 #container {
@@ -16,7 +16,8 @@
     margin: 0;
     padding: 0;
     background-repeat: no-repeat;
-    font-family: Officina;
+    /*font-family: Officina;*/
+    font-family:Gotham;
     color: white;
     font-size: 10px;
     text-align: center;
@@ -35,7 +36,9 @@
     /*background-color: white;*/
     /*color: black;*/
 }
-
+text{
+    font-family:Gotham;
+}
 text.textSoft,
 text.textHard {
     font-size: 6pt;
@@ -147,9 +150,9 @@ HEADER STYLES
     font-family:Gotham;
 }
 #logo {
-  height: 36px;
+  /*height: 36px;*/
   z-index: 500;
-  width: 50px;
+  /*width: 50px;*/
   position: absolute;
   top: 5px;
 }
@@ -160,10 +163,10 @@ HEADER STYLES
 #logo  a > img {
   position:absolute;
   top:5px;
-  left:7.5%;
-  width:85%;
+  /*left:7.5%;*/
+  /*width:85%;*/
   height:auto;
-  margin-left: 30px;
+  /*margin-left: 30px;*/
 }
 #logo:hover{
     cursor:pointer;

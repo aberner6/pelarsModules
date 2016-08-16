@@ -82,6 +82,7 @@ d3.select("#plot").selectAll(".link")
 	var rectPhase = timeSVG.selectAll(".phase")
 	var textPhase = timeSVG.selectAll(".phaseText")
 
+//THESE ARE THE SCALES WE COULD WORK WITH
 
 //for smaller areas
 	// timeX2.domain([startTime, endTime]).range([forcewidth/4, forcewidth]);
@@ -89,13 +90,13 @@ d3.select("#plot").selectAll(".link")
 	.domain([startTime, endTime])
 	.range([leftMargin, w-leftMargin]);
 
-//arduino components
-	yOther
-	    .rangePoints([topMarg, forceheight]);
-//arduino path?
+//face path
 	var yPath = d3.scale.linear()
 	  .domain([0, maxTotal])
 	  .range([timeSVGH/2, 0]);
+//arduino components
+	yOther
+	    .rangePoints([topMarg, forceheight]);
 
 //hand path
   	yActivePath = d3.scale.linear() 
@@ -144,5 +145,38 @@ d3.select("#plot").selectAll(".link")
 		})
 		.interpolate("linear");
 
+
+sendnesteddata has the xaxis
+
+
+var leftMargin = 100;
+var timeX = d3.scale.linear()
+	.range([leftMargin, w-rightMargin]);
+d3.selectAll("rect.faceRect").transition().attr("x",function(d){ return timeX(d.time)})
+
+//test this when server is working and gives length to button images
+d3.selectAll(".button1").transition().attr("x",function(d){ return timeX(d.time)})
+d3.selectAll(".button2").transition().attr("x",function(d){ return timeX(d.time)})
+
+d3.selectAll("rect#ardRectz").transition().attr("x", function(d,i){ return timeX(d.time)});
+ardRectSVG
+	.transition()
+    .attr("transform", "translate(" + (leftMargin) + ", " + (h/2) + ")");
+//anything time-based always has plan.doc/reflect
+//turned off getMulti
+//turned off parse button
+
+
+  	pathActive1
+  		.datum(softS1).transition()  		
+  		.attr("d", lineActive1);
+
+  	pathActive2
+  		.datum(softS2).transition()  		
+  		.attr("d", lineActive2);
+
+  	pathActive3
+  		.datum(softS3).transition()  		
+  		.attr("d", lineActive3);
 
 

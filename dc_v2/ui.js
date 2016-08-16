@@ -36,11 +36,14 @@ var leftThird = rectWidth;//center-(rectWidth/2);
 var rightThird = w-rectWidth*2; //center+(rectWidth/2);
 
 var xRectScale = d3.scale.linear()
-	.domain([0, 4])
-	.range([leftThird-rectWidth, rightThird+rectWidth])
+	.domain([1, 4])
+	.range([leftThird*1.5, rightThird+rectWidth*1.1])
 var x2RectScale = d3.scale.linear()
-	.domain([4, 8])
-	.range([leftThird, rightThird+rectWidth*1.5])
+	.domain([4, 7])
+	.range([rectWidth, w-rectWidth*2])
+var x3RectScale = d3.scale.linear()
+	.domain([0, howManyDataStreams-1])
+	.range([rectWidth*2.4, w-rectWidth*2.4])
 //colors
 var hardwareColor = "#15989C";
 var softwareColor = "#B19B80";
@@ -48,24 +51,29 @@ var softwareColor = "#B19B80";
 var leftMargin = 5;
 var topMargin = leftMargin;
 setSVG();
-var data = [];
+var dataIs = [];
 var theseRects;
 var unClicked = 0;
-
+var svgBack;
 function setSVG(){
-	d3.tsv("data/descrips.tsv", function(error, dataIs) {
+	d3.tsv("data/descrips.tsv", function(error, dataS) {
 	  // x.domain([0, d3.max(data, function(d) { return d.value; })]);
-	  data.push(dataIs);
-	  console.log(data);
-	  makeThings(data);
+	  dataIs.push(dataS);
+	  // console.log(data);
+	  makeThings(dataIs);
 	})
 }
 
 function makeThings(data){
-	svgMain = d3.select("#container").append("svg")
-		.attr("class", "mainSVG")
-		.attr("width",w+55).attr("height",h+topMargin)
+	svgBack= d3.select("#container").append("svg")
+		.attr("class", "backSVG")
+		.attr("width",w).attr("height",h+topMargin)
 		.attr("transform", "translate(" + 0 + "," + 0 + ")")
+	svgMain = svgBack;
+	// d3.select("#container").append("svg")
+	// 	.attr("class", "mainSVG")
+	// 	.attr("width",w).attr("height",h+topMargin)
+	// 	.attr("transform", "translate(" + 0 + "," + 0 + ")")
 	timeSVG = svgMain
 		.append("g")
 		.attr("class","timelineSVG")
@@ -74,7 +82,8 @@ function makeThings(data){
 		.style("margin-top","1px");
 
 console.log(data);
-	var backR = svgMain.selectAll("g")
+	var backR = svgBack.selectAll("g")
+	// var backR = svgMain.selectAll("g")
 		.data(data[0])
 		.enter()
 		.append("g")
@@ -110,13 +119,13 @@ console.log(data);
 		.attr("stroke","lightgray")  
 		.attr("stroke-width",1) 
 
-	var center = svgMain
+	var center = svgBack
 		.append("circle")
 	    .attr("cx", w/2)
 	    .attr("cy",topHalf)
 	    .attr("r",5)
 	    .attr("fill","pink");
-	var center2 = svgMain
+	var center2 = svgBack
 		.append("circle")
 	    .attr("cx", w/2)
 	    .attr("cy",bottomHalf)
@@ -170,32 +179,42 @@ console.log(data);
         .on("click", function(d,i){
         	d3.selectAll("g.backRects")
         		.transition()
-		      	.attr("transform", function(d, i) { 
-		      		var x = 0;
-					var y = specialHeight+(i*specialHeight);//rectHeight/3+(i*rectHeight/3);		
-		      		return "translate(" + x + "," + (specialHeight/2+y) + ")"; 
+		      	.attr("transform", function(d, i) {  
+		      		var x = x3RectScale(i);
+					var y = specialHeight-10;
+		   //    		var x = 0;
+					// var y = specialHeight*2+(i*specialHeight/2);//rectHeight/3+(i*rectHeight/3);		
+		      		return "translate(" + x + "," + (y) + ")"; 
 		      	});
 			d3.selectAll("#rectangle")
         		.transition()
         		.attr("width", rectWidth/3)
-        		.attr("height", specialHeight)
+        		.attr("height", specialHeight/2)
 			
         	d3.selectAll("#capt")
         		.transition()
         		.attr("x", rectWidth/6-pressW/4)
-        		.attr("y", specialHeight/2-pressW/4)
+        		.attr("y", specialHeight/4-pressW/4)
         		.attr("width", pressW/2)
         		.attr("height", pressW/2)
         		.attr("opacity",1);
-	    	d3.selectAll("#name").attr("opacity",0)
-	    	d3.selectAll("#textDescrip").attr("opacity",0)
+	    	d3.selectAll("#name").attr("opacity",0);
+	    	d3.selectAll("#textDescrip").attr("opacity",0);
 
+        	var whichName;
 	    	d3.select(this)
         		.attr("stroke-width", origStroke*2)
-        		.attr("stroke","black")
+        		.attr("stroke",function(d,i){
+        			whichName = d.name;
+        			return "black";
+        		})
+
+        		// .transition()
+        		// .attr("width", rectWidth/2)
 
         	unClicked = 1;
         	console.log(unClicked+"unClicked")
+        	makeShow(whichName);
         })
         console.log(unClicked)
 
@@ -254,32 +273,40 @@ console.log(data);
 	var hardwareKeyY = h/4;
 	var softwareKeyY = h/4+(radiusKey*4);
 //right top key
-	var kitColor = svgMain.append("g").attr("class","kitlabels")
-		.append("circle")
-	    .attr("cx", hardwareKeyX)
-	    .attr("cy", hardwareKeyY)
-	    .attr("r", radiusKey)
-	    .attr("fill",hardwareColor)
-	    .attr("stroke",hardwareColor)
-	var	kitNameColor = svgMain.append("g").attr("class","kitlabels")
-		.append("text")
-	    .attr("x",hardwareKeyX+radiusKey*2)
-	    .attr("y", hardwareKeyY)
-	    .text("Hardware")
-	    .attr("text-anchor",anchor)
+	// var kitColor = svgMain.append("g").attr("class","kitlabels")
+	// 	.append("circle")
+	//     .attr("cx", hardwareKeyX)
+	//     .attr("cy", hardwareKeyY)
+	//     .attr("r", radiusKey)
+	//     .attr("fill",hardwareColor)
+	//     .attr("stroke",hardwareColor)
+	// var	kitNameColor = svgMain.append("g").attr("class","kitlabels")
+	// 	.append("text")
+	//     .attr("x",hardwareKeyX+radiusKey*2)
+	//     .attr("y", hardwareKeyY)
+	//     .text("Hardware")
+	//     .attr("text-anchor",anchor)
 
-	var kitColor2 = svgMain.append("g").attr("class","kitlabels")
-		.append("circle")
-	    .attr("cx", softwareKeyX)
-	    .attr("cy", softwareKeyY)
-	    .attr("r", radiusKey)
-	    .attr("fill",softwareColor)
-	    .attr("stroke",softwareColor)
-	var	kitNameColor2 = svgMain.append("g").attr("class","kitlabels")
-		.append("text")
-	    .attr("x", softwareKeyX+radiusKey*2)
-	    .attr("y", softwareKeyY)
-	    .text("Software")
-	    .attr("text-anchor",anchor)
+	// var kitColor2 = svgMain.append("g").attr("class","kitlabels")
+	// 	.append("circle")
+	//     .attr("cx", softwareKeyX)
+	//     .attr("cy", softwareKeyY)
+	//     .attr("r", radiusKey)
+	//     .attr("fill",softwareColor)
+	//     .attr("stroke",softwareColor)
+	// var	kitNameColor2 = svgMain.append("g").attr("class","kitlabels")
+	// 	.append("text")
+	//     .attr("x", softwareKeyX+radiusKey*2)
+	//     .attr("y", softwareKeyY)
+	//     .text("Software")
+	//     .attr("text-anchor",anchor)
+	// workit();
 	$.getScript('staticData.js');
 }
+
+function makeShow(whichName){
+	if(whichName=="Hands"){
+
+	}
+}
+
