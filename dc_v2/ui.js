@@ -307,83 +307,101 @@ console.log(d);
 	setUpHoverbox();
 }
 var hoverbox,
-	hoverboxMinWidth = 450,
+	hoverboxMinWidth = 200,
 	hoverboxHeight = 110,
 	hoverBoxPortScaleMax = 500000000,
 	hoverBoxPathScaleMax = 120000000;
 function setUpHoverbox(){
 //HOVERBOX
 //Setup hover box
+//placement of hoverbox X 
+//needs to be based on hoverbox width and overall width
+	var textColor = "black";
+	var backgroundColor = "white";
+	var strokeColor = "black";
 	hoverbox = svgMain.append("g")
 		.attr("id", "hoverbox")
 		.attr("class", "hidden")
-		.attr("transform", "translate(0,0)");
+		.attr("transform", "translate(" + (967) + "," + (77) + ")"); //967
 
+	var rectWidth = 0;
 	hoverbox.append("rect")
 		.attr("class", "background")
 		.attr("x", 0)
 		.attr("y", 0)
+		.attr("fill",backgroundColor)
+		.attr("stroke",strokeColor)
+		.attr("stroke-width",4)
 		.attr("width", hoverboxMinWidth)
 		.attr("height", hoverboxHeight);
 
 	hoverbox.append("text")
 		.attr("class", "title")
-		.attr("x", 10)
+		.attr("x", hoverboxMinWidth-9) //191
 		.attr("y", 24)
-		.text("Port: Houston to NYC");
-
+		.attr("fill",textColor)
+		.text("Data: ");
+	var dataRect = 2;
+	var dataOpa = .8;
 	hoverbox.append("rect")
 		.attr("class", "imports")
-		.attr("stroke", "white")
-		.attr("stroke-width", 1)
 		.attr("x", 10)
 		.attr("y", 50)
-		.attr("width", 50)
+		.attr("fill", "grey")
+		.attr("width", dataRect)
 		.attr("height", 20)
-		.attr("opacity", .7);
+		.attr("opacity", dataOpa);
 
 	hoverbox.append("rect")
 		.attr("class", "exports")
-		.attr("stroke", "white")
-		.attr("stroke-width", 1)
 		.attr("x", 50)
 		.attr("y", 50)
-		.attr("width", 50)
+		.attr("fill","red")
+		.attr("width", dataRect)
 		.attr("height", 20)
-		.attr("opacity", .7);
+		.attr("opacity", dataOpa);
 
 
 	hoverbox.append("rect")
 		.attr("class", "total")
-		.attr("stroke", "none")
+		.attr("stroke", strokeColor)
 		.attr("fill", "none")
-		.attr("stroke-width", 0)
+		.attr("stroke-width", 1)
 		.attr("x", 10)
 		.attr("y", 50)
-		.attr("width", 50)
+		.attr("width", rectWidth)
 		.attr("height", 20);
 
+	hoverbox.append("rect")
+		.attr("class", "total2")
+		.attr("stroke", strokeColor)
+		.attr("fill", "none")
+		.attr("stroke-width", 1)
+		.attr("x", 10)
+		.attr("y", 80)
+		.attr("width", rectWidth)
+		.attr("height", 20);
 
-	hoverbox.append("text")
-		.attr("class", "imports")
-		.attr("x", 0)
-		.attr("y", 0)
-		.text("imports")
-		.attr("opacity", .7);
+	// hoverbox.append("text")
+	// 	.attr("class", "imports")
+	// 	.attr("x", 0)
+	// 	.attr("y", 0)
+	// 	.text("imports")
+	// 	.attr("opacity", .7);
 
-	hoverbox.append("text")
-		.attr("class", "exports")
-		.attr("x", 0)
-		.attr("y", 0)
-		.text("exports")
-		.attr("opacity", .7);
+	// hoverbox.append("text")
+	// 	.attr("class", "exports")
+	// 	.attr("x", 0)
+	// 	.attr("y", 0)
+	// 	.text("exports")
+	// 	.attr("opacity", .7);
 
 
-	hoverbox.append("text")
-		.attr("class", "total")
-		.attr("x", 0)
-		.attr("y", 0)
-		.text("total");
+	// hoverbox.append("text")
+	// 	.attr("class", "total")
+	// 	.attr("x", 0)
+	// 	.attr("y", 0)
+	// 	.text("total");
 }
 
 function makeShow(whichName){

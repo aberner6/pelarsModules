@@ -1988,6 +1988,8 @@ function activateHoverbox(whichType){
 	if(whichType=="Hands"){
 		var seshProxMean = sessionHandProx[0].result.mean;
 		var seshSpeedMean = sessionHandSpeed[0].result[3].overall;
+		
+		var allSpeedMax = overallVals.hand_speed.max;
 		var allSpeedMean = overallVals.hand_speed.mean;
 		var allDistMean = overallVals.hand_distance.mean;
 
@@ -2024,25 +2026,26 @@ function activateHoverbox(whichType){
 	////////////////////////////////////////////////////
 		var impexbar = totalWidth;
 		var speedScale = d3.scale.linear()
-			.domain([0, allSpeedMean]) //fix this later and make it the real nice max
+			.domain([0, allSpeedMax]) //fix this later and make it the real nice max
 			.range([0, impexbar]);
-		var proxScale = d3.scale.linear()
-			.domain([0, allDistMean]) //fix this later and make it the real nice max
-			.range([0, impexbar]);
-
-		var speedWidth = speedScale(seshSpeedMean);
-		var proxWidth = proxScale(seshProxMean);
+		// var proxScale = d3.scale.linear()
+		// 	.domain([0, allDistMax]) //fix this later and make it the real nice max
+		// 	.range([0, impexbar]);
+		var allSpeedX = speedScale(allSpeedMean);
+		var seshSpeedX = speedScale(seshSpeedMean);
+		// var proxWidth = proxScale(seshProxMean);
 
 	////////////////////////////////////////////////////
+		hoverbox.select("rect.total2").attr("width", impexbar);
 
 		hoverbox.select("rect.total").attr("width", impexbar);
-		hoverbox.select("rect.imports").attr("width", speedWidth);
-		// hoverbox.select("rect.exports").attr("x", 10 + importsWidth).attr("width", exportsWidth);
+		hoverbox.select("rect.imports").attr("x",seshSpeedX);
+		hoverbox.select("rect.exports").attr("x",allSpeedX);
 
 
 		// var exportsText = "Exports: ";
 		// var exportsPerc = makePercentage(d.ExportMetTons, d.MetricTons);
-		var importsLabelWidth = hoverbox.select("text.imports").node().getBBox().width;
+		// var importsLabelWidth = hoverbox.select("text.imports").node().getBBox().width;
 		// var exportsLabelWidth = hoverbox.select("text.exports").node().getBBox().width;
 			// exportsText += exportsPerc+"%";
 
@@ -2064,12 +2067,12 @@ function activateHoverbox(whichType){
 			function makePercentage(number1, number2){
 				return Math.floor((number1 / number2) * 100);
 			}
-			importsText += makePercentage(seshSpeedMean, allSpeedMean)+"%";
+			// importsText += makePercentage(seshSpeedMean, allSpeedMean)+"%";
 			/////////////////////////////////////////////
 		var totalLabelX = imIs;
-		var totalLabelY = 40;
-		var totalText = "Total: ";
-		totalText += seshSpeedMean+"cm";			
+		var totalLabelY = 20;
+		// var totalText = "Total: ";
+		// totalText += seshSpeedMean+"cm";			
 
 		// totalText += makeNormal(allSpeedMean)+"cm";			
 			// function makeNormal(number){
@@ -2101,16 +2104,21 @@ function activateHoverbox(whichType){
 		// 	.attr("y", exportsLabelY)
 		// 	.text(exportsText);
 
-		hoverbox.select("text.imports")
-			.attr("x", importsLabelX)
-			.attr("y", importsLabelY)
-			.text(importsText);
+		// hoverbox.select("text.imports")
+		// 	.attr("x", importsLabelX)
+		// 	.attr("y", importsLabelY)
+		// 	.text(importsText);
 			//////////////////
-		hoverbox.select("text.total")
-			.attr("x", totalLabelX)
+		// hoverbox.select("text.total")
+		// 	.attr("x", totalLabelX)
+		// 	.attr("y", totalLabelY)
+		// 	.text(totalText);
+			//////////////////
+		hoverbox.select("text.title")
+			// .attr("x", totalLabelX)
 			.attr("y", totalLabelY)
-			.text(totalText);
-			//////////////////
+			.attr("text-anchor","end")
+			.text(whichType);
 
 		hoverbox.classed("hidden", false);
 	}
