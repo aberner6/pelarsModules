@@ -215,6 +215,8 @@ console.log(data);
         	unClicked = 1;
         	console.log(unClicked+"unClicked")
         	makeShow(whichName);
+console.log(d);
+			updateHoverbox(d);
         })
         console.log(unClicked)
 
@@ -300,13 +302,99 @@ console.log(data);
 	//     .attr("y", softwareKeyY)
 	//     .text("Software")
 	//     .attr("text-anchor",anchor)
-	// workit();
+
 	$.getScript('staticData.js');
+	setUpHoverbox();
+}
+var hoverbox,
+	hoverboxMinWidth = 450,
+	hoverboxHeight = 110,
+	hoverBoxPortScaleMax = 500000000,
+	hoverBoxPathScaleMax = 120000000;
+function setUpHoverbox(){
+//HOVERBOX
+//Setup hover box
+	hoverbox = svgMain.append("g")
+		.attr("id", "hoverbox")
+		.attr("class", "hidden")
+		.attr("transform", "translate(0,0)");
+
+	hoverbox.append("rect")
+		.attr("class", "background")
+		.attr("x", 0)
+		.attr("y", 0)
+		.attr("width", hoverboxMinWidth)
+		.attr("height", hoverboxHeight);
+
+	hoverbox.append("text")
+		.attr("class", "title")
+		.attr("x", 10)
+		.attr("y", 24)
+		.text("Port: Houston to NYC");
+
+	hoverbox.append("rect")
+		.attr("class", "imports")
+		.attr("stroke", "white")
+		.attr("stroke-width", 1)
+		.attr("x", 10)
+		.attr("y", 50)
+		.attr("width", 50)
+		.attr("height", 20)
+		.attr("opacity", .7);
+
+	hoverbox.append("rect")
+		.attr("class", "exports")
+		.attr("stroke", "white")
+		.attr("stroke-width", 1)
+		.attr("x", 50)
+		.attr("y", 50)
+		.attr("width", 50)
+		.attr("height", 20)
+		.attr("opacity", .7);
+
+
+	hoverbox.append("rect")
+		.attr("class", "total")
+		.attr("stroke", "none")
+		.attr("fill", "none")
+		.attr("stroke-width", 0)
+		.attr("x", 10)
+		.attr("y", 50)
+		.attr("width", 50)
+		.attr("height", 20);
+
+
+	hoverbox.append("text")
+		.attr("class", "imports")
+		.attr("x", 0)
+		.attr("y", 0)
+		.text("imports")
+		.attr("opacity", .7);
+
+	hoverbox.append("text")
+		.attr("class", "exports")
+		.attr("x", 0)
+		.attr("y", 0)
+		.text("exports")
+		.attr("opacity", .7);
+
+
+	hoverbox.append("text")
+		.attr("class", "total")
+		.attr("x", 0)
+		.attr("y", 0)
+		.text("total");
 }
 
 function makeShow(whichName){
 	if(whichName=="Hands"){
-
+		// updateHoverbox()
 	}
 }
-
+function updateHoverbox(receiveData){
+	var hoverData = receiveData;
+	console.log(hoverData.name+"hover data")	
+	if(hoverData.name=="Hands"){
+		activateHoverbox("Hands");
+	}
+}

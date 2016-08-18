@@ -1,19 +1,11 @@
-// $.ajaxSetup({
-// 	async: false
-// });
-// importScripts('assets/d3.min.js'); 
+//huh
+//1593
+//no button data in here
+
 
 var thisSession = 0;
 var token = 0;
 
-
-//in UI
-// var h = $("#container").height();
-// var w = $("#container").width()-55;
-//FIDGETING
-// var leftMargin = 20;
-// var rightMargin = 35;
-// var cwidth=200,cheight=200,cmargin=25,maxr=5;
 
 //more values
 var topMarg = 10;
@@ -21,16 +13,6 @@ var textH = 30;
 var iconW = 15;
 var iconLMarg = 27;
 var textL = 10;
-
-// var topMargin = 100;
-// var svgMain, timeSVG;
-//forcediagram width, height
-// var forcewidth = w/3-15;
-// var forceheight = h/3.5;
-//small height
-// var timeSVGH = h/2;
-//in UI
-
 
 
 //data tools
@@ -145,11 +127,6 @@ var thisSession;
 //timing
 var startMin, endMin, totalTime;
 
-//in UI
-//colors
-var hardwareColor = "#15989C";
-var softwareColor = "#B19B80";
-//in UI
 
 //phase data stream
 var obsReflect = [];
@@ -164,16 +141,6 @@ var activeOne = [];
 var activeTwo = [];
 var activeThree = [];
 
-//don't think in use
-// var x=d3.scale.linear().range([cmargin,cwidth-cmargin]);
-// var y=d3.scale.linear().range([cheight-cmargin,cmargin]);
-// var o=d3.scale.linear().domain([0,300000]).range([.5,1]);
-// var fx=d3.scale.linear().range([cmargin,cwidth-cmargin]);
-// var fy=d3.scale.linear().range([cheight-cmargin,cmargin]);
-
-
-
-
 $(document).ready(function() {
 	// getToken(); //returns the token
 	getData(thisSession, token);
@@ -181,7 +148,7 @@ $(document).ready(function() {
 	var getNext = setInterval(function(){
 		console.log("one")
 		if(startFirst>0 && endFirst>startFirst){
-			// getMulti(thisSession, token);
+			getMulti(thisSession, token);
 			getPhases(thisSession, token);
 			clearInterval(getNext);
 		}
@@ -194,25 +161,13 @@ $(document).ready(function() {
 		}
 	},200); 
 })
-//in UI
-// setSVG();
-// function setSVG(){
-// 	svgMain = d3.select("#container").append("svg")
-// 		.attr("width",w+55).attr("height",h+topMargin)
-// 		.attr("transform", "translate(" + 0 + "," + 0 + ")")
-// 		.attr("class","mainSVG") 
-// 	timeSVG = svgMain
-// 		.append("g")
-// 		.attr("class","timelineSVG")
-// 		.attr("width", w)
-// 		.attr("height", timeSVGH)  
-// 		.style("margin-top","1px");
-// }
-//in UI
+
 function getToken(){
 	token = pelars_authenticate();
 }
-thisSession = parseInt(1371);//parseInt(json1[json1.length-1].session);
+//ORIGINAL
+thisSession = parseInt(1593);
+
 // function getSession(token){
 // 	console.log(token+"token");
 // 	$.getJSON("http://pelars.sssup.it:8080/pelars/session?token="+token,function(json1){
@@ -222,9 +177,11 @@ thisSession = parseInt(1371);//parseInt(json1[json1.length-1].session);
 // }
 
 var nest_again;
-var overallVals;
+// var overallVals;
 // IF START TIME OF overall session IS DIFFERENT THAN START TIME OF phase data...
 function getData(thisSession, token){
+	getOverallValues();
+
 	d3.json("data/data1.json", function(json){
 		startFirst = json[0].time; //for all of the data, this is the supposed start
 		endFirst = json[json.length-1].time; //for all of the data, this is the supposed end
@@ -270,16 +227,31 @@ function getData(thisSession, token){
 		.key(function(d) { return d.type; })
 		.entries(data);
 	})
+}
+var overallVals;
+var sessionHandSpeed;
+var sessionHandProx;
+function getOverallValues(){
+//NEEDS TO BE SYNCED WITH SERVER
+//not online
 	d3.json("data/content.json", function(json){
 		overallVals = json;
 	})
-	console.log(overallVals+"overall summary")
+	d3.json("data/handSpeed.json", function(json){
+		sessionHandSpeed = json;
+	})
+	d3.json("data/handProximity.json", function(json){
+		sessionHandProx = json;
+	})
+	console.log(overallVals+"overall summary")	
 }
 
 var tempData = [];
 var multiData = [];
 function getMulti(thisSession,token){
-	d3.json("data/multimedia.json", function(multiJSON){
+	$.getJSON("http://pelars.sssup.it:8080/pelars/multimedia/"+thisSession+"?token="+token,function(multiJSON){
+
+	// d3.json("data/multimedia.json", function(multiJSON){
 		tempData.push(multiJSON); 
 		multiData.push(tempData[0]);
 		parsePhotos(multiData);
@@ -331,7 +303,7 @@ function getPhases(thisSession,token){
 function sendNestedData(){
 	if (typeof nested_data !== "undefined"){
 	    var xAxisCall = svgMain.append('g');
-	    
+
 		var leftMargin = 100;
 	    var xAxis = d3.svg.axis();
 	    var xAxisScale = d3.time.scale()
@@ -426,19 +398,20 @@ var button1Images = [];
 function drawButton(button1, button2, img1, img2){
 	console.log("draw button")
 	console.log(img1)
+	// console.log()
 	btnNest1 = d3.nest()
 		.key(function(d) { 
-			return d[0].time; 
+			return d.time; 
 		})
 		.sortKeys(d3.ascending)
-		.entries(btnImg1);
+		.entries(button1); //not btnImg1
 
 	btnNest2 = d3.nest()
 		.key(function(d) { 
-			return d[0].time; 
+			return d.time; 
 		})
 		.sortKeys(d3.ascending)
-		.entries(btnImg2);
+		.entries(button2); //not btnImg2
 // for (i=0; i<button1.length; i++){
 // 	button1Images.push(btnNest1[i].values[0][0].data)
 // }
@@ -1998,6 +1971,173 @@ function showPhases(phasesJSON){
 		})
 		.attr("text-anchor","middle")
 }
+
+function activateHoverbox(whichType){
+//not online
+	// d3.json("data/content.json", function(json){
+	// 	overallVals = json;
+	// })
+	// d3.json("data/handSpeed.json", function(json){
+	// 	sessionHandSpeed = json;
+	// })
+	// d3.json("data/handProximity.json", function(json){
+	// 	sessionHandProx = json;
+	// })
+	// console.log(overallVals+"overall summary")	
+
+	if(whichType=="Hands"){
+		var seshProxMean = sessionHandProx[0].result.mean;
+		var seshSpeedMean = sessionHandSpeed[0].result[3].overall;
+		var allSpeedMean = overallVals.hand_speed.mean;
+		var allDistMean = overallVals.hand_distance.mean;
+
+		console.log(seshSpeedMean+"stats"+seshSpeedMean/allSpeedMean)
+
+		//Type is "port" or "path"
+
+		// console.log(d+"d");
+		// console.log(type+"type");
+		//Special handling for ports
+		// if (type == "port") {
+
+		// 	var xy = proj([d.lon, d.lat]);
+		// 	hoverbox.attr("transform", "translate(" + xy[0] + "," + xy[1] + ")");
+
+		// 	hoverbox.select(".title").text("Port: "+d.port);
+
+		// 	var hoverBoxScaleMax = hoverBoxPortScaleMax;
+		
+		// }
+		// //Special handling for paths
+		// else {
+		// 	var xy = d3.mouse(svg.node());
+		// 	hoverbox.attr("transform", "translate(" + xy[0] + "," + xy[1] + ")");
+
+		// 	hoverbox.select(".title").text("Route: "+d.USPt + " ↔ " + d.FgnPort);
+
+		// 	var hoverBoxScaleMax = hoverBoxPathScaleMax;
+		// }
+
+		//Calculate relative proportions for the import/export rects
+		var totalWidth = hoverboxMinWidth - 20;
+
+	////////////////////////////////////////////////////
+		var impexbar = totalWidth;
+		var speedScale = d3.scale.linear()
+			.domain([0, allSpeedMean]) //fix this later and make it the real nice max
+			.range([0, impexbar]);
+		var proxScale = d3.scale.linear()
+			.domain([0, allDistMean]) //fix this later and make it the real nice max
+			.range([0, impexbar]);
+
+		var speedWidth = speedScale(seshSpeedMean);
+		var proxWidth = proxScale(seshProxMean);
+
+	////////////////////////////////////////////////////
+
+		hoverbox.select("rect.total").attr("width", impexbar);
+		hoverbox.select("rect.imports").attr("width", speedWidth);
+		// hoverbox.select("rect.exports").attr("x", 10 + importsWidth).attr("width", exportsWidth);
+
+
+		// var exportsText = "Exports: ";
+		// var exportsPerc = makePercentage(d.ExportMetTons, d.MetricTons);
+		var importsLabelWidth = hoverbox.select("text.imports").node().getBBox().width;
+		// var exportsLabelWidth = hoverbox.select("text.exports").node().getBBox().width;
+			// exportsText += exportsPerc+"%";
+
+		// if (exportsPerc<10){
+		// 	var exIs = totalWidth-70;
+		// }
+		// else {
+		// 	var exIs = totalWidth-80;
+		// }
+		// var exportsLabelX = exIs;
+		// var exportsLabelY = 85;
+
+
+			/////////////////////////////////////////////
+		var imIs = 	10;
+		var importsLabelX = imIs;
+		var importsLabelY = 80;//exportsLabelY;
+		var importsText = "Speed: ";
+			function makePercentage(number1, number2){
+				return Math.floor((number1 / number2) * 100);
+			}
+			importsText += makePercentage(seshSpeedMean, allSpeedMean)+"%";
+			/////////////////////////////////////////////
+		var totalLabelX = imIs;
+		var totalLabelY = 40;
+		var totalText = "Total: ";
+		totalText += seshSpeedMean+"cm";			
+
+		// totalText += makeNormal(allSpeedMean)+"cm";			
+			// function makeNormal(number){
+			// 	return Math.round(newNum);
+			// }
+			// function makeNormal(number){
+			// 	if (number>1000000){
+			// 		var newNum = number/1000000;
+			// 		return Math.round(newNum);
+			// 	}
+			// 	else {
+			// 		var newNum = number/1000;
+			// 		return Math.round(newNum);
+			// 	}
+			// }
+			// if (d.MetricTons>1000000){
+			// 	totalText += makeNormal(d.MetricTons)+"mil";
+			// }
+			// else {
+			// 	totalText += makeNormal(d.MetricTons)+"k";			
+			// }
+			// }
+			////////////////////////////////////////////
+
+
+
+		// hoverbox.select("text.exports")
+		// 	.attr("x", exportsLabelX)
+		// 	.attr("y", exportsLabelY)
+		// 	.text(exportsText);
+
+		hoverbox.select("text.imports")
+			.attr("x", importsLabelX)
+			.attr("y", importsLabelY)
+			.text(importsText);
+			//////////////////
+		hoverbox.select("text.total")
+			.attr("x", totalLabelX)
+			.attr("y", totalLabelY)
+			.text(totalText);
+			//////////////////
+
+		hoverbox.classed("hidden", false);
+	}
+}
+
+
+var hideHoverbox = function() {
+	hoverbox.classed("hidden", true);
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function unique(obj) {
     var uniques = [];

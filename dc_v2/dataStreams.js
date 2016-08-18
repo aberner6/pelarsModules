@@ -180,3 +180,250 @@ ardRectSVG
   		.attr("d", lineActive3);
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//HOVERBOX
+//Setup hover box
+	hoverbox = svg.append("g")
+		.attr("id", "hoverbox")
+		.attr("class", "hidden")
+		.attr("transform", "translate(0,0)");
+
+	hoverbox.append("rect")
+		.attr("class", "background")
+		.attr("x", 0)
+		.attr("y", 0)
+		.attr("width", hoverboxMinWidth)
+		.attr("height", hoverboxHeight);
+
+	hoverbox.append("text")
+		.attr("class", "title")
+		.attr("x", 10)
+		.attr("y", 24)
+		.text("Port: Houston to NYC");
+
+	hoverbox.append("rect")
+		.attr("class", "imports")
+		.attr("stroke", "white")
+		.attr("stroke-width", 1)
+		.attr("x", 10)
+		.attr("y", 50)
+		.attr("width", 50)
+		.attr("height", 20)
+		.attr("opacity", .7);
+
+	hoverbox.append("rect")
+		.attr("class", "exports")
+		.attr("stroke", "white")
+		.attr("stroke-width", 1)
+		.attr("x", 50)
+		.attr("y", 50)
+		.attr("width", 50)
+		.attr("height", 20)
+		.attr("opacity", .7);
+
+
+	hoverbox.append("rect")
+		.attr("class", "total")
+		.attr("stroke", "none")
+		.attr("fill", "none")
+		.attr("stroke-width", 0)
+		.attr("x", 10)
+		.attr("y", 50)
+		.attr("width", 50)
+		.attr("height", 20);
+
+
+	hoverbox.append("text")
+		.attr("class", "imports")
+		.attr("x", 0)
+		.attr("y", 0)
+		.text("imports")
+		.attr("opacity", .7);
+
+	hoverbox.append("text")
+		.attr("class", "exports")
+		.attr("x", 0)
+		.attr("y", 0)
+		.text("exports")
+		.attr("opacity", .7);
+
+
+	hoverbox.append("text")
+		.attr("class", "total")
+		.attr("x", 0)
+		.attr("y", 0)
+		.text("total");
+
+
+//concept for mouseover
+		.on("mouseover", function(d) \{
+				console.log("d.properties"+d.properties)\
+			updateHoverbox(d.properties, "path");
+			d3.select(this).each(moveToFront);
+		})
+		.on("mouseout", function(d) {
+			hideHoverbox();
+
+		});
+var updateHoverbox = function(d, type) {
+
+	//Type is "port" or "path"
+
+	console.log(d+"d");
+	console.log(type+"type");
+	//Special handling for ports
+	if (type == "port") {
+
+		var xy = proj([d.lon, d.lat]);
+		hoverbox.attr("transform", "translate(" + xy[0] + "," + xy[1] + ")");
+
+		hoverbox.select(".title").text("Port: "+d.port);
+
+		var hoverBoxScaleMax = hoverBoxPortScaleMax;
+	
+	}
+	//Special handling for paths
+	else {
+
+		var xy = d3.mouse(svg.node());
+		hoverbox.attr("transform", "translate(" + xy[0] + "," + xy[1] + ")");
+
+		hoverbox.select(".title").text("Route: "+d.USPt + " ↔ " + d.FgnPort);
+
+		var hoverBoxScaleMax = hoverBoxPathScaleMax;
+
+	}
+
+	//Calculate relative proportions for the import/export rects
+	var totalWidth = hoverboxMinWidth - 20;
+
+////////////////////////////////////////////////////
+
+
+var impexbar = totalWidth;
+var importScale = d3.scale.linear()
+	.domain([0, d.MetricTons]) //fix this later and make it the real nice max
+	.range([0, impexbar]);
+var exportScale = d3.scale.linear()
+	.domain([0, d.MetricTons]) //fix this later and make it the real nice max
+	.range([0, impexbar]);
+
+	var importsWidth = importScale (d.ImportMetTons);
+	var exportsWidth = exportScale (d.ExportMetTons);
+
+////////////////////////////////////////////////////
+
+	hoverbox.select("rect.total").attr("width", impexbar);
+	hoverbox.select("rect.imports").attr("width", importsWidth);
+	hoverbox.select("rect.exports").attr("x", 10 + importsWidth).attr("width", exportsWidth);
+
+
+	var exportsText = "Exports: ";
+	var exportsPerc = makePercentage(d.ExportMetTons, d.MetricTons);
+	var importsLabelWidth = hoverbox.select("text.imports").node().getBBox().width;
+	var exportsLabelWidth = hoverbox.select("text.exports").node().getBBox().width;
+		exportsText += exportsPerc+"%";
+
+if (exportsPerc<10){
+var exIs = totalWidth-70;
+}
+else {
+var exIs = totalWidth-80;
+}
+	var exportsLabelX = exIs;
+	var exportsLabelY = 85;
+
+
+		/////////////////////////////////////////////
+var imIs = 	10;
+	var importsLabelX = imIs;
+	var importsLabelY = exportsLabelY;
+	var importsText = "Imports: ";
+		function makePercentage(number1, number2){
+		return Math.floor((number1 / number2) * 100);
+		}
+		importsText += makePercentage(d.ImportMetTons, d.MetricTons)+"%";
+		/////////////////////////////////////////////
+	var totalLabelX = imIs;
+	var totalLabelY = 40;
+	var totalText = "Total: ";
+		function makeNormal(number){
+			if (number>1000000){
+			var newNum = number/1000000;
+				return Math.round(newNum);
+			}
+			else {
+			var newNum = number/1000;
+				return Math.round(newNum);
+			}
+		}
+		if (d.MetricTons>1000000){
+			totalText += makeNormal(d.MetricTons)+"mil";
+		}
+		else {
+			totalText += makeNormal(d.MetricTons)+"k";			
+		}
+		////////////////////////////////////////////
+
+
+
+	hoverbox.select("text.exports")
+		.attr("x", exportsLabelX)
+		.attr("y", exportsLabelY)
+		.text(exportsText);
+
+	hoverbox.select("text.imports")
+		.attr("x", importsLabelX)
+		.attr("y", importsLabelY)
+		.text(importsText);
+		//////////////////
+	hoverbox.select("text.total")
+		.attr("x", totalLabelX)
+		.attr("y", totalLabelY)
+		.text(totalText);
+		//////////////////
+
+	hoverbox.classed("hidden", false);
+
+};
+
+
+
+var hideHoverbox = function() {
+	hoverbox.classed("hidden", true);
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

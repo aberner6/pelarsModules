@@ -209,3 +209,67 @@ letter-spacing: 0.5px;
   background-color: #3d3d3c;
   color:white;
 }
+
+
+
+
+
+
+
+
+/* Hoverbox */
+
+#hoverbox {
+    pointer-events: none;
+}
+
+#hoverbox rect {
+    shape-rendering: crispEdges;
+}
+
+#hoverbox rect.background {
+    fill: black;
+    opacity: 0.9;
+}
+
+#hoverbox text {
+    font-size: 14px;
+    /*fill: yellow;*/
+    /*opacity: ;*/
+}
+
+#hoverbox .title {
+    fill: gray;
+}
+
+#hoverbox .label {
+    fill: gray;
+}
+#hoverbox .shipnames {
+    fill: lightblue;
+}
+
+#hoverbox text.imports {
+    fill: #56a6d5;
+}
+
+#hoverbox text.exports {
+    fill: #02d2ee;
+}
+#hoverbox text.total {
+    fill: gray;
+    font-size: 12px;
+    font-style: italic;
+}
+#hoverbox rect.imports {
+    fill: #56a6d5;
+
+}
+
+#hoverbox rect.exports {
+    fill: #02d2ee;
+}
+
+#hoverbox.hidden {
+    display: none;
+}
