@@ -2168,7 +2168,7 @@ function activateHoverbox(whichType){
 }
 
 
-var hideHoverbox = function() {
+function hideHoverbox(){
 	hoverbox.classed("hidden", true);
 };
 

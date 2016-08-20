@@ -59,6 +59,8 @@ var dataIs = [];
 var theseRects;
 var unClicked = 0;
 var svgBack;
+
+var clickedAgain = false;
 function setSVG(){
 	d3.tsv("data/descrips.tsv", function(error, dataS) {
 	  // x.domain([0, d3.max(data, function(d) { return d.value; })]);
@@ -67,7 +69,8 @@ function setSVG(){
 	  makeThings(dataIs);
 	})
 }
-
+var prevName = [];
+var index = 0;
 function makeThings(data){
 	svgBack= d3.select("#container").append("svg")
 		.attr("class", "backSVG")
@@ -210,17 +213,21 @@ console.log(data);
         		.attr("stroke-width", origStroke*2)
         		.attr("stroke",function(d,i){
         			whichName = d.name;
+        			prevName.push(whichName);
+        			index++;
         			return darkColor;
         		})
 
         		// .transition()
         		// .attr("width", rectWidth/2)
-
+if(index>1&&whichName==prevName[index-1]){
+	clickedAgain = true;
+	console.log(whichName+clickedAgain+prevName[index-1])
+}
         	unClicked = 1;
         	console.log(unClicked+"unClicked")
         	makeShow(whichName);
 console.log(d);
-			updateHoverbox(d);
         })
         console.log(unClicked)
 
@@ -427,17 +434,37 @@ function setUpHoverbox(){
 	// 	.text("total");
 }
 
+var handsShow = false;
+var buttonShow = false;
 function makeShow(whichName){
-	if(whichName=="Hands"){
-		// updateHoverbox()
+	//could just show/hide hoverbox with jquery toggle?
+	if(whichName=="Hands" && handsShow==false){
+		numSelected = numSelected+1;
+		console.log("showing because hands were clicked"+numSelected)
+		updateHoverbox(whichName);
 	}
+	if(clickedAgain==true){
+		numSelected = numSelected-1;
+		console.log("hiding because unclicked"+numSelected);
+		hideHoverbox();
+	}
+
+	if(whichName=="Button" && buttonShow==false && handsShow==true){
+		numSelected = numSelected+1;
+		console.log("2 selected"+numSelected);
+		buttonShow = true;		
+	}
+	// if(whichName=="Button" && buttonShow==false handsShow==false){
+	// 	numSelected = numSelected+1;
+	// 	console.log("1 selected"+numSelected);
+	// 	buttonShow = true;		
+	// }
 }
 function updateHoverbox(receiveData){
 	var hoverData = receiveData;
-	console.log(hoverData.name+"hover data")	
-	if(hoverData.name=="Hands"){
+	console.log(hoverData+"hover data")	
+	if(hoverData=="Hands"){
 		$("g.axis").show();
-		numSelected = 1;
 		showingHands();
 		activateHoverbox("Hands");
 	}
