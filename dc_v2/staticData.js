@@ -1377,8 +1377,6 @@ function goHands(handData){
 		// .domain([0,BigMax]).range([timeSVGH-maxRadius, timeSVGH/2+(maxFaces*faceRadius)]); //timeSVGH/2
 
 // at any given point in time (Y) X-value represents the average speed over the previous 80 data records
-}
-function showingHands(){
 	// if(numSelected==1){
 		yBottom = yAxisBottom;
 		yTop = h/2;
@@ -1444,7 +1442,8 @@ function showingHands(){
   	pathActive3
   		.datum(softS3)
   		.attr("d", lineActiveZip);
-
+}
+function showingHands(){
   	pathActive1
   		.datum(softS1).transition().duration(durTrans)  		
   		.attr("d", lineActive1);
@@ -2062,10 +2061,10 @@ function activateHoverbox(whichType){
 		// }
 
 		//Calculate relative proportions for the import/export rects
-		var totalWidth = hoverboxMinWidth - 20;
+		// var totalWidth = hoverboxMinWidth - 20;
 
 	////////////////////////////////////////////////////
-		var impexbar = totalWidth;
+		var impexbar = hovRectWidth;
 
 		var proxScale = d3.scale.linear()
 			.domain([0, allProxMax]) //fix this later and make it the real nice max
@@ -2158,9 +2157,7 @@ function activateHoverbox(whichType){
 		// 	.text(totalText);
 			//////////////////
 		hoverbox.select("text.title")
-			// .attr("x", totalLabelX)
 			.attr("y", totalLabelY)
-			.attr("text-anchor","end")
 			.text(whichType);
 
 		hoverbox.classed("hidden", false);

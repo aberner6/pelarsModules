@@ -317,11 +317,15 @@ console.log(d);
 	// $.getScript('staticData.js');
 	setUpHoverbox();
 }
+
 var hoverbox,
 	hoverboxMinWidth = 200,
 	hoverboxHeight = 110,
 	hoverBoxPortScaleMax = 500000000,
 	hoverBoxPathScaleMax = 120000000;
+var textStart = 10;
+var rectStart = textStart*5;
+var hovRectWidth = hoverboxMinWidth-rectStart-textStart;
 function setUpHoverbox(){
 //HOVERBOX
 //Setup hover box
@@ -336,7 +340,6 @@ function setUpHoverbox(){
 		//hand rect is at 
 		// translate(469.20001220703125,75)
 
-	var rectWidth = 0;
 	hoverbox.append("rect")
 		.attr("class", "background")
 		.attr("x", 0)
@@ -349,29 +352,20 @@ function setUpHoverbox(){
 
 	hoverbox.append("text")
 		.attr("class", "title")
-		.attr("x", hoverboxMinWidth-9) //191
+		.attr("x", textStart)//hoverboxMinWidth-9) //191
 		.attr("y", 24)
+		.attr("text-anchor","start")
 		.attr("fill",textColor)
 		.text("Data: ");
 	var dataRect = 2;
 	var dataOpa = .8;
-	hoverbox.append("rect")
-		.attr("class", "imports")
-		.attr("x", 10)
-		.attr("y", 50)
-		.attr("fill", "grey")
-		.attr("width", dataRect)
-		.attr("height", 20)
-		.attr("opacity", dataOpa);
-
-	hoverbox.append("rect")
-		.attr("class", "exports")
-		.attr("x", 50)
-		.attr("y", 50)
-		.attr("fill","red")
-		.attr("width", dataRect)
-		.attr("height", 20)
-		.attr("opacity", dataOpa);
+	
+	//if data type is hands, hov rect height is 20 - relative to the number of data streams shown
+	var	hovRectHeight = 20;
+	var buffer = 10;
+	var rect1Y = 50;
+	var rect2Y = rect1Y + hovRectHeight+buffer;
+	var titleY = 24;
 
 
 	hoverbox.append("rect")
@@ -379,59 +373,64 @@ function setUpHoverbox(){
 		.attr("stroke", strokeColor)
 		.attr("fill", "none")
 		.attr("stroke-width", 1)
+		.attr("x", rectStart)
+		.attr("y", rect1Y)
+		.attr("width", hovRectWidth)
+		.attr("height", hovRectHeight);
+	hoverbox.append("rect")
+		.attr("class", "imports")
 		.attr("x", 10)
-		.attr("y", 50)
-		.attr("width", rectWidth)
-		.attr("height", 20);
+		.attr("y", rect1Y)
+		.attr("fill", "grey")
+		.attr("width", dataRect)
+		.attr("height", hovRectHeight)
+		.attr("opacity", dataOpa);
+	hoverbox.append("rect")
+		.attr("class", "exports")
+		.attr("x", 50)
+		.attr("y", rect1Y)
+		.attr("fill","red")
+		.attr("width", dataRect)
+		.attr("height", hovRectHeight)
+		.attr("opacity", dataOpa);
+	hoverbox.append("text")
+		.attr("class", "imports1")
+		.attr("x", textStart)
+		.attr("y", rect1Y+hovRectHeight/2)
+		.text("Speed");
 
-	var total2Y = 80;
+
+
 	hoverbox.append("rect")
 		.attr("class", "total2")
 		.attr("stroke", strokeColor)
 		.attr("fill", "none")
 		.attr("stroke-width", 1)
-		.attr("x", 10)
-		.attr("y", total2Y)
-		.attr("width", rectWidth)
-		.attr("height", 20);
-
+		.attr("x", rectStart)
+		.attr("y", rect2Y)
+		.attr("width", hovRectWidth)
+		.attr("height", hovRectHeight);
 	hoverbox.append("rect")
 		.attr("class", "imports2")
 		.attr("x", 10)
-		.attr("y", total2Y)
+		.attr("y", rect2Y)
 		.attr("fill", "grey")
 		.attr("width", dataRect)
-		.attr("height", 20)
+		.attr("height", hovRectHeight)
 		.attr("opacity", dataOpa);
-
 	hoverbox.append("rect")
 		.attr("class", "exports2")
 		.attr("x", 50)
-		.attr("y", total2Y)
+		.attr("y", rect2Y)
 		.attr("fill","red")
 		.attr("width", dataRect)
-		.attr("height", 20)
+		.attr("height", hovRectHeight)
 		.attr("opacity", dataOpa);
-	// hoverbox.append("text")
-	// 	.attr("class", "imports")
-	// 	.attr("x", 0)
-	// 	.attr("y", 0)
-	// 	.text("imports")
-	// 	.attr("opacity", .7);
-
-	// hoverbox.append("text")
-	// 	.attr("class", "exports")
-	// 	.attr("x", 0)
-	// 	.attr("y", 0)
-	// 	.text("exports")
-	// 	.attr("opacity", .7);
-
-
-	// hoverbox.append("text")
-	// 	.attr("class", "total")
-	// 	.attr("x", 0)
-	// 	.attr("y", 0)
-	// 	.text("total");
+	hoverbox.append("text")
+		.attr("class", "imports2")
+		.attr("x", textStart)
+		.attr("y", rect2Y+hovRectHeight/2)
+		.text("Prox.");
 }
 
 var handsShow = false;
