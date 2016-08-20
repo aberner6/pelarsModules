@@ -51,7 +51,7 @@ var diffSoftHard;
 var totalComps = [];
 var	hardUseComp = [];
 var	softUseComp = [];
-var colorText = "black";
+var colorText = darkColor;
 
 //data stream types
 var types = ["hand","ide","particle","face"];
@@ -140,6 +140,17 @@ var obs = [];
 var activeOne = [];
 var activeTwo = [];
 var activeThree = [];
+
+var numSelected = 0;
+var yBottom;
+var yTop;
+var yAxisBottom = h-100;
+	// if(firstSelect==true){
+	// 	yBottom = yAxisBottom;
+	// 	yTop = h/2;
+	// }
+// var activateHoverbox;
+  	var durTrans = 1500;
 
 $(document).ready(function() {
 	// getToken(); //returns the token
@@ -304,7 +315,7 @@ function sendNestedData(){
 	if (typeof nested_data !== "undefined"){
 	    var xAxisCall = svgMain.append('g');
 
-		var leftMargin = 100;
+		// var leftMargin = 100;
 	    var xAxis = d3.svg.axis();
 	    var xAxisScale = d3.time.scale()
 	        .domain([startTime, endTime])
@@ -320,8 +331,9 @@ function sendNestedData(){
 	    xAxisCall.call(xAxis)
 	        .attr("class", "axis") //Assign "axis" class
 	        .attr("text-anchor", "end")
-	        .attr('transform', 'translate(0, ' + (h-100) + ')');
-
+	        .attr('transform', 'translate(0, ' + (yAxisBottom) + ')');
+//new addition
+$("g.axis").hide();	        
 	console.log(nested_data)
 	for(i=0; i<nested_data.length; i++){
 		// console.log(nested_data[i])
@@ -912,12 +924,14 @@ function callOther(nodes, links){
 
 	var vis = svgMain //for the visualization
 	    .append('svg:g')
+	    .attr("class","movingNodes")
 	    .attr("transform",
 	      "translate("+ 0 + "," + 0 + ")");  
 
 		drag = force2.drag() 
 	    .on("dragstart", dragstart);   
-
+//new addition
+$("g.movingNodes").hide();
 
 
 	path2 = vis.selectAll("path2")
@@ -1064,7 +1078,7 @@ function makeEdge(linkData, linkNodes, linkLinks){
     plot.append("circle")
         .attr("class", "outline")
         .attr("fill","none")
-        .attr("stroke","black")
+        .attr("stroke", darkColor)
         .attr("stroke-width",.5)
         .attr("r", radius - margin+2);
 
@@ -1108,6 +1122,8 @@ function makeEdge(linkData, linkNodes, linkLinks){
 	    // used to assign nodes color by group
 	    var color = d3.scale.category20();
 		var radius = 5;
+//new addition
+$("#plot").hide();
 	    d3.select("#plot").selectAll(".node")
 	        .data(nodes)
 	        .enter()
@@ -1242,7 +1258,8 @@ function goHands(handData){
 	}
 	var cumu1 = delta1;
 	    _.map(cumu1,function(num,i){ if(i > 0) cumu1[i] += cumu1[i-1]; });
-	var interval = 160;
+	// var interval = 160;
+	var interval = 500;
 	for(i=0; i<cumu1.length; i++){
 		if(i>interval){
 			softS1.push((cumu1[i]-cumu1[i-interval])/(activeOne[i].thisTime-activeOne[i-interval].thisTime))
@@ -1360,21 +1377,28 @@ function goHands(handData){
 		// .domain([0,BigMax]).range([timeSVGH-maxRadius, timeSVGH/2+(maxFaces*faceRadius)]); //timeSVGH/2
 
 // at any given point in time (Y) X-value represents the average speed over the previous 80 data records
-
+}
+function showingHands(){
+	// if(numSelected==1){
+		yBottom = yAxisBottom;
+		yTop = h/2;
+	// } else{
+	// 	yBottom = 0;
+	// 	yTop = 1;
+	// }
 	var yActivePath;
   	yActivePath = d3.scale.linear() 
-		.domain([0,maxActiveOverall]).range([timeSVGH-maxRadius, timeSVGH/2+(maxFaces*faceRadius)]); //timeSVGH/2
+		.domain([0,maxActiveOverall])
+		.range([yBottom, yTop]); 
+		// .range([timeSVGH-maxRadius, timeSVGH/2+(maxFaces*faceRadius)]); //timeSVGH/2
 
- 	xActivePath = d3.scale.linear() //startTime, endTime
-		.domain([startTime, endTime]).range([10, w-40]);
+ 	xActivePath = d3.scale.linear() 
+		.domain([startTime, endTime])
+		.range([leftMargin, w-rightMargin]);
 
-	// can go from lineS1 which would be 0 for x to lineS which populates with data like this:
-	// pathS
-	// 	.datum(softUseComp).transition()
-	// 	.attr("d", lineActive1)
 	lineActiveZip = d3.svg.line()
-		.x(function(d, i) { return 0 })
-		.y(function(d, i) { return yActivePath(d); })
+		.x(function(d, i) { return leftMargin })
+		.y(function(d, i) { return yActivePath(d) })
 		.interpolate("bundle")
 
   	lineActive1 = d3.svg.line()
@@ -1385,7 +1409,7 @@ function goHands(handData){
 	    .append("path")
 	    .attr("class","activepath1")
 	    .attr("fill","none")
-	    .attr("stroke","darkgrey")
+	    .attr("stroke",darkColor)
 	    .attr("stroke-dasharray",1)
 	    .attr("stroke-width",2);
   	pathActive1
@@ -1400,7 +1424,7 @@ function goHands(handData){
 		.append("path")
 		.attr("class","activepath2")
 		.attr("fill","none")
-		.attr("stroke","darkgrey")
+		.attr("stroke",darkColor)
 		.attr("stroke-dasharray",2)
 		.attr("stroke-width",2);
   	pathActive2
@@ -1415,11 +1439,21 @@ function goHands(handData){
     	.append("path")
 	    .attr("class","activepath3")
 	    .attr("fill","none")
-	    .attr("stroke","darkgrey")
+	    .attr("stroke",darkColor)
 	    .attr("stroke-width",2)
   	pathActive3
   		.datum(softS3)
   		.attr("d", lineActiveZip);
+
+  	pathActive1
+  		.datum(softS1).transition().duration(durTrans)  		
+  		.attr("d", lineActive1);
+  	pathActive2
+  		.datum(softS2).transition().duration(durTrans)  		
+  		.attr("d", lineActive2);
+  	pathActive3
+  		.datum(softS3).transition().duration(durTrans)  		
+  		.attr("d", lineActive3);
 }
 
 var yHPath, ySPath, minTotal, maxTotal, pathS, pathH, index, lineS, lineH, svgPath;
@@ -1445,6 +1479,8 @@ var timeXTrue = d3.scale.linear()
 	var ardPathSVG = svgMain.append("g")
         .attr("id", "arduinoPath")
         .attr("transform", "translate(" + (leftMargin) + ", " + ((h/2)+forceheight) + ")");
+//new addition
+$("g#arduinoPath").hide();
 
 	arduinoRectangles = ardRectSVG.selectAll(".ide")
 		.data(ide_nest2)
@@ -1543,7 +1579,7 @@ var timeXTrue = d3.scale.linear()
         .attr("y", function(d, i) {
             return yOther(d)+5;
         })
-		.attr("fill", "black")
+		.attr("fill", darkColor)
 		.text(function(d){
 			return d;
 		})
@@ -1841,7 +1877,8 @@ function showPhases(phasesJSON){
 		.style("border","1px solid white") 
 		.style("margin-top","1px")
 		.attr("transform", "translate(" + radius+margin + "," + (timeSVGH+radius+topMargin) + ")")
-
+		//new addition
+$("g.piePhase").hide()
 	var pathPie = netSVG.selectAll("pathPie")
 	    .data(pie(phaseArray))
 	  	.enter().append("path")
@@ -1969,7 +2006,9 @@ function showPhases(phasesJSON){
 				return "PLANNING"
 			}
 		})
-		.attr("text-anchor","middle")
+		.attr("text-anchor","middle");
+//new addition
+$(".phaseText").hide();
 }
 
 function activateHoverbox(whichType){
@@ -1991,9 +2030,11 @@ function activateHoverbox(whichType){
 		
 		var allSpeedMax = overallVals.hand_speed.max;
 		var allSpeedMean = overallVals.hand_speed.mean;
-		var allDistMean = overallVals.hand_distance.mean;
 
+		var allProxMax = overallVals.hand_distance.max;
+		var allProxMean = overallVals.hand_distance.mean;
 		console.log(seshSpeedMean+"stats"+seshSpeedMean/allSpeedMean)
+
 
 		//Type is "port" or "path"
 
@@ -2025,19 +2066,21 @@ function activateHoverbox(whichType){
 
 	////////////////////////////////////////////////////
 		var impexbar = totalWidth;
+
+		var proxScale = d3.scale.linear()
+			.domain([0, allProxMax]) //fix this later and make it the real nice max
+			.range([0, impexbar]);
+		var allProxX = proxScale(allProxMean); 
+		var seshProxX = proxScale(seshProxMean);
+		hoverbox.select("rect.total2").attr("width", impexbar);
+		hoverbox.select("rect.imports2").attr("x",seshProxX);
+		hoverbox.select("rect.exports2").attr("x",allProxX);
+
 		var speedScale = d3.scale.linear()
 			.domain([0, allSpeedMax]) //fix this later and make it the real nice max
 			.range([0, impexbar]);
-		// var proxScale = d3.scale.linear()
-		// 	.domain([0, allDistMax]) //fix this later and make it the real nice max
-		// 	.range([0, impexbar]);
 		var allSpeedX = speedScale(allSpeedMean);
 		var seshSpeedX = speedScale(seshSpeedMean);
-		// var proxWidth = proxScale(seshProxMean);
-
-	////////////////////////////////////////////////////
-		hoverbox.select("rect.total2").attr("width", impexbar);
-
 		hoverbox.select("rect.total").attr("width", impexbar);
 		hoverbox.select("rect.imports").attr("x",seshSpeedX);
 		hoverbox.select("rect.exports").attr("x",allSpeedX);

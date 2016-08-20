@@ -1,7 +1,7 @@
 var h = $("#container").height();
 var w = $("#container").innerWidth();
 
-var leftMargin = 20;
+// var leftMargin = 20;
 var rightMargin = 35;
 // var cwidth=200,cheight=200,cmargin=25,maxr=5;
 
@@ -47,9 +47,13 @@ var x3RectScale = d3.scale.linear()
 //colors
 var hardwareColor = "#15989C";
 var softwareColor = "#B19B80";
+var darkColor = "#3d3d3c";
+var textColor = darkColor;
+var backgroundColor = "white";
+var strokeColor = darkColor;
 
-var leftMargin = 5;
-var topMargin = leftMargin;
+var leftMargin = 100;
+var topMargin = 5;
 setSVG();
 var dataIs = [];
 var theseRects;
@@ -119,18 +123,18 @@ console.log(data);
 		.attr("stroke","lightgray")  
 		.attr("stroke-width",1) 
 
-	var center = svgBack
-		.append("circle")
-	    .attr("cx", w/2)
-	    .attr("cy",topHalf)
-	    .attr("r",5)
-	    .attr("fill","pink");
-	var center2 = svgBack
-		.append("circle")
-	    .attr("cx", w/2)
-	    .attr("cy",bottomHalf)
-	    .attr("r",5)
-	    .attr("fill","pink");
+	// var center = svgBack
+	// 	.append("circle")
+	//     .attr("cx", w/2)
+	//     .attr("cy",topHalf)
+	//     .attr("r",5)
+	//     .attr("fill","pink");
+	// var center2 = svgBack
+	// 	.append("circle")
+	//     .attr("cx", w/2)
+	//     .attr("cy",bottomHalf)
+	//     .attr("r",5)
+	//     .attr("fill","pink");
 
 	var textName = backR.append("text")
 		.attr("id","name")
@@ -206,7 +210,7 @@ console.log(data);
         		.attr("stroke-width", origStroke*2)
         		.attr("stroke",function(d,i){
         			whichName = d.name;
-        			return "black";
+        			return darkColor;
         		})
 
         		// .transition()
@@ -303,7 +307,7 @@ console.log(d);
 	//     .text("Software")
 	//     .attr("text-anchor",anchor)
 
-	$.getScript('staticData.js');
+	// $.getScript('staticData.js');
 	setUpHoverbox();
 }
 var hoverbox,
@@ -316,13 +320,14 @@ function setUpHoverbox(){
 //Setup hover box
 //placement of hoverbox X 
 //needs to be based on hoverbox width and overall width
-	var textColor = "black";
-	var backgroundColor = "white";
-	var strokeColor = "black";
+
 	hoverbox = svgMain.append("g")
 		.attr("id", "hoverbox")
 		.attr("class", "hidden")
-		.attr("transform", "translate(" + (967) + "," + (77) + ")"); //967
+		// translate(335,118)
+		.attr("transform", "translate(" + (335) + "," + (118) + ")"); //967
+		//hand rect is at 
+		// translate(469.20001220703125,75)
 
 	var rectWidth = 0;
 	hoverbox.append("rect")
@@ -372,16 +377,34 @@ function setUpHoverbox(){
 		.attr("width", rectWidth)
 		.attr("height", 20);
 
+	var total2Y = 80;
 	hoverbox.append("rect")
 		.attr("class", "total2")
 		.attr("stroke", strokeColor)
 		.attr("fill", "none")
 		.attr("stroke-width", 1)
 		.attr("x", 10)
-		.attr("y", 80)
+		.attr("y", total2Y)
 		.attr("width", rectWidth)
 		.attr("height", 20);
 
+	hoverbox.append("rect")
+		.attr("class", "imports2")
+		.attr("x", 10)
+		.attr("y", total2Y)
+		.attr("fill", "grey")
+		.attr("width", dataRect)
+		.attr("height", 20)
+		.attr("opacity", dataOpa);
+
+	hoverbox.append("rect")
+		.attr("class", "exports2")
+		.attr("x", 50)
+		.attr("y", total2Y)
+		.attr("fill","red")
+		.attr("width", dataRect)
+		.attr("height", 20)
+		.attr("opacity", dataOpa);
 	// hoverbox.append("text")
 	// 	.attr("class", "imports")
 	// 	.attr("x", 0)
@@ -413,6 +436,9 @@ function updateHoverbox(receiveData){
 	var hoverData = receiveData;
 	console.log(hoverData.name+"hover data")	
 	if(hoverData.name=="Hands"){
+		$("g.axis").show();
+		numSelected = 1;
+		showingHands();
 		activateHoverbox("Hands");
 	}
 }
