@@ -72,6 +72,8 @@ function setSVG(){
 }
 var prevName = [];
 var index = 0;
+var specialHeight = (h/howManyDataStreams)-10;
+
 function makeThings(data){
 	svgBack= d3.select("#container").append("svg")
 		.attr("class", "backSVG")
@@ -127,19 +129,6 @@ console.log(data);
 		.attr("stroke","lightgray")  
 		.attr("stroke-width",1) 
 
-	// var center = svgBack
-	// 	.append("circle")
-	//     .attr("cx", w/2)
-	//     .attr("cy",topHalf)
-	//     .attr("r",5)
-	//     .attr("fill","pink");
-	// var center2 = svgBack
-	// 	.append("circle")
-	//     .attr("cx", w/2)
-	//     .attr("cy",bottomHalf)
-	//     .attr("r",5)
-	//     .attr("fill","pink");
-
 	var textName = backR.append("text")
 		.attr("id","name")
 		.attr("class",function(d,i){
@@ -181,7 +170,6 @@ console.log(data);
 			})
           .call(wrap, rectWidth-20);
 
-    var specialHeight = (h/howManyDataStreams)-10;
 
     theseRects
         .on("click", function(d,i){
@@ -336,10 +324,12 @@ function setUpHoverbox(){
 	hoverbox = svgMain.append("g")
 		.attr("id", "hoverbox")
 		.attr("class", "hidden")
-		// translate(335,118)
 		.attr("transform", "translate(" + (335) + "," + (118) + ")"); //967
-		//hand rect is at 
-		// translate(469.20001220703125,75)
+
+
+
+
+
 
 	hoverbox.append("rect")
 		.attr("class", "background")
@@ -437,37 +427,44 @@ function setUpHoverbox(){
 var handsShow = false;
 var buttonShow = false;
 function makeShow(whichName){
+	var hoverData = whichName;
+	console.log(hoverData+"hover data")	
+	if(hoverData=="Hands"){
+		$("g.axis").show();
+		showingHands();
+		showingPhotos();
+	}
+	showStats();
+}
+// function updateHoverbox(receiveData){
+// 	var hoverData = receiveData;
+// 	// console.log(hoverData+"hover data")	
+// 	if(hoverData=="Hands"){
+// 		$("g.axis").show();
+// 		showingHands();
+// 		showingPhotos();
+// 	}
+// }
 	//could just show/hide hoverbox with jquery toggle?
-	if(whichName=="Hands" && handsShow==false){
-		numSelected = numSelected+1;
-		console.log("showing because hands were clicked"+numSelected)
-		updateHoverbox(whichName);
-	}
-	if(clickedAgain==true){
-		numSelected = numSelected-1;
-		console.log("hiding because unclicked"+numSelected);
-		hideHoverbox();
-	}
+	// if(whichName=="Hands" && handsShow==false){
+	// 	numSelected = numSelected+1;
+	// 	console.log("showing because hands were clicked"+numSelected)
+	// 	updateHoverbox(whichName);
+	// }
+	// if(clickedAgain==true){
+	// 	numSelected = numSelected-1;
+	// 	console.log("hiding because unclicked"+numSelected);
+	// 	hideHoverbox();
+	// }
 
-	if(whichName=="Button" && buttonShow==false && handsShow==true){
-		numSelected = numSelected+1;
-		console.log("2 selected"+numSelected);
-		buttonShow = true;		
-	}
+	// if(whichName=="Button" && buttonShow==false && handsShow==true){
+	// 	numSelected = numSelected+1;
+	// 	console.log("2 selected"+numSelected);
+	// 	buttonShow = true;		
+	// }
+	
 	// if(whichName=="Button" && buttonShow==false handsShow==false){
 	// 	numSelected = numSelected+1;
 	// 	console.log("1 selected"+numSelected);
 	// 	buttonShow = true;		
 	// }
-}
-function updateHoverbox(receiveData){
-	var hoverData = receiveData;
-	console.log(hoverData+"hover data")	
-	if(hoverData=="Hands"){
-		$("g.axis").show();
-		// showPhotos();
-		showingHands();
-		showingPhotos();
-		activateHoverbox("Hands");
-	}
-}

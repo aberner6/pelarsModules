@@ -144,7 +144,7 @@ var activeThree = [];
 var numSelected = 0;
 var yBottom;
 var yTop;
-var yAxisBottom = h-100;
+var yAxisBottom = h-200;
 	// if(firstSelect==true){
 	// 	yBottom = yAxisBottom;
 	// 	yTop = h/2;
@@ -240,19 +240,51 @@ function getData(thisSession, token){
 	})
 }
 var overallVals;
-var sessionHandSpeed;
-var sessionHandProx;
+var sessionHandSpeed, sessionHandProx, sessionFaceProx, sessionPresence, sessionScreen;
+var sessionVals;
+var seshProxMean = sessionHandProx; 
+var seshSpeedMean = sessionHandSpeed; 
+var allSpeedMax, allSpeedMean, allProxMean;		
+var allFaceProx, allPresence, allScreen;
 function getOverallValues(){
 //NEEDS TO BE SYNCED WITH SERVER
 //not online
 	d3.json("data/content.json", function(json){
 		overallVals = json;
+		allSpeedMax = overallVals.hand_speed.max;
+		allSpeedMean = overallVals.hand_speed.mean;
+		allProxMax = overallVals.hand_distance.max;
+		allProxMean = overallVals.hand_distance.mean;
+
+		allFaceMax = overallVals.face_distance.max;
+		allFaceProx = overallVals.face_distance.mean;
+
+		allPresence = overallVals.presence.mean;
+		allScreen = overallVals.time_looking.mean;
 	})
-	d3.json("data/handSpeed.json", function(json){
-		sessionHandSpeed = json;
-	})
-	d3.json("data/handProximity.json", function(json){
-		sessionHandProx = json;
+	d3.json("data/postSession.json", function(json){
+		console.log(json);
+		sessionVals = json;
+		for (i=0; i<json.length; i++){
+			if(json[i].name=="aftersession_hand_speed"){
+				sessionHandSpeed = json[i].result[(json[i].result.length)-1].overall;		
+			}			
+			if(json[i].name=="aftersession_hand_proximity"){
+				sessionHandProx = json[i].result.mean;		
+			}
+
+			if(json[i].name=="aftersession_face_proximity"){
+				sessionFaceProx = json[i].result.mean;		
+			}
+			
+			if(json[i].name=="aftersession_presence"){
+				sessionPresence = json[i].result.total_presence;		
+			}			
+			if(json[i].name=="aftersession_time_looking"){
+				sessionScreen = json[i].result.active_time;		
+			}		
+
+		}
 	})
 	console.log(overallVals+"overall summary")	
 }
@@ -617,7 +649,7 @@ function showPhotos(){
 	overview = timeSVG.selectAll(".clip-rect")
 	    .data(autoImg) 
 	    .attr("x", function(d, i) {
-			return timeX(d.time)+8;
+			return timeX(d.time)-timelineImgWidth/4;
 	    })
 	overview
 	    .enter()
@@ -639,10 +671,10 @@ function showPhotos(){
 	    		.duration(500)
 	    		.attr("x", function(d,i){
 	    			if(timeX(d.time)-bigImgWidth/2<leftMargin){
-	    				// console.log("under left edge")
+	    				console.log("under left edge")
 	    				return leftMargin;
 	    			}
-	    			if(timeX(d.time)-bigImgWidth/2>(w-rightMargin-bigImgWidth)){
+	    			else if(timeX(d.time)-bigImgWidth/2>(w-rightMargin-bigImgWidth)){
 	    				console.log("over right edge")
 	    				return w-rightMargin-bigImgWidth;
 	    			}
@@ -1466,8 +1498,8 @@ function goHands(handData){
 		.attr("x", leftMargin-3)
 		.attr("y", yTop)
 		.attr("text-anchor","end")
-		.attr("fill",textColor)
-		.text("Hand Speed");
+		.attr("fill",seshCol)
+		.text("Hands Speed");
 	timeSVG.append("g").append("line")
 		.attr("class", "graphLine")
 		.attr("x1", leftMargin)
@@ -2071,6 +2103,202 @@ $("g.piePhase").hide()
 $(".phaseText").hide();
 }
 
+
+function overallStats(){
+
+	console.log(seshSpeedMean+"stats"+seshSpeedMean/allSpeedMean)
+		var impexbar = hovRectWidth;
+
+		var proxScale = d3.scale.linear()
+			.domain([0, allProxMax]) //fix this later and make it the real nice max
+			.range([0, impexbar]);
+		var allProxX = proxScale(allProxMean); 
+		var seshProxX = proxScale(seshProxMean);
+		hoverbox.select("rect.total2").attr("width", impexbar);
+		hoverbox.select("rect.imports2").attr("x",seshProxX);
+		hoverbox.select("rect.exports2").attr("x",allProxX);
+
+		var speedScale = d3.scale.linear()
+			.domain([0, allSpeedMax]) //fix this later and make it the real nice max
+			.range([0, impexbar]);
+		var allSpeedX = speedScale(allSpeedMean);
+		var seshSpeedX = speedScale(seshSpeedMean);
+		hoverbox.select("rect.total").attr("width", impexbar);
+		hoverbox.select("rect.imports").attr("x",seshSpeedX);
+		hoverbox.select("rect.exports").attr("x",allSpeedX);
+
+		var totalLabelY = 20;		
+		hoverbox.select("text.title")
+			.attr("y", totalLabelY)
+			.text(whichType);
+
+		hoverbox.classed("hidden", false);
+}
+var statsR;
+var seshCol = "red";
+function showStats(){
+
+// var leftThird = rectWidth;//center-(rectWidth/2);
+// var rightThird = w-rectWidth*2; //center+(rectWidth/2);
+
+	var statsNames = [];
+	statsNames.push("Hands Speed","Hands Proximity", "Faces Proximity","Present at Table","Looking at Screen");	
+	var stRectScale = d3.scale.ordinal()
+		.domain(statsNames)
+		.rangePoints([leftThird, rightThird])
+
+	statsR = timeSVG.selectAll(".statsRects")
+		.data(statsNames)
+		.enter()
+		.append("g")
+		.attr("class", "statsRects") 
+      	.attr("transform", function(d, i) { 
+      		console.log(d);
+      		var x = stRectScale(d); //-leftMargin; //-rectWidth/2
+			var y = yAxisBottom+100; //specialHeight+specialHeight/2+4; //-topMargin/2;
+      		return "translate(" + x + "," + y + ")"; 
+      	});
+
+    var origStroke = 2;
+  	var statsRects = statsR.append("rect")
+		.attr("id","statsRectangle")
+		.attr("class",function(d,i){
+			return i;
+		})
+		.attr("width", rectWidth)
+		.attr("height", rectHeight/2)
+		.attr("fill","none")
+		.attr("stroke","none")  
+		// .attr("stroke-width",1);
+
+	var statsName = statsR.append("text")
+		.attr("id","statsName")
+		.attr("class",function(d,i){
+			return "statsName"+i;
+		})
+	      .attr("y", 15)
+	      .attr("dy", ".35em")
+	      .text(function(d) { return d })
+	      .attr("x", function(d,i){
+	      	var adjust = $(".statsName"+i).width();
+	      	return rectWidth/2-adjust/2;
+	      });	
+
+	var statsX = d3.scale.linear()
+		.range([10, rectWidth-20])
+
+	var totY = 24;
+	var totH = rectHeight/4;
+	var statsTotal = statsR.append("rect")
+		.attr("class","full")
+		.attr("x", 10).attr("y",totY)
+		.attr("width",rectWidth-20)
+		.attr("height",totH)
+		.attr("fill","none")
+		.attr("stroke",darkColor);
+	var statWidth = 5;
+	var compOpa = .7;
+	var seshStatRect = statsR.append("rect")
+		.attr("class", function(d,i){
+			return d;
+		})
+		.attr("x", function(d,i){
+			if(d=="Hands Speed"){
+				statsX.domain([0, allSpeedMax]);
+				return statsX(sessionHandSpeed);
+			}
+			if(d=="Hands Proximity"){
+				statsX.domain([0, allProxMax]);
+				return statsX(sessionHandProx);
+			}
+			if(d=="Faces Proximity"){
+				statsX.domain([0, allFaceMax]);
+				return statsX(sessionFaceProx); 
+			}
+			if(d=="Present at Table"){
+				statsX.domain([0, 100]); 
+				return statsX(sessionPresence); 
+			}
+			if(d=="Looking at Screen"){
+				statsX.domain([0, 100]); 
+				return statsX(sessionScreen); 
+			}
+		})
+		.attr("y", totY)
+		.attr("height",totH)
+		.attr("width",statWidth)
+		.attr("fill", seshCol)
+		.attr("opacity", compOpa);
+
+	// var allCol = darkColor;
+	var allStatRect = statsR.append("line")
+		.attr("class", function(d,i){
+			return d+"all";
+		})
+		.attr("x1", function(d,i){
+			if(d=="Hands Speed"){
+				statsX.domain([0, allSpeedMax]);
+				return statsX(allSpeedMean); 
+			}
+			if(d=="Hands Proximity"){
+				statsX.domain([0, allProxMax]);
+				return statsX(allProxMean);
+			}
+			if(d=="Faces Proximity"){
+				statsX.domain([0, allFaceMax]);
+				return statsX(allFaceProx); 
+			}
+			if(d=="Present at Table"){
+				statsX.domain([0, 100]); 
+				return statsX(allPresence); 
+			}
+			if(d=="Looking at Screen"){
+				statsX.domain([0, 100]); 
+				return statsX(allScreen); 
+			}
+		})
+		.attr("x2", function(d,i){
+			if(d=="Hands Speed"){
+				statsX.domain([0, allSpeedMax]);
+				return statsX(allSpeedMean); 
+			}
+			if(d=="Hands Proximity"){
+				statsX.domain([0, allProxMax]);
+				return statsX(allProxMean);
+			}
+			if(d=="Faces Proximity"){
+				statsX.domain([0, allFaceMax]);
+				return statsX(allFaceProx); 
+			}
+			if(d=="Present at Table"){
+				statsX.domain([0, 100]); 
+				return statsX(allPresence); 
+			}
+			if(d=="Looking at Screen"){
+				statsX.domain([0, 100]); 
+				return statsX(allScreen); 
+			}
+		})
+		.attr("y1", totY)
+		.attr("y2",totY+totH)
+		// .attr("height",totH)
+		// .attr("width",statWidth)
+		// .attr("fill", allCol)
+		.attr("stroke",darkColor)
+		.attr("stroke-width",statWidth)
+		// .attr("stroke-dasharray", 2)
+		.attr("opacity", compOpa/2);
+
+		// hoverbox.select("rect.imports2").attr("x", seshProxX);
+		// hoverbox.select("rect.exports2").attr("x", allProxX);
+		// hoverbox.select("rect.imports").attr("x",seshSpeedX);
+		// hoverbox.select("rect.exports").attr("x",allSpeedX);
+// .domain([0, allSpeedMax])
+// .domain([0, allProxMax]) 
+}
+
+
+
 function activateHoverbox(whichType){
 //not online
 	// d3.json("data/content.json", function(json){
@@ -2085,14 +2313,6 @@ function activateHoverbox(whichType){
 	// console.log(overallVals+"overall summary")	
 
 	if(whichType=="Hands"){
-		var seshProxMean = sessionHandProx[0].result.mean;
-		var seshSpeedMean = sessionHandSpeed[0].result[3].overall;
-		
-		var allSpeedMax = overallVals.hand_speed.max;
-		var allSpeedMean = overallVals.hand_speed.mean;
-
-		var allProxMax = overallVals.hand_distance.max;
-		var allProxMean = overallVals.hand_distance.mean;
 		console.log(seshSpeedMean+"stats"+seshSpeedMean/allSpeedMean)
 
 
@@ -2133,8 +2353,8 @@ function activateHoverbox(whichType){
 		var allProxX = proxScale(allProxMean); 
 		var seshProxX = proxScale(seshProxMean);
 		hoverbox.select("rect.total2").attr("width", impexbar);
-		hoverbox.select("rect.imports2").attr("x",seshProxX);
-		hoverbox.select("rect.exports2").attr("x",allProxX);
+		hoverbox.select("rect.imports2").attr("x", seshProxX);
+		hoverbox.select("rect.exports2").attr("x", allProxX);
 
 		var speedScale = d3.scale.linear()
 			.domain([0, allSpeedMax]) //fix this later and make it the real nice max

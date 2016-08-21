@@ -1,0 +1,218 @@
+[
+  {
+    "id": 197,
+    "name": "aftersession_hand_speed",
+    "result": [
+      {
+        "num": 16,
+        "speed": 0.03211128093801529
+      },
+      {
+        "num": 20,
+        "speed": 0.04026773370680431
+      },
+      {
+        "num": 17,
+        "speed": 0.025977938117131182
+      },
+      {"overall": 0.032785650920650264}
+    ]
+  },
+  {
+    "id": 198,
+    "name": "aftersession_time_looking",
+    "result": {
+      "active_time": 66.81830141123267,
+      "inactive_time": 33.18169858876733,
+      "unit": "%"
+    }
+  },
+  {
+    "id": 199,
+    "name": "aftersession_media_info",
+    "result": [
+      {
+        "id": 14837,
+        "words": 4
+      },
+      {
+        "id": 14838,
+        "words": 3
+      },
+      {
+        "id": 14841,
+        "words": 3
+      },
+      {
+        "id": 14885,
+        "words": 3
+      },
+      {
+        "id": 14886,
+        "words": 5
+      },
+      {
+        "id": 14893,
+        "words": 2
+      },
+      {
+        "id": 14894,
+        "words": 3
+      },
+      {
+        "id": 14895,
+        "words": 1
+      },
+      {
+        "id": 14902,
+        "words": 8
+      },
+      {
+        "id": 14927,
+        "words": 3
+      },
+      {
+        "id": 14935,
+        "words": 3
+      },
+      {
+        "id": 14984,
+        "words": 3
+      },
+      {
+        "id": 14990,
+        "words": 4
+      },
+      {
+        "id": 15053,
+        "words": 5
+      },
+      {
+        "id": 15061,
+        "words": 3
+      },
+      {
+        "id": 15062,
+        "words": 1
+      },
+      {
+        "id": 15105,
+        "words": 15
+      },
+      {
+        "id": 15121,
+        "words": 3
+      },
+      {
+        "id": 15125,
+        "words": 4
+      },
+      {
+        "id": 15129,
+        "words": 4
+      },
+      {
+        "id": 15161,
+        "words": 4
+      },
+      {
+        "id": 15163,
+        "words": 4
+      },
+      {
+        "id": 15166,
+        "words": 3
+      },
+      {
+        "id": 15216,
+        "words": 4
+      },
+      {
+        "id": 15219,
+        "words": 4
+      },
+      {
+        "id": 15221,
+        "words": 6
+      },
+      {
+        "id": 15243,
+        "words": 4
+      },
+      {
+        "id": 15244,
+        "words": 3
+      },
+      {
+        "id": 15325,
+        "words": 21
+      },
+      {
+        "id": 15326,
+        "words": 2
+      },
+      {
+        "id": 15329,
+        "words": 21
+      },
+      {
+        "id": 15331,
+        "words": 4
+      },
+      {
+        "id": 15332,
+        "words": 1
+      },
+      {
+        "id": 15333,
+        "words": 6
+      },
+      {
+        "id": 15338,
+        "words": 6
+      },
+      {
+        "id": 15339,
+        "words": 9
+      },
+      {"total_words": 182},
+      {"videos": 1},
+      {"images": 2},
+      {"total_posts": 39}
+    ]
+  },
+  {
+    "id": 200,
+    "name": "aftersession_hand_proximity",
+    "result": {
+      "elements": 4546,
+      "max": 1.315167366344129,
+      "mean": 0.5455124665641381,
+      "min": 0.18040481160832092,
+      "stddev": 0.03291737962827093,
+      "unit": "meters",
+      "variance": 0.0010835538815917062
+    }
+  },
+  {
+    "id": 201,
+    "name": "aftersession_face_proximity",
+    "result": {
+      "elements": 2132,
+      "max": 5.781725507196251,
+      "mean": 0.5818719307494713,
+      "min": 0.2116839537594582,
+      "stddev": 0.19690363772357156,
+      "unit": "meters",
+      "variance": 0.03877104254877551
+    }
+  },
+  {
+    "id": 202,
+    "name": "aftersession_presence",
+    "result": {
+      "total_absence": 0.7849325037287116,
+      "total_presence": 99.21506749627129
+    }
+  }
+]
