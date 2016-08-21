@@ -17,6 +17,7 @@ var textL = 10;
 
 //data tools
 var nested_data;
+var nest_again;
 
 // 1. get token
 // 2. get session number
@@ -187,7 +188,7 @@ thisSession = parseInt(1593);
 // 	})
 // }
 
-var nest_again;
+// var nest_again;
 // var overallVals;
 // IF START TIME OF overall session IS DIFFERENT THAN START TIME OF phase data...
 function getData(thisSession, token){
@@ -230,9 +231,9 @@ function getData(thisSession, token){
 	console.log(nest_again + "nest again for summary");
 
 	nested_data = d3.nest()
-	.key(function(d) { return d.type; })
-	.key(function(d){ return d.num; })
-	.entries(data);
+		.key(function(d) { return d.type; })
+		.key(function(d){ return d.num; })
+		.entries(data);
 
 	nested_face = d3.nest()
 		.key(function(d) { return d.type; })
@@ -378,7 +379,7 @@ $("g.axis").hide();
 	}
 	for(i=0; i<nested_data.length; i++){
 		if(nested_data[i].key==types[0]){ //HAND
-			goHands(nested_data[i]);
+			goHands(nested_data[i], nest_again[i].values);
 		}
 	}	
 }
@@ -1253,10 +1254,11 @@ $("#plot").hide();
 var maxActiveOverall;
 var maxActive1, maxActive2, maxActive3;
 var pathActive1, lineActive1, pathActive2, lineActive2, pathActive3, lineActive3, pathActive0, lineActive0;
-function goHands(handData){
+var gok;
+function goHands(handData, summaryHands){
 	var numPanels = handData.values.length;
 
-	var g = timeSVG.selectAll(".hand")
+	gok = timeSVG.selectAll(".hand")
 		.data(handData.values.sort(d3.ascending))
 		.enter()
 	  	.append("g")
@@ -1278,7 +1280,10 @@ function goHands(handData){
 		  		}
 		  		else{}	
 		  		return "hand";
-	  	})
+	  	});
+
+
+
 
 	var rx1 = [];
 	var ry1 = [];
@@ -1511,7 +1516,54 @@ function goHands(handData){
 	$("text.graphTitle").hide()
 	$("line.graphLine").hide()
 
+
+	var miniCirc1 = timeSVG.selectAll(".minC1")
+		.data(one)
+		.enter()
+		.append("circle")
+		.attr("class","minC1")
+		.attr("cx", function(d){
+			return w/2+d.rx;
+		})
+		.attr("cy", function(d){
+			return h/2+d.ry;
+		})
+		.attr("r", 3)
+		.attr("fill","pink");
+
+
+		// now marks, initiated to default values
+		// gok.selectAll("circle")
+		// // we are getting the values of the countries like this:
+		// .data(function(d) {
+		// 	console.log(d);
+		// 	console.log(d.values)
+		// 	return d.values;
+		// }) 
+		// .enter()
+		//   .append("circle")
+		//   .attr("class","miniCircs")
+		//   .attr("cx",w/2)
+		//   .attr("cy",h/4)
+		//   .attr("fill","none")
+		//   .attr("stroke","grey")
+		//   .attr("r",1);
+		// // finally, we animate our marks in position
+		// gok.selectAll("circle.miniCircs").transition().delay(100).duration(1000)
+		//     .attr("r",5)
+		//     .attr("cx",function(d,i) {
+		//     	return x(d.rx);
+		//     })
+		//     .attr("cy",function(d) {
+		//     	return y(d.ry);
+		//     })
+		    // .attr("fill", function(d){
+		    // 	if ()
+		    // })
 }
+
+
+
 function showingHands(){
 	$("text.graphTitle").show()
 
@@ -2532,3 +2584,4 @@ function pelars_authenticate(){
 	});
 	return res;
 }
+	
