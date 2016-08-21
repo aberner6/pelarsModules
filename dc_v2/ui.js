@@ -51,6 +51,7 @@ var darkColor = "#3d3d3c";
 var textColor = darkColor;
 var backgroundColor = "white";
 var strokeColor = darkColor;
+var lightColor = "none";
 
 var leftMargin = 100;
 var topMargin = 5;
@@ -464,7 +465,9 @@ function updateHoverbox(receiveData){
 	console.log(hoverData+"hover data")	
 	if(hoverData=="Hands"){
 		$("g.axis").show();
+		// showPhotos();
 		showingHands();
+		showingPhotos();
 		activateHoverbox("Hands");
 	}
 }

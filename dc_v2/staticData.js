@@ -153,7 +153,7 @@ var yAxisBottom = h-100;
   	var durTrans = 1500;
 
 $(document).ready(function() {
-	// getToken(); //returns the token
+	getToken(); //returns the token
 	getData(thisSession, token);
 
 	var getNext = setInterval(function(){
@@ -560,9 +560,9 @@ function parsePhotos(multiData){
 			if(imgData[0][i].creator=="client" && imgData[0][i].type=="image" && imgData[0][i].view=="workspace"){
 				autoImg.push(imgData[0][i]);
 			}
-			if(imgData[0][i].creator=="observer" && imgData[0][i].type=="text"){
-				researcherNote.push(imgData[0][i]);
-			}
+			// if(imgData[0][i].creator=="observer" && imgData[0][i].type=="text"){
+			// 	researcherNote.push(imgData[0][i]);
+			// }
 			if(imgData[0][i].creator=="student" && imgData[0][i].type=="text"){
 				docuNote.push(imgData[0][i])
 			}
@@ -571,12 +571,12 @@ function parsePhotos(multiData){
 			}
 		}
 	function processURL(){
-		for(i=0; i<researcherNote.length; i++){
-			var url1 = researcherNote[i].data+"?token="+token;
-			$.get(url1, function(caption){
-				researcherCaptions.push(caption)
-			})
-		}
+		// for(i=0; i<researcherNote.length; i++){
+		// 	var url1 = researcherNote[i].data+"?token="+token;
+		// 	$.get(url1, function(caption){
+		// 		researcherCaptions.push(caption)
+		// 	})
+		// }
 		for(i=0; i<docuNote.length; i++){
 			var url1 = docuNote[i].data+"?token="+token;
 			$.get(url1, function(caption){
@@ -585,35 +585,35 @@ function parsePhotos(multiData){
 		}
 	}
 	var urlProcessing = setInterval(function(){  //returns the session		
-		if(autoImg.length>0 && researcherNote.length>0 && docuImg.length>0 && docuNote.length>0){
+		if(autoImg.length>0 && docuImg.length>0 && docuNote.length>0){ //&& researcherNote.length>0
 			console.log(docuImg.length+"docuImg length")
 			processURL();
 			clearInterval(urlProcessing);	
 		}
 	}, 1000);
 	var imageProcessing = setInterval(function(){  //returns the session		
-		if(researcherCaptions.length>0 && studentCaptions.length>0){
-			console.log(researcherCaptions.length+"researcherCaptions length")
+		if(studentCaptions.length>0){ //researcherCaptions.length>0 && 
+			console.log(studentCaptions.length+"studentCaptions length")
 			showPhotos();
 			clearInterval(imageProcessing);	
 		}
 	}, 3000);	
 }
-
+var overview;
+var timelineImgWidth = 60; //(w/imgData[0].length)*6;
+var timelineImgHeight = timelineImgWidth*1.3;
+var timelineImgY = yAxisBottom-timelineImgHeight+40;//timeSVGH/2+iconW+25;
+var timelineThunderY = timeSVGH/2+iconW/2+21;
+var timelineBottomY = timeSVGH;
+var bigImgWidth = 8*60; 
+var bigImgHeight = 6*60; 
+var caption;
+var captionDoc;
 function showPhotos(){
-    var timelineImgWidth = 60; //(w/imgData[0].length)*6;
-    var timelineImgHeight = timelineImgWidth*1.3;
-    var timelineImgY = timeSVGH/2+iconW+25;
-	var timelineThunderY = timeSVGH/2+iconW/2+21;
-	var timelineBottomY = timeSVGH;
-	var bigImgWidth = 8*40; 
-	var bigImgHeight = 6*40; 
-	var caption;
-	var captionDoc;
+
 //autoImg = system images
 //researcherNote = just caption
 //docuImg = student taken documents = image + caption
-	var overview;
 	overview = timeSVG.selectAll(".clip-rect")
 	    .data(autoImg) 
 	    .attr("x", function(d, i) {
@@ -624,9 +624,9 @@ function showPhotos(){
 	    .append("image")
 	    .attr("class", "clip-rect")
 	    .attr("x", function(d, i) {
-			return timeX(d.time)+8;
+			return timeX(d.time)-timelineImgWidth/4;
 	    })
-		.attr("y", timelineBottomY) 
+		.attr("y", timelineImgY)  //622//yAxisBottom-timelineImgHeight+40
 		.attr("width", timelineImgWidth)
 		.attr("height", timelineImgHeight)
 	    .attr("xlink:href", function(d, i) {
@@ -637,32 +637,50 @@ function showPhotos(){
 	    	d3.select(this)
 	    		.transition()
 	    		.duration(500)
+	    		.attr("x", function(d,i){
+	    			if(timeX(d.time)-bigImgWidth/2<leftMargin){
+	    				// console.log("under left edge")
+	    				return leftMargin;
+	    			}
+	    			if(timeX(d.time)-bigImgWidth/2>(w-rightMargin-bigImgWidth)){
+	    				console.log("over right edge")
+	    				return w-rightMargin-bigImgWidth;
+	    			}
+	    			else{
+	    				return timeX(d.time)-bigImgWidth/2;
+	    			}
+	    		})
+	    		.attr("y", timelineImgY-bigImgHeight+bigImgHeight/4)
 	    		.attr("width",bigImgWidth)
 	    		.attr("height",bigImgHeight)
 	    		.transition()
-	    		.delay(1000)
+	    		.delay(2000)
+	    		.attr("x", function(d){
+	    			// console.log(d+"image clicked")
+	    			return timeX(d.time)-timelineImgWidth/4;
+	    		})
+				.attr("y", timelineImgY)  //622
 	    		.attr("width", timelineImgWidth)
 	    		.attr("height", timelineImgHeight)   
 	    })    
 //mobile image data back up?
+}
 
-	var resNote;
-	resNote = timeSVG.selectAll(".commentIcon")
-		.data(researcherNote) //when moused over this yields text
-	resNote.enter()
-		.append("image")
-		.attr("class","commentIcon")
-		.attr("xlink:href", "assets/pencil.png") //just checking now put back to thunder
-		.attr("x", function(d){
-			return timeX(d.time);
-		})
-		.attr("y", timelineBottomY)
-		.attr("width",iconW)
-		.attr("height",iconW);
+function showStudDoc(){
 
-
-
-
+	// var resNote;
+	// resNote = timeSVG.selectAll(".commentIcon")
+	// 	.data(researcherNote) //when moused over this yields text
+	// resNote.enter()
+	// 	.append("image")
+	// 	.attr("class","commentIcon")
+	// 	.attr("xlink:href", "assets/pencil.png") //just checking now put back to thunder
+	// 	.attr("x", function(d){
+	// 		return timeX(d.time);
+	// 	})
+	// 	.attr("y", timelineBottomY)
+	// 	.attr("width",iconW)
+	// 	.attr("height",iconW);
 	var studCommentDoc;
 	studCommentDoc = timeSVG.selectAll(".studCommentIcon")
 		.data(docuNote);
@@ -796,7 +814,7 @@ function goFace(faceData){
 	    	return 2*(d.num*faceRadius);
 	    })
 	    .attr("width",2)
-	    .attr("fill", faceColor)
+	    .attr("fill", lightColor)
 	    .attr("opacity",.6)
 		.attr("stroke","none")
 	maxFaces = d3.max(faceNum);
@@ -1407,7 +1425,7 @@ function goHands(handData){
 	    .append("path")
 	    .attr("class","activepath1")
 	    .attr("fill","none")
-	    .attr("stroke",darkColor)
+	    .attr("stroke",lightColor)
 	    .attr("stroke-dasharray",1)
 	    .attr("stroke-width",2);
   	pathActive1
@@ -1422,7 +1440,7 @@ function goHands(handData){
 		.append("path")
 		.attr("class","activepath2")
 		.attr("fill","none")
-		.attr("stroke",darkColor)
+		.attr("stroke",lightColor)
 		.attr("stroke-dasharray",2)
 		.attr("stroke-width",2);
   	pathActive2
@@ -1437,22 +1455,65 @@ function goHands(handData){
     	.append("path")
 	    .attr("class","activepath3")
 	    .attr("fill","none")
-	    .attr("stroke",darkColor)
+	    .attr("stroke",lightColor)
 	    .attr("stroke-width",2)
   	pathActive3
   		.datum(softS3)
   		.attr("d", lineActiveZip);
+
+	timeSVG.append("g").append("text")
+		.attr("class", "graphTitle")
+		.attr("x", leftMargin-3)
+		.attr("y", yTop)
+		.attr("text-anchor","end")
+		.attr("fill",textColor)
+		.text("Hand Speed");
+	timeSVG.append("g").append("line")
+		.attr("class", "graphLine")
+		.attr("x1", leftMargin)
+		.attr("x2", w-rightMargin)
+		.attr("y1", yTop)
+		.attr("y2", yTop)
+		.attr("stroke-width",.5)
+		.attr("stroke",darkColor);
+	$("text.graphTitle").hide()
+	$("line.graphLine").hide()
+
 }
 function showingHands(){
-  	pathActive1
-  		.datum(softS1).transition().duration(durTrans)  		
+	$("text.graphTitle").show()
+
+  	pathActive1 //.datum(softS1).
+  		.transition().duration(durTrans)  
+  		.attr("stroke",darkColor)		
   		.attr("d", lineActive1);
   	pathActive2
   		.datum(softS2).transition().duration(durTrans)  		
+  		.attr("stroke",darkColor)		
   		.attr("d", lineActive2);
   	pathActive3
   		.datum(softS3).transition().duration(durTrans)  		
+   		.attr("stroke",darkColor)		
   		.attr("d", lineActive3);
+}
+function showingPhotos(){
+	timeX
+		.range([leftMargin, w-rightMargin]);
+	overview
+		.transition()
+		.attr("x", function(d,i){
+			return (timeX(d.time)-timelineImgWidth/4); 
+		})	
+}
+function showingFace(){
+	timeX
+		.range([leftMargin, w-rightMargin]);
+	rectFace
+		.transition()
+		.attr("fill", faceColor)
+		.attr("x", function(d,i){
+			return timeX(d.time); 
+		})		
 }
 
 var yHPath, ySPath, minTotal, maxTotal, pathS, pathH, index, lineS, lineH, svgPath;

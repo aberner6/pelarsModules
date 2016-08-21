@@ -100,8 +100,10 @@ image.clip-rect {
 }
 
 image.clip-rect:hover{
+  cursor: pointer;
     -webkit-clip-path: inset(0% 0% 0% 0%);
 }
+
 image#clip-circ {    
 /*    display:none;
 */    -webkit-clip-path: circle(20% at 50% 50%);
