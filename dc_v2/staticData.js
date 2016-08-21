@@ -1517,49 +1517,19 @@ function goHands(handData, summaryHands){
 	$("line.graphLine").hide()
 
 
-	var miniCirc1 = timeSVG.selectAll(".minC1")
-		.data(one)
-		.enter()
-		.append("circle")
-		.attr("class","minC1")
-		.attr("cx", function(d){
-			return w/2+d.rx;
-		})
-		.attr("cy", function(d){
-			return h/2+d.ry;
-		})
-		.attr("r", 3)
-		.attr("fill","pink");
-
-
-		// now marks, initiated to default values
-		// gok.selectAll("circle")
-		// // we are getting the values of the countries like this:
-		// .data(function(d) {
-		// 	console.log(d);
-		// 	console.log(d.values)
-		// 	return d.values;
-		// }) 
-		// .enter()
-		//   .append("circle")
-		//   .attr("class","miniCircs")
-		//   .attr("cx",w/2)
-		//   .attr("cy",h/4)
-		//   .attr("fill","none")
-		//   .attr("stroke","grey")
-		//   .attr("r",1);
-		// // finally, we animate our marks in position
-		// gok.selectAll("circle.miniCircs").transition().delay(100).duration(1000)
-		//     .attr("r",5)
-		//     .attr("cx",function(d,i) {
-		//     	return x(d.rx);
-		//     })
-		//     .attr("cy",function(d) {
-		//     	return y(d.ry);
-		//     })
-		    // .attr("fill", function(d){
-		    // 	if ()
-		    // })
+	// var miniCirc1 = timeSVG.selectAll(".minC1")
+	// 	.data(one)
+	// 	.enter()
+	// 	.append("circle")
+	// 	.attr("class","minC1")
+	// 	.attr("cx", function(d){
+	// 		return w/2+d.rx;
+	// 	})
+	// 	.attr("cy", function(d){
+	// 		return h/2+d.ry;
+	// 	})
+	// 	.attr("r", 3)
+	// 	.attr("fill","pink");
 }
 
 
