@@ -73,17 +73,16 @@ function setSVG(){
 var prevName = [];
 var index = 0;
 var specialHeight = (h/howManyDataStreams)-10;
-
+var smallY =  specialHeight-10;
+var smallWidth = rectWidth/3;
+var smallHeight = specialHeight/2;
 function makeThings(data){
 	svgBack= d3.select("#container").append("svg")
 		.attr("class", "backSVG")
 		.attr("width",w).attr("height",h+topMargin)
 		.attr("transform", "translate(" + 0 + "," + 0 + ")")
 	svgMain = svgBack;
-	// d3.select("#container").append("svg")
-	// 	.attr("class", "mainSVG")
-	// 	.attr("width",w).attr("height",h+topMargin)
-	// 	.attr("transform", "translate(" + 0 + "," + 0 + ")")
+
 	timeSVG = svgMain
 		.append("g")
 		.attr("class","timelineSVG")
@@ -177,15 +176,13 @@ console.log(data);
         		.transition()
 		      	.attr("transform", function(d, i) {  
 		      		var x = x3RectScale(i);
-					var y = specialHeight-10;
-		   //    		var x = 0;
-					// var y = specialHeight*2+(i*specialHeight/2);//rectHeight/3+(i*rectHeight/3);		
+					var y = smallY; //smallY // specialHeight-10	
 		      		return "translate(" + x + "," + (y) + ")"; 
 		      	});
 			d3.selectAll("#rectangle")
         		.transition()
-        		.attr("width", rectWidth/3)
-        		.attr("height", specialHeight/2)
+        		.attr("width", smallWidth) //rectWidth/3
+        		.attr("height", smallHeight) //specialHeight/2
 			
         	d3.selectAll("#capt")
         		.transition()
@@ -209,14 +206,14 @@ console.log(data);
 
         		// .transition()
         		// .attr("width", rectWidth/2)
-if(index>1&&whichName==prevName[index-1]){
-	clickedAgain = true;
-	console.log(whichName+clickedAgain+prevName[index-1])
-}
+			if(index>1&&whichName==prevName[index-1]){
+				clickedAgain = true;
+				console.log(whichName+clickedAgain+prevName[index-1])
+			}
         	unClicked = 1;
         	console.log(unClicked+"unClicked")
         	makeShow(whichName);
-console.log(d);
+			console.log(d);
         })
         console.log(unClicked)
 
@@ -433,6 +430,22 @@ function makeShow(whichName){
 		$("g.axis").show();
 		showingHands();
 		showingPhotos();
+	}
+	if(hoverData=="Phases"){
+		$("g.axis").show();
+		revealPhases();
+	}
+	if(hoverData=="Faces"){
+		$("g.axis").show();
+		revealFaces();
+	}
+	if(hoverData=="Button"){
+		$("g.axis").show();
+		revealButton();
+	}
+	if(hoverData=="Documentation"){
+		$("g.axis").show();
+		revealDoc();
 	}
 	showStats();
 }

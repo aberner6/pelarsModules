@@ -147,8 +147,8 @@ var yBottom;
 var yTop;
 var yAxisBottom = h-200;
 	// if(firstSelect==true){
-	// 	yBottom = yAxisBottom;
-	// 	yTop = h/2;
+		yBottom = yAxisBottom;
+		yTop = h/2;
 	// }
 // var activateHoverbox;
   	var durTrans = 1500;
@@ -419,7 +419,7 @@ function parseButton(incomingData){
 	}
 
 	var getImage = setInterval(function(){  //returns the session		
-		if(btnImg1.length>0 && btnImg2.length>0){
+		if(btnImg1.length>0 || btnImg2.length>0){
 			console.log(btnImg1.length+"btn/img1 length")
 			drawButton(button1, button2, btnImg1, btnImg2);
 			clearInterval(getImage);	
@@ -431,8 +431,8 @@ var thunderSpace = .5;
 var ideaSpace = -.25;
 // var iconW = 15;
 var butY = timeSVGH/2+iconW/2+21;
-var butLineY1 = butY+4;
-var butLineY2 = timeSVGH;
+var butLineY1 = yAxisBottom;
+var butLineY2 = butY+(iconW/2)+3; //butLineY2+iconW+3)
 var btnImgW = 200;
 var btnImgH = btnImgW*1.3;
 var thunder, lightbulb;
@@ -460,6 +460,9 @@ function drawButton(button1, button2, img1, img2){
 // for (i=0; i<button1.length; i++){
 // 	button1Images.push(btnNest1[i].values[0][0].data)
 // }
+	var timeXTrue = d3.scale.linear()
+		.domain([startTime, endTime])
+		.range([leftMargin, w-rightMargin]);
 	var iconBut1 = timeSVG.selectAll(".button1")	
 		.data(button1)
 		iconBut1.enter()
@@ -467,57 +470,70 @@ function drawButton(button1, button2, img1, img2){
 		.attr("class","button1")
 		.attr("xlink:href", "assets/icons/idea.png")//"assets/icons0/Button.png")
 		.attr("x", function(d){
-			return timeX(d.time);
+			return timeXTrue(d.time);
 		})
-		.attr("y", butY)
+		.attr("y", butLineY1)
 		.attr("width",iconW)
 		.attr("height",iconW)
+		.attr("opacity",0)
 		.on("click", function(d,i){
 			var thisData = d3.select(this);
 			var thisTime = thisData[0][0].__data__.time;
 			console.log(thisTime+"thisTIME")
 			var lIndex = i;
-
+			// var thisIndex = i;
+			console.log(btnNest1[lIndex].values[0]);
 			console.log(lIndex)
 		    lightbulb = timeSVG.selectAll(".clip-circ"+lIndex+"l")
-                .data(btnNest1[lIndex].values[0]) 
+                .data(btnImg1[lIndex]) //btnImg2[thisIndex].data or take off data 
                 .attr("id","clip-circ")
-                .attr("x", timeX(thisTime)-btnImgW/2)
+                .attr("x", timeXTrue(thisTime)-btnImgW/2)
             lightbulb
                 .enter()
                 .append("image")
                 .attr("class", "clip-circ"+lIndex+"l")
                 .attr("id","clip-circ")
-                .attr("x", timeX(thisTime)-btnImgW/2)
-				.attr("y", butY)
+                .attr("x", timeXTrue(thisTime)-btnImgW/2)
+				.attr("y", butY+20)
         		.attr("width", btnImgW)
         		.attr("height", btnImgH)
                 .attr("xlink:href", function(d, i) {
+                	console.log(d.view);
                 	// if(d.time>=thisTime && d.time<=thisTime+timeMargin){
 	                	if(d.view=="workspace"){
 	                		console.log(d.view)
 	                		return d.data;
 	                	} else {
-	                		return (btnNest1[lIndex].values[0][0].data) 
+	                		// return (btnNest1[lIndex].values[0][0].data) 
 	                	}
-                });
-			lightbulb.exit();
+                })
+        		.attr("opacity",1);
+			d3.selectAll("image#clip-circ.clip-circ"+lIndex+"l").transition().attr("opacity",1);
+			// lightbulb.exit();
 			moveAllToFront();
-		});
-	// var iconLine1 = timeSVG.selectAll(".button1L")	
-	// 	.data(button1)
-	// 	iconLine1.enter()
-	// 	.append("line")
-	// 	.attr("class","button1L")
-	// 	.attr("x1", function(d){
-	// 		return timeX(d.time)+iconW/2+ideaSpace;
-	// 	})
-	// 	.attr("x2", function(d){
-	// 		return timeX(d.time)+iconW/2+ideaSpace;
-	// 	})
-	// 	.attr("y1", butLineY1)
-	// 	.attr("y2", butLineY2)
-	// 	.attr("stroke","grey");
+		})
+		.on("mouseout", function(d,i){
+			var lIndex = i;
+			d3.selectAll(".clip-circ"+lIndex+"l")
+				.transition()
+				.duration(2000)
+				.attr("opacity",0)
+		})
+	var iconLine1 = timeSVG.selectAll(".button1L")	
+		.data(button1)
+		iconLine1.enter()
+		.append("line")
+		.attr("class","button1L")
+		.attr("x1", function(d){
+			return timeXTrue(d.time)+iconW/2+ideaSpace;
+		})
+		.attr("x2", function(d){
+			return timeXTrue(d.time)+iconW/2+ideaSpace;
+		})
+		.attr("y1", butLineY1)
+		.attr("y2", butLineY1)
+		.attr("stroke-width",.1)
+		.attr("stroke","grey");
 
 	var iconBut2 = timeSVG.selectAll(".button2")	
 		.data(button2)
@@ -526,11 +542,12 @@ function drawButton(button1, button2, img1, img2){
 		.attr("class","button2")
 		.attr("xlink:href", "assets/icons/thunder.png") //just checking now put back to thunder
 		.attr("x", function(d){
-			return timeX(d.time);
+			return timeXTrue(d.time);
 		})
-		.attr("y", butY)
+		.attr("y", butLineY1)
 		.attr("width",iconW)
 		.attr("height",iconW)
+		.attr("opacity",0)
 		.on("click", function(d,i){
 			var thisData = d3.select(this);
 			var thisTime = thisData[0][0].__data__.time;
@@ -539,43 +556,55 @@ function drawButton(button1, button2, img1, img2){
 
 			console.log(tIndex)
 		    thunder = timeSVG.selectAll(".clip-circ"+tIndex+"t")
-                .data(btnNest2[tIndex].values[0]) //btnImg2[thisIndex].data 
+                .data(btnImg2[tIndex]) //btnImg2[thisIndex].data or take off data 
                 .attr("id","clip-circ")
-                .attr("x", timeX(thisTime)-btnImgW/2)
+                .attr("x", timeXTrue(thisTime)-btnImgW/2)
             thunder
                 .enter()
                 .append("image")
                 .attr("class", "clip-circ"+tIndex+"t")
                 .attr("id","clip-circ")
-                .attr("x", timeX(thisTime)-btnImgW/2)
-				.attr("y", butY)
+                .attr("x", timeXTrue(thisTime)-btnImgW/2)
+				.attr("y", butY+20)
         		.attr("width", btnImgW)
         		.attr("height", btnImgH)
+        		.attr("opacity",1)
                 .attr("xlink:href", function(d, i) {
 	                	if(d.view=="workspace"){
 	                		console.log(d.view)
 	                		return d.data;
 	                	} else {
-	                		return btnNest2[tIndex].values[0][0].data//btnImg2[tIndex][0].data; 
+	                		// return btnNest2[tIndex].values[0][0].data//btnImg2[tIndex][0].data; 
 	                	}
-                });
+                })
+        		.attr("opacity",0)
+        		.transition()
+        		.attr("opacity",1);
 			thunder.exit();
 			moveAllToFront();
-		});
-	// var iconLine2 = timeSVG.selectAll(".button2L")	
-	// 	.data(button2)
-	// 	iconLine2.enter()
-	// 	.append("line")
-	// 	.attr("class","button2L")
-	// 	.attr("x1", function(d){
-	// 		return timeX(d.time)+iconW/2+thunderSpace;
-	// 	})
-	// 	.attr("x2", function(d){
-	// 		return timeX(d.time)+iconW/2+thunderSpace;
-	// 	})
-	// 	.attr("y1", butLineY1)
-	// 	.attr("y2", butLineY2)
-	// 	.attr("stroke","grey");
+		})
+		.on("mouseout", function(d,i){
+			var tIndex = i;
+			d3.selectAll(".clip-circ"+tIndex+"t")
+				.transition()
+				.duration(2000)
+				.attr("opacity",0)
+		})
+	var iconLine2 = timeSVG.selectAll(".button2L")	
+		.data(button2)
+		iconLine2.enter()
+		.append("line")
+		.attr("class","button2L")
+		.attr("x1", function(d){
+			return timeXTrue(d.time)+iconW/2+thunderSpace;
+		})
+		.attr("x2", function(d){
+			return timeXTrue(d.time)+iconW/2+thunderSpace;
+		})
+		.attr("y1", butLineY1)
+		.attr("y2", butLineY1)
+		.attr("stroke-width",.1)
+		.attr("stroke","grey");
 }
 
 var autoImg = [];
@@ -628,6 +657,7 @@ function parsePhotos(multiData){
 		if(studentCaptions.length>0){ //researcherCaptions.length>0 && 
 			console.log(studentCaptions.length+"studentCaptions length")
 			showPhotos();
+			showStudDoc();
 			clearInterval(imageProcessing);	
 		}
 	}, 3000);	
@@ -659,7 +689,9 @@ function showPhotos(){
 	    .attr("x", function(d, i) {
 			return timeX(d.time)-timelineImgWidth/4;
 	    })
-		.attr("y", timelineImgY)  //622//yAxisBottom-timelineImgHeight+40
+		.attr("y", butLineY1)
+		.attr("opacity",0)
+		// .attr("y", timelineImgY)  //622//yAxisBottom-timelineImgHeight+40
 		.attr("width", timelineImgWidth)
 		.attr("height", timelineImgHeight)
 	    .attr("xlink:href", function(d, i) {
@@ -700,7 +732,9 @@ function showPhotos(){
 }
 
 function showStudDoc(){
-
+	var timeXTrue = d3.scale.linear()
+		.domain([startTime, endTime])
+		.range([leftMargin, w-rightMargin]);
 	// var resNote;
 	// resNote = timeSVG.selectAll(".commentIcon")
 	// 	.data(researcherNote) //when moused over this yields text
@@ -715,6 +749,7 @@ function showStudDoc(){
 	// 	.attr("width",iconW)
 	// 	.attr("height",iconW);
 	var studCommentDoc;
+	var docIcon = iconW*2;
 	studCommentDoc = timeSVG.selectAll(".studCommentIcon")
 		.data(docuNote);
 	studCommentDoc.enter()
@@ -722,11 +757,12 @@ function showStudDoc(){
 		.attr("class","studCommentIcon")
 		.attr("xlink:href", "assets/pencil.png") //just checking now put back to thunder
 		.attr("x", function(d){
-			return timeX(d.time);
+			return timeXTrue(d.time);
 		})
-		.attr("y", timelineThunderY/4)
+		.attr("y", butLineY1)
 		.attr("width",iconW)
-		.attr("height",iconW);	
+		.attr("height",iconW)
+		.attr("opacity",0);	
 
 	var studImgDoc;
 	studImgDoc = timeSVG.selectAll(".camIcon")
@@ -736,11 +772,12 @@ function showStudDoc(){
 		.attr("class","camIcon")
 		.attr("xlink:href", "assets/icons0/Documentation.png") //just checking now put back to thunder
 		.attr("x", function(d){
-			return timeX(d.time);
+			return timeXTrue(d.time);
 		})
-		.attr("y", timelineThunderY/4)
-		.attr("width",iconW)
-		.attr("height",iconW)
+		.attr("y", butLineY1)
+		.attr("width",docIcon)
+		.attr("height",docIcon)
+		.attr("opacity",0)
 		.on("click", function(d,i){
 			var thisData = d3.select(this);
 			var thisTime = thisData[0][0].__data__.time;
@@ -751,23 +788,62 @@ function showStudDoc(){
 		    var docImg = svgMain.selectAll(".clip-circ"+lIndex+"SD")
                 .data(docuImg) 
                 .attr("id","clip-circ")
-                .attr("x", timeX(thisTime)-btnImgW/2)
+                .attr("x", timeXTrue(thisTime)-btnImgW/2)
             docImg
                 .enter()
                 .append("image")
                 .attr("class", "clip-circ"+lIndex+"SD")
                 .attr("id","clip-circ")
-                .attr("x", timeX(thisTime)-btnImgW/2)
-				.attr("y", topMarg/2)
+                .attr("x", timeXTrue(thisTime)-btnImgW/2)
+				.attr("y", butLineY2-btnImgH)
         		.attr("width", btnImgW)
         		.attr("height", btnImgH)
                 .attr("xlink:href", function(d, i) {
 	                return docuImg[lIndex].data;
-                });
-
-			docImg.exit();
+                })
+        		.attr("opacity",1);
+			d3.selectAll("image#clip-circ.clip-circ"+lIndex+"SD").transition().attr("opacity",1);
+			// docImg.exit();
 			moveAllToFront();
-		});
+		})
+		.on("mouseout", function(d,i){
+			var lIndex = i;
+			d3.selectAll(".clip-circ"+lIndex+"SD")
+				.transition()
+				.duration(2000)
+				.attr("opacity",0)
+		})
+
+	var docLine = timeSVG.selectAll(".docL")	
+		.data(docuImg)
+		docLine.enter()
+		.append("line")
+		.attr("class","docL")
+		.attr("x1", function(d){
+			return timeXTrue(d.time)+docIcon/2;
+		})
+		.attr("x2", function(d){
+			return timeXTrue(d.time)+docIcon/2;
+		})
+		.attr("y1", butLineY1)
+		.attr("y2", butLineY1)
+		.attr("stroke-width",.1)
+		.attr("stroke","grey");
+	var comLine = timeSVG.selectAll(".comL")	
+		.data(docuNote)
+		comLine.enter()
+		.append("line")
+		.attr("class","comL")
+		.attr("x1", function(d){
+			return timeXTrue(d.time)+iconW/2;
+		})
+		.attr("x2", function(d){
+			return timeXTrue(d.time)+iconW/2;
+		})
+		.attr("y1", butLineY1)
+		.attr("y2", butLineY1)
+		.attr("stroke-width",.1)
+		.attr("stroke","grey");
 	// for (i=0; i<docuImg.length; i++){
 	// 	insideDoc.push(docuImg[i].data)		
 	// }
@@ -817,6 +893,18 @@ function showStudDoc(){
 // updateHoverbox(d.properties, "path");
 }
 
+function revealDoc(){
+	d3.selectAll(".camIcon").transition().attr("opacity",1).attr("y",butY-30)
+	d3.selectAll(".studCommentIcon").transition().attr("opacity",1).attr("y",butY-30)
+
+	d3.selectAll(".comL").transition().attr("y2",butLineY2-15)
+	d3.selectAll(".docL").transition().attr("y2",butLineY2-15)
+	// d3.selectAll(".comL")	
+	// d3.selectAll(".docL")		
+}
+
+var faceY = yTop-80;
+var faceColor = "#AB47BC";
 function goFace(faceData){
 	var minTotal, maxTotal;
 	var thisMany = [];
@@ -825,12 +913,10 @@ function goFace(faceData){
 	var yOffset = h/2;
 	var mini = 4;
 	var heightPanel = 100;
-	var yPath = d3.scale.linear()
+	var faceSpot = d3.scale.linear()
 	  .domain([0, maxTotal])
-	  .range([timeSVGH/2, 0]);
+	  .range([faceY+20, yTop-20]);
 
-
-	var faceColor = "#AB47BC"
 
 	rectFace = timeSVG.append("g").attr("class","facerect").selectAll(".facerect")
 	    .data(faceData.values)
@@ -841,7 +927,7 @@ function goFace(faceData){
 	    	return timeX(d.time)
 	    })
 	    .attr("y", function(d,i){
-	    	return timeSVGH/2-d.num*faceRadius;
+	    	return faceY-(d.num*faceRadius);
 	    })
 	    .attr("height", function(d,i){
 	    	return 2*(d.num*faceRadius);
@@ -851,18 +937,54 @@ function goFace(faceData){
 	    .attr("opacity",.6)
 		.attr("stroke","none")
 	maxFaces = d3.max(faceNum);
-	lineFace = timeSVG.append("g").attr("class","backline").selectAll(".backline")
-	    .data(d3.range(1))
-	  	.enter().append("line")
-	    .attr("class", "backline")
+
+	timeSVG.append("g").append("line")
+		.attr("class", "faceLine")
 	    .attr("x1", timeX(startTime))
-	    .attr("x2", timeX(startTime)+timeX(endTime)-timeX(startTime))
-	    .attr("y1", timeSVGH/2-maxFaces*faceRadius+2*(maxFaces*faceRadius))
-	    .attr("y2", timeSVGH/2-maxFaces*faceRadius+2*(maxFaces*faceRadius))
+	    .attr("x2", timeX(endTime)) //timeX(startTime)+timeX(endTime)-timeX(startTime))
+	    .attr("y1", faceY)//faceY-maxFaces*faceRadius+2*(maxFaces*faceRadius))
+	    .attr("y2", faceY)//faceY-maxFaces*faceRadius+2*(maxFaces*faceRadius))
 	    .attr("fill", "none")
 		.attr("stroke","grey")
-		.attr("stroke-dasharray",1)
+		.attr("stroke-dasharray",1);
+
+	
+	timeSVG.append("g").append("text")
+		.attr("class", "faceTitle")
+		.attr("x", leftMargin-3)
+		.attr("y", faceY)
+		.attr("text-anchor","end")
+		.attr("fill",seshCol)
+		.text("Faces at Screen");
+	$(".faceTitle").hide();
 }
+
+function revealFaces(){
+	timeX.range([leftMargin, w-rightMargin]);
+
+	$(".faceTitle").show();
+
+	d3.selectAll(".faceLine")
+	    .attr("x1", timeX(startTime))
+	    .attr("x2", timeX(endTime))
+
+	d3.selectAll(".facerect")	
+		.transition()
+		.attr("fill", faceColor)
+		.attr("x", function(d){
+			return timeX(d.time);
+		})
+}
+function revealButton(){
+	// timeX.range([leftMargin, w-rightMargin]);
+	d3.selectAll(".button1").transition().attr("opacity",1).attr("y",butY)
+	d3.selectAll(".button2").transition().attr("opacity",1).attr("y",butY)
+
+	d3.selectAll(".button1L").transition().attr("y2",butLineY2)
+	d3.selectAll(".button2L").transition().attr("y2",butLineY2)
+
+}
+
 function goIDE(ideData){
 	ideData = ideData[0].values;
 	console.log("in IDE");
@@ -1536,6 +1658,7 @@ function goHands(handData, summaryHands){
 
 function showingHands(){
 	$("text.graphTitle").show()
+	$("line.graphLine").show()
 
   	pathActive1 //.datum(softS1).
   		.transition().duration(durTrans)  
@@ -1559,16 +1682,16 @@ function showingPhotos(){
 			return (timeX(d.time)-timelineImgWidth/4); 
 		})	
 }
-function showingFace(){
-	timeX
-		.range([leftMargin, w-rightMargin]);
-	rectFace
-		.transition()
-		.attr("fill", faceColor)
-		.attr("x", function(d,i){
-			return timeX(d.time); 
-		})		
-}
+// function showingFace(){
+// 	timeX
+// 		.range([leftMargin, w-rightMargin]);
+// 	rectFace
+// 		.transition()
+// 		.attr("fill", faceColor)
+// 		.attr("x", function(d,i){
+// 			return timeX(d.time); 
+// 		})		
+// }
 
 var yHPath, ySPath, minTotal, maxTotal, pathS, pathH, index, lineS, lineH, svgPath;
 var ardRectSVG;
@@ -1919,7 +2042,7 @@ $("g#arduinoPath").hide();
 
 
 function showPhases(phasesJSON){
-	// parseButton(firstData);
+	parseButton(firstData);
 	console.log(phasesJSON.length+"phasesJSON length");
 
 	console.log(phasesJSON)
@@ -2111,20 +2234,43 @@ $("g.piePhase").hide()
 		})
 		.text(function(d){
 			if(d.phase=="obs_reflect"){
-				return "REFLECTION"
+				return "REFLECT"
 			}
 			if(d.phase=="obs_document"){
-				return "DOCUMENTATION"
+				return "BUILD"
 			}
 			if(d.phase=="obs_plan"){
-				return "PLANNING"
+				return "PLAN"
 			}
 		})
 		.attr("text-anchor","middle");
-//new addition
-$(".phaseText").hide();
+	//new addition
+	$(".phaseText").hide();
 }
+function revealPhases(){
+	var phaseY = smallY + smallHeight*2;
+	timeX
+		.range([leftMargin, w-rightMargin]);
+	d3.selectAll(".phase")
+		.transition()
+		.attr("x", function(d){
+			return timeX(d.start);
+		})
+		.attr("width",function(d,i){
+			return timeX(d.end)-timeX(d.start);
+		})
+		.attr("y", phaseY)
+		.attr("height", yAxisBottom-phaseY);
 
+	d3.selectAll(".phaseText")
+		.transition()
+		.attr("x",function(d,i){
+			var currentX = timeX(d.start)+(timeX(d.end)-timeX(d.start))/2;
+			return currentX;	
+		})
+		.attr("y", phaseY);
+	$(".phaseText").show();	
+}
 
 function overallStats(){
 
