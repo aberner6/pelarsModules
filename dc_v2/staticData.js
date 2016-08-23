@@ -69,7 +69,7 @@ var nodes = {};
 var newData = [];
 
 //face data stream
-var maxFaces;
+var maxFaces = 4;
 var faceNum = [];
 var faceRadius = 5;
 var maxRadius = faceRadius*4;
@@ -154,13 +154,14 @@ var yAxisBottom = h-200;
   	var durTrans = 1500;
 
 $(document).ready(function() {
-	getToken(); //returns the token
+	// getToken(); //returns the token
 	getData(thisSession, token);
 
 	var getNext = setInterval(function(){
 		console.log("one")
 		if(startFirst>0 && endFirst>startFirst){
-			getMulti(thisSession, token);
+			//bad server
+			// getMulti(thisSession, token);
 			getPhases(thisSession, token);
 			clearInterval(getNext);
 		}
@@ -284,9 +285,10 @@ function getOverallValues(){
 			if(json[i].name=="aftersession_time_looking"){
 				sessionScreen = json[i].result.active_time;		
 			}		
-
 		}
+		showStats();
 	})
+
 	console.log(overallVals+"overall summary")	
 }
 
@@ -778,7 +780,7 @@ function showStudDoc(){
 		.attr("width",docIcon)
 		.attr("height",docIcon)
 		.attr("opacity",0)
-		.on("click", function(d,i){
+		.on("mouseover", function(d,i){
 			var thisData = d3.select(this);
 			var thisTime = thisData[0][0].__data__.time;
 			console.log(thisTime+"docuImg time")
@@ -795,24 +797,59 @@ function showStudDoc(){
                 .attr("class", "clip-circ"+lIndex+"SD")
                 .attr("id","clip-circ")
                 .attr("x", timeXTrue(thisTime)-btnImgW/2)
-				.attr("y", butLineY2-btnImgH)
+				.attr("y", butY+20)
+				// .attr("y", butLineY2+btnImgH)
         		.attr("width", btnImgW)
         		.attr("height", btnImgH)
                 .attr("xlink:href", function(d, i) {
 	                return docuImg[lIndex].data;
                 })
         		.attr("opacity",1);
-			d3.selectAll("image#clip-circ.clip-circ"+lIndex+"SD").transition().attr("opacity",1);
+
+			d3.selectAll(".clip-circ"+lIndex+"SD")
+				.transition()
+				.duration(2000)
+				.attr("opacity",1)
 			// docImg.exit();
 			moveAllToFront();
 		})
 		.on("mouseout", function(d,i){
 			var lIndex = i;
+			var thisTime = thisData[0][0].__data__.time;
+
 			d3.selectAll(".clip-circ"+lIndex+"SD")
 				.transition()
 				.duration(2000)
 				.attr("opacity",0)
+				.attr("width", btnImgW)
+				.attr("height", btnImgH)
+                .attr("x", timeXTrue(thisTime)-btnImgW/2)
+				.attr("y", butY+20)
+				// .attr("y", butLineY2-btnImgH)
 		})
+		.on("click", function(d,i){
+			var lIndex = i;
+			d3.selectAll(".clip-circ"+lIndex+"SD")
+				.transition()
+				.duration(500)
+				.attr("width", bigImgWidth)
+				.attr("height", bigImgHeight)
+	    		.attr("x", function(d,i){
+	    			if(timeXTrue(d.time)-bigImgWidth/2<leftMargin){
+	    				console.log("under left edge")
+	    				return leftMargin;
+	    			}
+	    			else if(timeXTrue(d.time)-bigImgWidth/2>(w-rightMargin-bigImgWidth)){
+	    				console.log("over right edge")
+	    				return w-rightMargin-bigImgWidth;
+	    			}
+	    			else{
+	    				return timeXTrue(d.time)-bigImgWidth/2;
+	    			}
+	    		})
+	    		.attr("y", timelineImgY-bigImgHeight+bigImgHeight/4)
+				.attr("opacity",1)			
+		});
 
 	var docLine = timeSVG.selectAll(".docL")	
 		.data(docuImg)
@@ -835,13 +872,13 @@ function showStudDoc(){
 		.append("line")
 		.attr("class","comL")
 		.attr("x1", function(d){
-			return timeXTrue(d.time)+iconW/2;
+			return timeXTrue(d.time)+6+iconW/2;
 		})
 		.attr("x2", function(d){
-			return timeXTrue(d.time)+iconW/2;
+			return timeXTrue(d.time)+6+iconW/2;
 		})
 		.attr("y1", butLineY1)
-		.attr("y2", butLineY1)
+		.attr("y2", butLineY1) //-10
 		.attr("stroke-width",.1)
 		.attr("stroke","grey");
 	// for (i=0; i<docuImg.length; i++){
@@ -1704,14 +1741,16 @@ function showIDE(){
 	// timeX2
 	// 	.domain([startTime, endTime])
 	// 	.range([0,0]);
-var timeXTrue = d3.scale.linear()
-	.domain([startTime, endTime])
-	.range([leftMargin, w-rightMargin]);
+	var timeXTrue = d3.scale.linear()
+		.domain([startTime, endTime])
+		.range([leftMargin, w-rightMargin]);
 
 	ardRectSVG = svgMain.append("g")
         .attr("id", "arduinoRect")
         .attr("transform", "translate(" + (-w) + ", " + (h/2) + ")");
         // .attr("transform", "translate(" + (leftMargin) + ", " + (h/2) + ")");
+    console.log(startTime);
+    console.log(endTime);
 
 	var ardPathSVG = svgMain.append("g")
         .attr("id", "arduinoPath")
@@ -1903,8 +1942,9 @@ $("g#arduinoPath").hide();
 	}
 	console.log(bothLength+"bothlength");
 	console.log(maxHeight+"real max height")
-	xPath = d3.scale.linear()
-	      .domain([startTime,endTime]).range([10, w-40]);
+	// xPath = d3.scale.linear()
+	//       .domain([startTime,endTime])
+	//       .range([leftMargin, w-rightMargin]);
 	// var xPath0 = d3.scale.linear()
 	//       .domain([startTime,endTime]).range([0, 0]);
 
@@ -1920,7 +1960,7 @@ $("g#arduinoPath").hide();
 		.x(function(d, i) { 
 			if(d==undefined){ return 0; }
 				else{
-		       	return xPath(d.time);      			
+		       	return timeXTrue(d.time);      			
 				}
 		})
 		.y0(timeSVGH/2-(maxFaces*faceRadius))
@@ -1937,7 +1977,7 @@ $("g#arduinoPath").hide();
 		.x(function(d, i) { 
 			if(d==undefined){ return 0; }
 				else{
-		       	return xPath(d.time);      			
+		       	return timeXTrue(d.time);      			
 				}
 		})
 		.y0(timeSVGH/2-(maxFaces*faceRadius))
@@ -1974,6 +2014,7 @@ $("g#arduinoPath").hide();
 	// 	.attr("d", lineS);
 	pathS
 		.datum(softUseComp)
+    	.attr("class","timepathS")
 		.attr("d", lineS);
 
     function ardUseTotals(index) {
@@ -2042,7 +2083,7 @@ $("g#arduinoPath").hide();
 
 
 function showPhases(phasesJSON){
-	parseButton(firstData);
+	// parseButton(firstData);
 	console.log(phasesJSON.length+"phasesJSON length");
 
 	console.log(phasesJSON)
@@ -2315,13 +2356,13 @@ function showStats(){
 		.domain(statsNames)
 		.rangePoints([leftThird, rightThird])
 
-	statsR = timeSVG.selectAll(".statsRects")
+	statsR = timeSVG.append("g").selectAll(".statsRects")
 		.data(statsNames)
 		.enter()
 		.append("g")
 		.attr("class", "statsRects") 
       	.attr("transform", function(d, i) { 
-      		console.log(d);
+      		// console.log(d);
       		var x = stRectScale(d); //-leftMargin; //-rectWidth/2
 			var y = yAxisBottom+100; //specialHeight+specialHeight/2+4; //-topMargin/2;
       		return "translate(" + x + "," + y + ")"; 
@@ -2456,13 +2497,8 @@ function showStats(){
 		.attr("stroke-width",statWidth)
 		// .attr("stroke-dasharray", 2)
 		.attr("opacity", compOpa/2);
-
-		// hoverbox.select("rect.imports2").attr("x", seshProxX);
-		// hoverbox.select("rect.exports2").attr("x", allProxX);
-		// hoverbox.select("rect.imports").attr("x",seshSpeedX);
-		// hoverbox.select("rect.exports").attr("x",allSpeedX);
-// .domain([0, allSpeedMax])
-// .domain([0, allProxMax]) 
+//new addition
+$("g.statsRects").hide()
 }
 
 

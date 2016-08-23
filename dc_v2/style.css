@@ -98,19 +98,21 @@ image.clip-rect {
     /*display:none;*/
     -webkit-clip-path:inset(50% 40% 30% 40%);
 }
-image#clip-circ {    
-  -webkit-clip-path: circle(20% at 50% 50%);
-    transform: translate(0px,0px);
-}
-image#clip-circ:hover {    
-    -webkit-clip-path: inset(0% 0% 0% 0%);
-    transform: translate(0px,10px);
-}
-
 image.clip-rect:hover{
     cursor: pointer;
     -webkit-clip-path: inset(0% 0% 0% 0%);
 }
+
+image#clip-circ {    
+  -webkit-clip-path: circle(20% at 50% 50%);
+    /*transform: translate(0px,0px);*/
+}
+image#clip-circ:hover {    
+    -webkit-clip-path: inset(0% 0% 0% 0%);
+    /*transform: translate(0px,10px);*/
+}
+
+
 image.button1{
   cursor:pointer;
 }

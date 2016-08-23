@@ -35,11 +35,20 @@ var bottomHalf = h/2+rectHeight/2; //pressW;
 var leftThird = rectWidth;//center-(rectWidth/2);
 var rightThird = w-rectWidth*2; //center+(rectWidth/2);
 
+// var rightThirdz = w-rectWidth; //center+(rectWidth/2);
+var xaRectScale = d3.scale.linear()
+	.domain([1, howManyDataStreams/2])
+	.range([leftThird, rightThird])
+var xbRectScale = d3.scale.linear()
+	.domain([5, howManyDataStreams])
+	.range([leftThird, rightThird])
+
+
 var xRectScale = d3.scale.linear()
-	.domain([1, 4])
+	.domain([1, 5])
 	.range([leftThird*1.5, rightThird+rectWidth*1.1])
 var x2RectScale = d3.scale.linear()
-	.domain([4, 7])
+	.domain([5, 8])
 	.range([rectWidth, w-rectWidth*2])
 var x3RectScale = d3.scale.linear()
 	.domain([0, howManyDataStreams-1])
@@ -76,6 +85,7 @@ var specialHeight = (h/howManyDataStreams)-10;
 var smallY =  specialHeight-10;
 var smallWidth = rectWidth/3;
 var smallHeight = specialHeight/2;
+var backData;
 function makeThings(data){
 	svgBack= d3.select("#container").append("svg")
 		.attr("class", "backSVG")
@@ -89,7 +99,7 @@ function makeThings(data){
 		.attr("width", w)
 		.attr("height", timeSVGH)  
 		.style("margin-top","1px");
-
+	backData = data;
 console.log(data);
 	var backR = svgBack.selectAll("g")
 	// var backR = svgMain.selectAll("g")
@@ -98,18 +108,26 @@ console.log(data);
 		.append("g")
 		.attr("class", "backRects")
       	.attr("transform", function(d, i) { 
-      		console.log(i)
-      		console.log(d.name);
-      		console.log(d);
+      		// console.log(i)
+      		// console.log(d.name);
+      		// console.log(d);
       		var x;
-			if(i<4){
-				x = xRectScale(i); //-leftMargin; //-rectWidth/2
-			} else{
-				x = x2RectScale(i); //-leftMargin; //-rectWidth/2
+			// if(i<5){
+				// x = xNRectScale(i); //-leftMargin; //-rectWidth/2
+			// } 
+			// else{
+			// 	x = x2RectScale(i); //-leftMargin; //-rectWidth/2
+			// }
+			if(i<5){
+				console.log(i+d.name+"under"+xaRectScale(i));
+				x = xaRectScale(i); //-leftMargin; //-rectWidth/2
+			} 
+			else{
+				console.log(i+d.name+"over"+xbRectScale(i))
+				x = xbRectScale(i); //-leftMargin; //-rectWidth/2
 			}
-
 			var y;
-			if(i<4){
+			if(i<5){
 				y = topHalf-topMargin;
 			}else{
 				y = bottomHalf-topMargin;
@@ -153,6 +171,21 @@ console.log(data);
 		.attr("width", pressW)
 		.attr("height", pressW)
 		.attr("opacity", 1);
+
+	// var statsIcon = svgBack.append("g").attr("class","stats")
+	// 	.append("image")
+	// 	.attr("class","stats")
+ //        .attr("xlink:href",function(d,i){
+ //        	return "assets/icons0/stats.png"
+ //        })
+	// 	.attr("x", rectWidth/2)
+	// 	.attr("y", h-rectHeight/2)
+	// 	.attr("width", pressW)
+	// 	.attr("height", pressW)
+	// 	.attr("opacity", 1)
+	// 	.on("click", function(){
+	// 		makeShow("stats")
+	// 	})
 
 	var textDescrip = backR.append("text")
 		.attr("id","textDescrip")
@@ -301,124 +334,7 @@ console.log(data);
 	//     .attr("text-anchor",anchor)
 
 	// $.getScript('staticData.js');
-	setUpHoverbox();
-}
-
-var hoverbox,
-	hoverboxMinWidth = 200,
-	hoverboxHeight = 110,
-	hoverBoxPortScaleMax = 500000000,
-	hoverBoxPathScaleMax = 120000000;
-var textStart = 10;
-var rectStart = textStart*5;
-var hovRectWidth = hoverboxMinWidth-rectStart-textStart;
-function setUpHoverbox(){
-//HOVERBOX
-//Setup hover box
-//placement of hoverbox X 
-//needs to be based on hoverbox width and overall width
-
-	hoverbox = svgMain.append("g")
-		.attr("id", "hoverbox")
-		.attr("class", "hidden")
-		.attr("transform", "translate(" + (335) + "," + (118) + ")"); //967
-
-
-
-
-
-
-	hoverbox.append("rect")
-		.attr("class", "background")
-		.attr("x", 0)
-		.attr("y", 0)
-		.attr("fill",backgroundColor)
-		.attr("stroke",strokeColor)
-		.attr("stroke-width",4)
-		.attr("width", hoverboxMinWidth)
-		.attr("height", hoverboxHeight);
-
-	hoverbox.append("text")
-		.attr("class", "title")
-		.attr("x", textStart)//hoverboxMinWidth-9) //191
-		.attr("y", 24)
-		.attr("text-anchor","start")
-		.attr("fill",textColor)
-		.text("Data: ");
-	var dataRect = 2;
-	var dataOpa = .8;
-	
-	//if data type is hands, hov rect height is 20 - relative to the number of data streams shown
-	var	hovRectHeight = 20;
-	var buffer = 10;
-	var rect1Y = 50;
-	var rect2Y = rect1Y + hovRectHeight+buffer;
-	var titleY = 24;
-
-
-	hoverbox.append("rect")
-		.attr("class", "total")
-		.attr("stroke", strokeColor)
-		.attr("fill", "none")
-		.attr("stroke-width", 1)
-		.attr("x", rectStart)
-		.attr("y", rect1Y)
-		.attr("width", hovRectWidth)
-		.attr("height", hovRectHeight);
-	hoverbox.append("rect")
-		.attr("class", "imports")
-		.attr("x", 10)
-		.attr("y", rect1Y)
-		.attr("fill", "grey")
-		.attr("width", dataRect)
-		.attr("height", hovRectHeight)
-		.attr("opacity", dataOpa);
-	hoverbox.append("rect")
-		.attr("class", "exports")
-		.attr("x", 50)
-		.attr("y", rect1Y)
-		.attr("fill","red")
-		.attr("width", dataRect)
-		.attr("height", hovRectHeight)
-		.attr("opacity", dataOpa);
-	hoverbox.append("text")
-		.attr("class", "imports1")
-		.attr("x", textStart)
-		.attr("y", rect1Y+hovRectHeight/2)
-		.text("Speed");
-
-
-
-	hoverbox.append("rect")
-		.attr("class", "total2")
-		.attr("stroke", strokeColor)
-		.attr("fill", "none")
-		.attr("stroke-width", 1)
-		.attr("x", rectStart)
-		.attr("y", rect2Y)
-		.attr("width", hovRectWidth)
-		.attr("height", hovRectHeight);
-	hoverbox.append("rect")
-		.attr("class", "imports2")
-		.attr("x", 10)
-		.attr("y", rect2Y)
-		.attr("fill", "grey")
-		.attr("width", dataRect)
-		.attr("height", hovRectHeight)
-		.attr("opacity", dataOpa);
-	hoverbox.append("rect")
-		.attr("class", "exports2")
-		.attr("x", 50)
-		.attr("y", rect2Y)
-		.attr("fill","red")
-		.attr("width", dataRect)
-		.attr("height", hovRectHeight)
-		.attr("opacity", dataOpa);
-	hoverbox.append("text")
-		.attr("class", "imports2")
-		.attr("x", textStart)
-		.attr("y", rect2Y+hovRectHeight/2)
-		.text("Prox.");
+	// setUpHoverbox();
 }
 
 var handsShow = false;
@@ -447,37 +363,8 @@ function makeShow(whichName){
 		$("g.axis").show();
 		revealDoc();
 	}
-	showStats();
+	if(hoverData == "Statistics"){
+		$("g.statsRects").show()
+	}
+	// if(hoverData ==)
 }
-// function updateHoverbox(receiveData){
-// 	var hoverData = receiveData;
-// 	// console.log(hoverData+"hover data")	
-// 	if(hoverData=="Hands"){
-// 		$("g.axis").show();
-// 		showingHands();
-// 		showingPhotos();
-// 	}
-// }
-	//could just show/hide hoverbox with jquery toggle?
-	// if(whichName=="Hands" && handsShow==false){
-	// 	numSelected = numSelected+1;
-	// 	console.log("showing because hands were clicked"+numSelected)
-	// 	updateHoverbox(whichName);
-	// }
-	// if(clickedAgain==true){
-	// 	numSelected = numSelected-1;
-	// 	console.log("hiding because unclicked"+numSelected);
-	// 	hideHoverbox();
-	// }
-
-	// if(whichName=="Button" && buttonShow==false && handsShow==true){
-	// 	numSelected = numSelected+1;
-	// 	console.log("2 selected"+numSelected);
-	// 	buttonShow = true;		
-	// }
-	
-	// if(whichName=="Button" && buttonShow==false handsShow==false){
-	// 	numSelected = numSelected+1;
-	// 	console.log("1 selected"+numSelected);
-	// 	buttonShow = true;		
-	// }
