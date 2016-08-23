@@ -331,6 +331,9 @@ function makeShow(whichName){
 		$("g.axis").show();
 		revealDoc();
 	}
+	if(hoverData=="Links"){
+		$("#plot").show();
+	}
 	if(hoverData=="Kit"){
 		d3.selectAll(".kitlabels").transition().attr("opacity",1)
 		$("g.axis").show();

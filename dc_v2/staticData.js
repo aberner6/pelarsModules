@@ -154,14 +154,14 @@ var yAxisBottom = h-200;
   	var durTrans = 1500;
 
 $(document).ready(function() {
-	// getToken(); //returns the token
+	getToken(); //returns the token
 	getData(thisSession, token);
 
 	var getNext = setInterval(function(){
 		console.log("one")
 		if(startFirst>0 && endFirst>startFirst){
 			//bad server
-			// getMulti(thisSession, token);
+			getMulti(thisSession, token);
 			getPhases(thisSession, token);
 			clearInterval(getNext);
 		}
@@ -1119,12 +1119,6 @@ var drag;
 var force2;
 function callOther(nodes, links){
 	var linkdist = w/10;
-	// var force2 = d3.layout.force()
-	//     .nodes(d3.values(nodes))
-	//     .links(links)
-	//     .size([forcewidth, forceheight-20])
-	//     .linkDistance(linkdist)
-	//     .charge(-100)
 
 	var force2 = d3.layout.force()
 	    .nodes(d3.values(nodes))
@@ -1143,8 +1137,8 @@ function callOther(nodes, links){
 
 		drag = force2.drag() 
 	    .on("dragstart", dragstart);   
-//new addition
-$("g.movingNodes").hide();
+	//new addition
+	$("g.movingNodes").hide();
 
 
 	path2 = vis.selectAll("path2")
@@ -1212,16 +1206,16 @@ function tick() {
   .attr("transform", transform);
 }
 function transform(d) {
-var radius = 5;
-  d.x = Math.max(radius, Math.min(w - radius, d.x));
-  d.y = Math.max(radius, Math.min(h - radius, d.y));  
-  return "translate(" + d.x+ "," + d.y + ")";
+	var radius = 5;
+  	d.x = Math.max(radius, Math.min(w - radius, d.x));
+  	d.y = Math.max(radius, Math.min(h - radius, d.y));  
+  	return "translate(" + d.x+ "," + d.y + ")";
 }
 function linkArc(d) {
   var dx = d.target.x - d.source.x,
       dy = d.target.y - d.source.y,
       dr = Math.sqrt(dx * dx + dy * dy);
-  return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+	return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
 }
 
 
@@ -1242,7 +1236,8 @@ function makeEdge(linkData, linkNodes, linkLinks){
   // create plot area within svg image
     var plot = svgMain.append("g")
         .attr("id", "plot")
-        .attr("transform", "translate(" + (w/2+(radius)) + ", " + ((h/2)+(radius-59)) + ")");
+        .attr("transform", "translate(" + (w/2-(radius/2)+100) + ", " + ((h/2)-(radius/2)+36) + ")");
+        // <g id="plot" transform="translate(700.4166666666666, 300.4166666666667)" 
     function drawKey(){
 		var kitColor3 = plot.append("g").attr("class","backlabels")
 				.append("circle")
@@ -1290,7 +1285,7 @@ function makeEdge(linkData, linkNodes, linkLinks){
     // draw border around plot area
     plot.append("circle")
         .attr("class", "outline")
-        .attr("fill","none")
+        .attr("fill","white")
         .attr("stroke", darkColor)
         .attr("stroke-width",.5)
         .attr("r", radius - margin+2);
@@ -1337,6 +1332,37 @@ function makeEdge(linkData, linkNodes, linkLinks){
 		var radius = 5;
 //new addition
 $("#plot").hide();
+
+	// Generates a tooltip for a SVG circle element based on its ID
+	function addTooltip(circle) {
+	    var x = parseFloat(circle.attr("cx"));
+	    var y = parseFloat(circle.attr("cy"));
+	    var r = parseFloat(circle.attr("r"));
+	    var text = circle.attr("id");
+
+	    var tooltip = d3.select("#plot")
+	        .append("text")
+	        .text(text)
+	        .attr("x", x)
+	        .attr("y", y)
+	        .attr("dy", -r * 2)
+	        .attr("id", "tooltip");
+
+	    var offset = tooltip.node().getBBox().width / 2;
+
+	    if ((x - offset) < -radius) {
+	        tooltip.attr("text-anchor", "start");
+	        tooltip.attr("dx", -r);
+	    }
+	    else if ((x + offset) > (radius)) {
+	        tooltip.attr("text-anchor", "end");
+	        tooltip.attr("dx", r);
+	    }
+	    else {
+	        tooltip.attr("text-anchor", "middle");
+	        tooltip.attr("dx", 0);
+	    }
+	}
 	    d3.select("#plot").selectAll(".node")
 	        .data(nodes)
 	        .enter()
@@ -1347,6 +1373,7 @@ $("#plot").hide();
 	        .attr("cy", function(d, i) { return d.y; })
 	        .attr("r", radius)
 	        .style("fill",  function(d, i) { 
+	        	addTooltip(d3.select(this))
 	        	for(j=0; j<inputs.length; j++){
 	        		if(d.name.toLowerCase().indexOf(inputs[j].toLowerCase())>-1){
 		        		return "lightpink";
@@ -1867,7 +1894,7 @@ $("g#arduinoRect").hide();
 		})
 		.attr("font-size",8)
 		.attr("text-anchor","start");
-		
+
 	var radiusKey = 4;
 	var hardwareKeyX = leftMargin-radiusKey*2;
 	var softwareKeyX = hardwareKeyX;
@@ -2218,7 +2245,7 @@ $("g#arduinoRect").hide();
 
 
 function showPhases(phasesJSON){
-	// parseButton(firstData);
+	parseButton(firstData);
 	console.log(phasesJSON.length+"phasesJSON length");
 
 	console.log(phasesJSON)
