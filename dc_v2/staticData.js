@@ -346,6 +346,8 @@ function getPhases(thisSession,token){
 		}
 	})
 }
+var timeXTrue = d3.scale.linear().range([leftMargin, w-rightMargin]);
+
 function sendNestedData(){
 	if (typeof nested_data !== "undefined"){
 	    var xAxisCall = svgMain.append('g');
@@ -355,6 +357,9 @@ function sendNestedData(){
 	    var xAxisScale = d3.time.scale()
 	        .domain([startTime, endTime])
 	        .range([leftMargin, w-rightMargin]);
+		timeXTrue
+			.domain([startTime, endTime])
+
 	    var timeFormat = d3.time.format("%H:%M");
 
 	    xAxis
@@ -462,9 +467,7 @@ function drawButton(button1, button2, img1, img2){
 // for (i=0; i<button1.length; i++){
 // 	button1Images.push(btnNest1[i].values[0][0].data)
 // }
-	var timeXTrue = d3.scale.linear()
-		.domain([startTime, endTime])
-		.range([leftMargin, w-rightMargin]);
+
 	var iconBut1 = timeSVG.selectAll(".button1")	
 		.data(button1)
 		iconBut1.enter()
@@ -734,9 +737,9 @@ function showPhotos(){
 }
 
 function showStudDoc(){
-	var timeXTrue = d3.scale.linear()
-		.domain([startTime, endTime])
-		.range([leftMargin, w-rightMargin]);
+	// var timeXTrue = d3.scale.linear()
+	// 	.domain([startTime, endTime])
+	// 	.range([leftMargin, w-rightMargin]);
 	// var resNote;
 	// resNote = timeSVG.selectAll(".commentIcon")
 	// 	.data(researcherNote) //when moused over this yields text
@@ -1733,6 +1736,8 @@ function showingPhotos(){
 var yHPath, ySPath, minTotal, maxTotal, pathS, pathH, index, lineS, lineH, svgPath;
 var ardRectSVG;
 var arduinoRectangles;
+var newSoft = [];
+var newHard = [];
 function showIDE(){
 	yOther
 	    .rangePoints([topMarg, forceheight]);
@@ -1741,22 +1746,23 @@ function showIDE(){
 	// timeX2
 	// 	.domain([startTime, endTime])
 	// 	.range([0,0]);
-	var timeXTrue = d3.scale.linear()
-		.domain([startTime, endTime])
-		.range([leftMargin, w-rightMargin]);
+	// var timeXTrue = d3.scale.linear()
+	// 	.domain([startTime, endTime])
+	// 	.range([leftMargin, w-rightMargin]);
 
 	ardRectSVG = svgMain.append("g")
         .attr("id", "arduinoRect")
-        .attr("transform", "translate(" + (-w) + ", " + (h/2) + ")");
+        .attr("transform", "translate(" + (0) + ", " + (yAxisBottom+20) + ")");
         // .attr("transform", "translate(" + (leftMargin) + ", " + (h/2) + ")");
     console.log(startTime);
     console.log(endTime);
 
 	var ardPathSVG = svgMain.append("g")
         .attr("id", "arduinoPath")
-        .attr("transform", "translate(" + (leftMargin) + ", " + ((h/2)+forceheight) + ")");
+        .attr("transform", "translate(" + (0) + ", " + ((h/2)+5) + ")");
 //new addition
 $("g#arduinoPath").hide();
+$("g#arduinoRect").hide();
 
 	arduinoRectangles = ardRectSVG.selectAll(".ide")
 		.data(ide_nest2)
@@ -1765,19 +1771,19 @@ $("g#arduinoPath").hide();
 	  	.attr("class","ide");
 	arduinoRectangles.selectAll(".logs")
 		.data(function(d) {
-				return d.values;				
+			return d.values;				
 		}) 
 		.enter()
 		.append("rect")
 		.attr("class",function(d){
 			if(d.name){
 				if(d.mod=="M"){
-			d.timeEdit = Math.round(d.time/100)*100;
+					d.timeEdit = Math.round(d.time/100)*100;
 					hardwareOnly.push(d);
 					hardNames.push(d.name);
 				}
 				if(d.mod=="B"){
-			d.timeEdit = Math.round(d.time/100)*100;
+					d.timeEdit = Math.round(d.time/100)*100;
 					softwareOnly.push(d);
 					softNames.push(d.name);
 				}
@@ -1792,7 +1798,7 @@ $("g#arduinoPath").hide();
 		.attr("x", function(d){
 			if(d.mod=="M" || d.mod=="B"){
 				// return timeX2(d.time)
-				return timeX(d.time)
+				return timeXTrue(d.time)
 			}
 		})
         .attr("y", function(d, i) {
@@ -1844,14 +1850,14 @@ $("g#arduinoPath").hide();
            })
            .attr("width", iconW)
            .attr("height", iconW)
-           .attr("x", 2)
+           .attr("x", leftMargin-53)
 
 	ardRectSVG.selectAll(".timeText")
 		.data(bothHS)
 		.enter()
 		.append("text")
 		.attr("class","timeText")
-		.attr("x", iconLMarg)
+		.attr("x", leftMargin-28) //iconLMarg
         .attr("y", function(d, i) {
             return yOther(d)+5;
         })
@@ -1860,7 +1866,79 @@ $("g#arduinoPath").hide();
 			return d;
 		})
 		.attr("font-size",8)
-		.attr("text-anchor","start")
+		.attr("text-anchor","start");
+		
+	var radiusKey = 4;
+	var hardwareKeyX = leftMargin-radiusKey*2;
+	var softwareKeyX = hardwareKeyX;
+	var hardwareKeyY = yAxisBottom - 20; 	    //.rangePoints([topMarg, forceheight]);
+	var softwareKeyY = yAxisBottom-20+(radiusKey*4);
+
+	var kitColor = timeSVG.append("g").attr("class","kitlabels")
+		.append("circle")
+	    .attr("cx", hardwareKeyX)
+	    .attr("cy", hardwareKeyY)
+	    .attr("r", radiusKey)
+	    .attr("fill",hardwareColor)
+	    .attr("stroke",hardwareColor)
+	var	kitNameColor = timeSVG.append("g").attr("class","kitlabels")
+		.append("text")
+	    .attr("x",hardwareKeyX-radiusKey*2)
+	    .attr("y", hardwareKeyY)
+	    .text("Hardware")
+	    .attr("text-anchor","end")
+	var kitColor2 = timeSVG.append("g").attr("class","kitlabels")
+		.append("circle")
+	    .attr("cx", softwareKeyX)
+	    .attr("cy", softwareKeyY)
+	    .attr("r", radiusKey)
+	    .attr("fill",softwareColor)
+	    .attr("stroke",softwareColor)
+	var	kitNameColor2 = timeSVG.append("g").attr("class","kitlabels")
+		.append("text")
+	    .attr("x", softwareKeyX-radiusKey*2)
+	    .attr("y", softwareKeyY)
+	    .text("Software")
+	    .attr("text-anchor","end")
+	d3.selectAll(".kitlabels").attr("opacity",0)
+
+
+
+	arduinoRectangles.selectAll(".logCC")
+		.data(function(d) {
+			return d.values;				
+		}) 
+		.enter()
+		.append("line")
+		.attr("class","logCC")
+		.attr("x1", function(d){
+			if(d.mod=="C"){
+				return timeXTrue(d.time)			
+			} else{ }
+		})
+		.attr("x2", function(d){
+			if(d.mod=="C"){
+				return timeXTrue(d.time)			
+			} else{ }		
+		})
+	    .attr("y1", topMarg)
+	    .attr("y2", forceheight) 
+	    .attr("fill","none")
+	    .attr("stroke",function(d){
+			if(d.mod=="C"){
+				return "lightgray"			
+			} else{ return "none" }	    	
+	    })
+	    .attr("stroke-dasharray",2)
+	    .attr("opacity", function(d){
+	    	if(d.mod=="C"){
+				return .5			
+			} else{ return 0 }	    	
+	    })
+
+
+
+
 
 	if(endMin>startMin){
 		totalMin = (endMin-startMin);	
@@ -1924,6 +2002,20 @@ $("g#arduinoPath").hide();
 	hardUseComp = cleanArray(hardUseComp)
 
 	softUseComp = cleanArray(softUseComp)
+	newSoft = d3.nest()
+		.key(function(d) { 
+			return d.time; 
+		})
+		.sortKeys(d3.ascending)
+		.entries(softUseComp); 
+	// console.log(newSof/t+"newsoft")
+	newHard = d3.nest()
+		.key(function(d) { 
+			return d.time; 
+		})
+		.sortKeys(d3.ascending)
+		.entries(hardUseComp); 
+	// console.log(newSoft+"newsoft")
 
 	var howManyHard = [];
 	var howManySoft = [];
@@ -1956,11 +2048,57 @@ $("g#arduinoPath").hide();
 	      .domain([0,maxHeight+1]) //max software components
 	      .range([timeSVGH/2-(maxFaces*faceRadius), 0]);
 
+	// lineH = d3.svg.area()
+	// 	.x(function(d, i) { 
+	// 		if(d==undefined){ return 0; }
+	// 			else{
+	// 	       	return timeXTrue(d.time);      			
+	// 			}
+	// 	})
+	// 	.y0(timeSVGH/2-(maxFaces*faceRadius))
+	// 	.y1(function(d, i) { 
+	// 		if(d==undefined){return 0;}
+	// 		if(d.total<0){ return 0}
+	// 			else{
+	// 				return yHPath(d.total);  //actually totals now
+	// 			}
+	// 	})
+	// 	.interpolate("linear");
+
+	// lineS = d3.svg.area()
+	// 	.x(function(d, i) { 
+	// 		if(d==undefined){ 
+	// 			return 0; 
+	// 		}
+	// 		else{
+	// 	       	return timeXTrue(d.time);      			
+	// 		}
+	// 	})
+	// 	.y0(timeSVGH/2-(maxFaces*faceRadius))
+	// 	.y1(function(d, i) { 
+	// 		if(d==undefined){
+	// 			console.log("in here undefined")
+	// 			// return 0;
+	// 			return ySPath(0); 
+	// 		}
+	// 		if(d.total<0){ 
+	// 			// return 0
+	// 			return ySPath(0); 
+	// 		}
+	// 		if(d.total==0){ 
+	// 			// console.log("in here zero")
+	// 			return ySPath(0); //timeSVGH/2-(maxFaces*faceRadius)
+	// 		}
+	// 			else{
+	// 				return ySPath(d.total); 
+	// 			}
+	// 	})
+	// 	.interpolate("linear");
 	lineH = d3.svg.area()
 		.x(function(d, i) { 
-			if(d==undefined){ return 0; }
+			if(d==undefined){ console.log("no") }
 				else{
-		       	return timeXTrue(d.time);      			
+		       	return timeXTrue(parseInt(d.key));      			
 				}
 		})
 		.y0(timeSVGH/2-(maxFaces*faceRadius))
@@ -1968,16 +2106,16 @@ $("g#arduinoPath").hide();
 			if(d==undefined){return 0;}
 			if(d.total<0){ return 0}
 				else{
-					return yHPath(d.total);  //actually totals now
+					return yHPath(d.values[0].total); 
 				}
 		})
 		.interpolate("linear");
 
 	lineS = d3.svg.area()
 		.x(function(d, i) { 
-			if(d==undefined){ return 0; }
+			if(d==undefined){ console.log("no") }
 				else{
-		       	return timeXTrue(d.time);      			
+		       	return timeXTrue(parseInt(d.key));      			
 				}
 		})
 		.y0(timeSVGH/2-(maxFaces*faceRadius))
@@ -1985,7 +2123,7 @@ $("g#arduinoPath").hide();
 			if(d==undefined){return 0;}
 			if(d.total<0){ return 0}
 				else{
-					return ySPath(d.total); 
+					return ySPath(d.values[0].total); 
 				}
 		})
 		.interpolate("linear");
@@ -1998,7 +2136,7 @@ $("g#arduinoPath").hide();
 		.attr("opacity",opacityPath)
 		.attr("stroke",hardwareColor);
 	pathH
-		.datum(hardUseComp)
+		.datum(newHard)
     	.attr("class","timepathH")
 		.attr("d", lineH);
 
@@ -2008,12 +2146,9 @@ $("g#arduinoPath").hide();
 		.attr("fill",softwareColor)
 		.attr("opacity",opacityPath)
 		.attr("stroke",softwareColor);
-	//can go from lineS1 which would be 0 for x to lineS which populates with data like this:
-	// pathS
-	// 	.datum(softUseComp).transition()
-	// 	.attr("d", lineS);
+
 	pathS
-		.datum(softUseComp)
+		.datum(newSoft) //softUseComp
     	.attr("class","timepathS")
 		.attr("d", lineS);
 

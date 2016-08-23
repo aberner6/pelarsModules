@@ -299,39 +299,7 @@ console.log(data);
 	  });
 	}
 
-	var hardwareKeyX = w+iconW;
-	var softwareKeyX = hardwareKeyX;
-	var radiusKey = 4;
-	var hardwareKeyY = h/4;
-	var softwareKeyY = h/4+(radiusKey*4);
-//right top key
-	// var kitColor = svgMain.append("g").attr("class","kitlabels")
-	// 	.append("circle")
-	//     .attr("cx", hardwareKeyX)
-	//     .attr("cy", hardwareKeyY)
-	//     .attr("r", radiusKey)
-	//     .attr("fill",hardwareColor)
-	//     .attr("stroke",hardwareColor)
-	// var	kitNameColor = svgMain.append("g").attr("class","kitlabels")
-	// 	.append("text")
-	//     .attr("x",hardwareKeyX+radiusKey*2)
-	//     .attr("y", hardwareKeyY)
-	//     .text("Hardware")
-	//     .attr("text-anchor",anchor)
 
-	// var kitColor2 = svgMain.append("g").attr("class","kitlabels")
-	// 	.append("circle")
-	//     .attr("cx", softwareKeyX)
-	//     .attr("cy", softwareKeyY)
-	//     .attr("r", radiusKey)
-	//     .attr("fill",softwareColor)
-	//     .attr("stroke",softwareColor)
-	// var	kitNameColor2 = svgMain.append("g").attr("class","kitlabels")
-	// 	.append("text")
-	//     .attr("x", softwareKeyX+radiusKey*2)
-	//     .attr("y", softwareKeyY)
-	//     .text("Software")
-	//     .attr("text-anchor",anchor)
 
 	// $.getScript('staticData.js');
 	// setUpHoverbox();
@@ -362,6 +330,12 @@ function makeShow(whichName){
 	if(hoverData=="Documentation"){
 		$("g.axis").show();
 		revealDoc();
+	}
+	if(hoverData=="Kit"){
+		d3.selectAll(".kitlabels").transition().attr("opacity",1)
+		$("g.axis").show();
+		$("g#arduinoPath").show();
+		$("g#arduinoRect").show();
 	}
 	if(hoverData == "Statistics"){
 		$("g.statsRects").show()
