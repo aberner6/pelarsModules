@@ -1378,7 +1378,7 @@ function showHands(){
   	yActivePath = d3.scale.linear() 
 		.domain([0,maxActiveOverall]).range([timeSVGH-maxRadius, timeSVGH/2+(maxFaces*faceRadius)]); //timeSVGH/2
 
- 	 xActivePath = d3.scale.linear() //startTime, endTime
+ 	xActivePath = d3.scale.linear() //startTime, endTime
 		.domain([startTime, endTime]).range([10, w-40]);
 
   	lineActive1 = d3.svg.line()

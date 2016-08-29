@@ -165,21 +165,21 @@ $(document).ready(function() {
 			getPhases(thisSession, token);
 			clearInterval(getNext);
 		}
-	},100); 
+	},2000); 
 	var processNest = setInterval(function(){
 		console.log("two")
 		if(startTime>0 && endTime>startTime && nested_data.length>0){
 			sendNestedData(nested_data);
 			clearInterval(processNest);
 		}
-	},200); 
+	},3000); 
 })
 
 function getToken(){
 	token = pelars_authenticate();
 }
 //ORIGINAL
-thisSession = parseInt(1593);
+thisSession = parseInt(1320); //1542
 
 // function getSession(token){
 // 	console.log(token+"token");
@@ -195,7 +195,8 @@ thisSession = parseInt(1593);
 function getData(thisSession, token){
 	getOverallValues();
 
-	d3.json("data/data1.json", function(json){
+	$.getJSON("http://pelars.sssup.it:8080/pelars/data/"+thisSession+"?token="+token,function(json){
+	// d3.json("data/data1.json", function(json){
 		startFirst = json[0].time; //for all of the data, this is the supposed start
 		endFirst = json[json.length-1].time; //for all of the data, this is the supposed end
 		firstData = json; //this is the overall set of data
@@ -264,7 +265,9 @@ function getOverallValues(){
 		allPresence = overallVals.presence.mean;
 		allScreen = overallVals.time_looking.mean;
 	})
-	d3.json("data/postSession.json", function(json){
+	$.getJSON("http://pelars.sssup.it:8080/pelars/content/"+thisSession+"?token="+token,function(json){
+	// http://pelars.sssup.it/pelars/content/1542	
+	// d3.json("data/postSession.json", function(json){
 		console.log(json);
 		sessionVals = json;
 		for (i=0; i<json.length; i++){
@@ -313,7 +316,8 @@ function getMulti(thisSession,token){
 // }
 var phaseData;
 function getPhases(thisSession,token){
-	d3.json("data/phaseData.json", function(phasesJSON){
+	$.getJSON("http://pelars.sssup.it:8080/pelars/phase/"+thisSession+"?token="+token,function(phasesJSON){
+	// d3.json("data/phaseData.json", function(phasesJSON){
 		phaseData = phasesJSON;
 		if(phasesJSON[0].phase=="setup"&&phasesJSON.length==1){
 			startTime = startFirst;
@@ -1726,7 +1730,24 @@ function goHands(handData, summaryHands){
 }
 
 
+function hideHands(){
+	$("text.graphTitle").hide()
+	$("line.graphLine").hide()
 
+  	pathActive1 //.datum(softS1).
+  		.transition().duration(durTrans)  
+  		.attr("d", lineActiveZip)
+  		.attr("stroke",lightColor);		
+
+  	pathActive2
+  		.datum(softS2).transition().duration(durTrans)  		
+  		.attr("d", lineActiveZip)
+  		.attr("stroke",lightColor);	
+  	pathActive3
+  		.datum(softS3).transition().duration(durTrans)  		
+  		.attr("d", lineActiveZip)
+  		.attr("stroke",lightColor);	
+}
 function showingHands(){
 	$("text.graphTitle").show()
 	$("line.graphLine").show()

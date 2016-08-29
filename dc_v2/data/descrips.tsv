@@ -1,10 +1,10 @@
 name	descrip	
-Hands	Here we have the thing which is about this and this
-Hands	Here we have the thing which is about this and this
-Faces	Here we have the thing which is about this and this	
-Kit	Here we have the thing which is about this and this
-Links	Here we have the thing which is about this and this
-Documentation	Here we have the thing which is about this and this
-Phases	Here we have the thing which is about this and this
-Button	Here we have the thing which is about this and this	
-Statistics	Compare this session to overall sessions
+Hands	The PELARS system tracks hand movements from the participants to better understand the activity of the group overall.
+Hands	The PELARS system tracks hand movements from the participants to better understand the activity of the group overall.
+Faces	If a participant is looking at the computer, his or her face is noted. 
+Kit	The usage of the physical computing components (kit) are tracked and displayed over time.
+Links	The links of the physical components with software blocks.
+Documentation	The student use of the mobile documentation tool is shown here, along with images taken by the system.
+Phases	The phases that the project underwent - from the researcher notes.
+Button	When the students pressed the lightbulb or thundercloud buttons - along with the associated system images.
+Statistics	Compare this session to overall sessions.
