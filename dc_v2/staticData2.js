@@ -154,7 +154,7 @@ var yAxisBottom = h-200;
   	var durTrans = 1500;
 
 $(document).ready(function() {
-	getToken(); //returns the token
+	// getToken(); //returns the token
 	getData(thisSession, token);
 
 	var getNext = setInterval(function(){
@@ -177,7 +177,7 @@ $(document).ready(function() {
 
 function getToken(){
 	token = pelars_authenticate();
-		getSession();
+		// getSession();
 }
 //ORIGINAL
 // thisSession = parseInt(1320); //1542
@@ -196,8 +196,8 @@ function getSession(token){
 function getData(thisSession, token){
 	getOverallValues();
 
-	$.getJSON("http://pelars.sssup.it:8080/pelars/data/"+thisSession+"?token="+token,function(json){
-	// d3.json("data/data1.json", function(json){
+	// $.getJSON("http://pelars.sssup.it:8080/pelars/data/"+thisSession+"?token="+token,function(json){
+	d3.json("data/data1.json", function(json){
 		startFirst = json[0].time; //for all of the data, this is the supposed start
 		endFirst = json[json.length-1].time; //for all of the data, this is the supposed end
 		firstData = json; //this is the overall set of data
@@ -266,9 +266,9 @@ function getOverallValues(){
 		allPresence = overallVals.presence.mean;
 		allScreen = overallVals.time_looking.mean;
 	})
-	$.getJSON("http://pelars.sssup.it:8080/pelars/content/"+thisSession+"?token="+token,function(json){
+	// $.getJSON("http://pelars.sssup.it:8080/pelars/content/"+thisSession+"?token="+token,function(json){
 	// http://pelars.sssup.it/pelars/content/1542	
-	// d3.json("data/postSession.json", function(json){
+	d3.json("data/postSession.json", function(json){
 		console.log(json);
 		sessionVals = json;
 		for (i=0; i<json.length; i++){
@@ -299,12 +299,12 @@ function getOverallValues(){
 var tempData = [];
 var multiData = [];
 function getMulti(thisSession,token){
-	$.getJSON("http://pelars.sssup.it:8080/pelars/multimedia/"+thisSession+"?token="+token,function(multiJSON){
+	// $.getJSON("http://pelars.sssup.it:8080/pelars/multimedia/"+thisSession+"?token="+token,function(multiJSON){
 
-	// d3.json("data/multimedia.json", function(multiJSON){
+	d3.json("data/multimedia.json", function(multiJSON){
 		tempData.push(multiJSON); 
 		multiData.push(tempData[0]);
-		parsePhotos(multiData);
+		// parsePhotos(multiData); //online
 	})	
 }
 
@@ -317,8 +317,8 @@ function getMulti(thisSession,token){
 // }
 var phaseData;
 function getPhases(thisSession,token){
-	$.getJSON("http://pelars.sssup.it:8080/pelars/phase/"+thisSession+"?token="+token,function(phasesJSON){
-	// d3.json("data/phaseData.json", function(phasesJSON){
+	// $.getJSON("http://pelars.sssup.it:8080/pelars/phase/"+thisSession+"?token="+token,function(phasesJSON){
+	d3.json("data/phaseData.json", function(phasesJSON){
 		phaseData = phasesJSON;
 		if(phasesJSON[0].phase=="setup"&&phasesJSON.length==1){
 			startTime = startFirst;
@@ -2271,7 +2271,7 @@ $("g#arduinoRect").hide();
 
 
 function showPhases(phasesJSON){
-	parseButton(firstData);
+	// parseButton(firstData);
 	console.log(phasesJSON.length+"phasesJSON length");
 
 	console.log(phasesJSON)
