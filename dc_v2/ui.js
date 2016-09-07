@@ -133,24 +133,24 @@ console.log(data);
     //   			return "translate(" + x + "," + y + ")"; 
     //   		}
       		if(d.type==1){
-				y = topHalf-topMargin;
-				x = leftThird+rectWidth/2; 
+				y = topHalf*1.5 //-topMargin;
+				x = leftThird+rectWidth-iconW*2; 
       			return "translate(" + x + "," + y + ")";       			
       		}
       		if(d.type==4){
-				y = topHalf-topMargin;
-				x = rightThird-rectWidth/2; 
+				y = topHalf*1.5 //-topMargin;
+				x = rightThird-rectWidth+iconW*2; 
       			return "translate(" + x + "," + y + ")";     			
       		}
       		if(d.type==2){
       			console.log(i);
-				y = topHalf+topMargin*iconW;
+				y = topHalf*1.5+topMargin*iconW;
 				x = xaRectScale(i); //-leftMargin; //-rectWidth/2
       			return "translate(" + x + "," + y + ")"; 
 			} 
 			if(d.type==3){
 				console.log(i);
-				y = topHalf+topMargin*iconW*1.5;
+				y = topHalf*1.5+topMargin*iconW*1.5;
 				x = xbRectScale(i); //-leftMargin; //-rectWidth/2
 	      		return "translate(" + x + "," + y + ")"; 
       		}
