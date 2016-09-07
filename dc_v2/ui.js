@@ -64,6 +64,10 @@ var backgroundColor = "white";
 var strokeColor = darkColor;
 var lightColor = "none";
 
+var typeScale = d3.scale.ordinal()
+  .domain([0, 4])
+  .range(["green","teal","turquoise","aquamarine", "blue"]);
+
 var leftMargin = 100;
 var topMargin = 5;
 setSVG();
@@ -114,6 +118,7 @@ function makeThings(data){
 d3.select(".backSVG").append("svg:circle").attr("cx",w/2 - 5).attr("cy",h/4).attr("fill","pink").attr("r",10)
 	backData = data;
 console.log(data);
+var marginal = 1.2;
 	var backR = svgBack.selectAll("g")
 	// var backR = svgMain.selectAll("g")
 		.data(data[0])
@@ -133,24 +138,24 @@ console.log(data);
     //   			return "translate(" + x + "," + y + ")"; 
     //   		}
       		if(d.type==1){
-				y = topHalf*1.5 //-topMargin;
+				y = topHalf*marginal //-topMargin;
 				x = leftThird+rectWidth-iconW*2; 
       			return "translate(" + x + "," + y + ")";       			
       		}
       		if(d.type==4){
-				y = topHalf*1.5 //-topMargin;
+				y = topHalf*marginal //-topMargin;
 				x = rightThird-rectWidth+iconW*2; 
       			return "translate(" + x + "," + y + ")";     			
       		}
       		if(d.type==2){
       			console.log(i);
-				y = topHalf*1.5+topMargin*iconW;
+				y = topHalf*marginal+topMargin*iconW;
 				x = xaRectScale(i); //-leftMargin; //-rectWidth/2
       			return "translate(" + x + "," + y + ")"; 
 			} 
 			if(d.type==3){
 				console.log(i);
-				y = topHalf*1.5+topMargin*iconW*1.5;
+				y = topHalf*marginal+topMargin*iconW*1.5;
 				x = xbRectScale(i); //-leftMargin; //-rectWidth/2
 	      		return "translate(" + x + "," + y + ")"; 
       		}
@@ -195,7 +200,25 @@ console.log(data);
 			}
 		})
 		.attr("fill","white")
-		.attr("stroke","lightgray")  
+		.attr("stroke",function(d,i){
+			// if(d.side==1){
+			// 	return "gray"
+			// }
+			// if(d.side==2){
+			// 	return "blueviolet"
+			// }
+			if(d.side==3){
+				return "lightblue"
+			} else{
+				return "lightgray"
+			}
+			// return typeScale(d.side);
+			// if(d.type==
+			// 	return "lightgray"
+			// 	}else{
+			// 		return "lightgray";
+			// 	}  
+			})
 		.attr("stroke-width",1)
 		.attr("opacity",function(d,i){
       		if(d.name=="Timeline" || d.name=="Summary"){
@@ -280,7 +303,15 @@ console.log(data);
 		      	.attr("transform", function(d, i) {  
 		      		var x, y;
 					// y = smallY-smallHeight-origStroke*2;
-		   //    		if(d.name=="Timeline"){
+		      		if(d.name=="Timeline" || d.name=="Summary"){
+			      		x = x3RectScale(i);
+						y = smallY/2; //smallY // specialHeight-10	
+			      		return "translate(" + x + "," + (y) + ")";
+			      	} else{
+			      		x = x3RectScale(i);
+						y = smallY/2+smallHeight; //smallY // specialHeight-10	
+			      		return "translate(" + x + "," + (y) + ")";			      		
+			      	}		      			
 		   //    			x=center-smallWidth/2-origStroke;
 		   //    			return "translate(" + x + "," + y + ")"; 
 		   //    		}
@@ -288,9 +319,9 @@ console.log(data);
 		   //    			x=center+smallWidth/2-origStroke;;
 		   //    			return "translate(" + x + "," + y + ")"; 
 		   //    		}else{
-			      		x = x3RectScale(i);
-						y = smallY; //smallY // specialHeight-10	
-			      		return "translate(" + x + "," + (y) + ")"; 		      			
+			   //    		x = x3RectScale(i);
+						// y = smallY; //smallY // specialHeight-10	
+			   //    		return "translate(" + x + "," + (y) + ")"; 		      			
 		      		// }
 		      	})
 			d3.selectAll("#rectangle")
@@ -313,15 +344,22 @@ console.log(data);
         	}
 
         	var whichName;
+        	var whichSide;
 	    	d3.select(this)
-        		.attr("stroke-width", origStroke*2)
-        		.attr("stroke",function(d,i){
+        		.attr("stroke-width", function(d,i){
         			whichName = d.name;
+        			whichSide = d.side;
+        			console.log(whichSide);
         			prevName.push(whichName);
-        			index++;
-        			return darkColor;
+        			index++;      			
+        			return origStroke*2;
         		})
-
+						d3.selectAll("#rectangle").transition()
+			        		.attr("stroke-width", function(d,i){
+			        			if(d.side==whichSide || d.side==3){
+				        			return origStroke*2;
+			        			}
+			        		})  
         		// .transition()
         		// .attr("width", rectWidth/2)
 			if(index>1&&whichName==prevName[index-1]){
@@ -392,10 +430,19 @@ console.log(data);
 		   //    			x=center+smallWidth/2+origStroke;
 		   //    			return "translate(" + x + "," + y + ")"; 
 		   //    		}else{
-			      		x = x3RectScale(i);
-						y = smallY; //smallY // specialHeight-10	
-			      		return "translate(" + x + "," + (y) + ")"; 		      			
+			   //    		x = x3RectScale(i);
+						// y = smallY; //smallY // specialHeight-10	
+			   //    		return "translate(" + x + "," + (y) + ")"; 		      			
 		      		// }
+		      		if(d.name=="Timeline" || d.name=="Summary"){
+			      		x = x3RectScale(i);
+						y = smallY/2; //smallY // specialHeight-10	
+			      		return "translate(" + x + "," + (y) + ")";
+			      	} else{
+			      		x = x3RectScale(i);
+						y = smallY/2+smallHeight; //smallY // specialHeight-10	
+			      		return "translate(" + x + "," + (y) + ")";			      		
+			      	}	
 		      	})
 
 			d3.selectAll("#rectangle")
@@ -414,16 +461,24 @@ console.log(data);
 	    	d3.selectAll("#name").attr("opacity",0);
 	    	d3.selectAll("#textDescrip").attr("opacity",0);
 
-        	var whichName;
+        	var whichName, whichSide;
 	    	d3.select(this)
-        		.attr("stroke-width", origStroke*2)
-        		.attr("stroke",function(d,i){
+        		// .attr("stroke-width", origStroke*2)
+        		.attr("stroke-width",function(d,i){
         			whichName = d.name;
+        			whichSide = d.side;
+        			console.log(whichSide)
         			prevName.push(whichName);
         			index++;
-        			return darkColor;
+        			return origStroke*2;
         		})
-
+			d3.selectAll("#rectangle")
+				// .transition()
+        		.attr("stroke-width", function(d,i){
+        			if(d.side==whichSide || d.side==3){
+	        			return origStroke*2;
+        			}
+        		})  
 			if(index>1&&whichName==prevName[index-1]){
 				clickedAgain = true;
 				console.log(whichName+clickedAgain+prevName[index-1])
