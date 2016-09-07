@@ -997,14 +997,21 @@ function goFace(faceData){
 		.attr("stroke","grey")
 		.attr("stroke-dasharray",1);
 
-	
-	timeSVG.append("g").append("text")
-		.attr("class", "faceTitle")
-		.attr("x", leftMargin-3)
-		.attr("y", faceY)
-		.attr("text-anchor","end")
-		.attr("fill",seshCol)
-		.text("Faces at Screen");
+	timeSVG.append("g").append("image")
+		.attr("class", "graphImage")
+		.attr("x", leftMargin-iconW*3)
+		.attr("y", faceY-iconW*2)
+		.attr("width", iconW*3)
+		.attr("height", iconW*3)
+		.attr("xlink:href","assets/icons0/Faces.png")
+		.attr("opacity",0)
+	// timeSVG.append("g").append("text")
+	// 	.attr("class", "faceTitle")
+	// 	.attr("x", leftMargin-3)
+	// 	.attr("y", faceY)
+	// 	.attr("text-anchor","end")
+	// 	.attr("fill",seshCol)
+	// 	.text("Faces at Screen");
 	$(".faceTitle").hide();
 }
 
@@ -1696,13 +1703,21 @@ function goHands(handData, summaryHands){
   		.datum(softS3)
   		.attr("d", lineActiveZip);
 
-	timeSVG.append("g").append("text")
-		.attr("class", "graphTitle")
-		.attr("x", leftMargin-3)
-		.attr("y", yTop)
-		.attr("text-anchor","end")
-		.attr("fill",seshCol)
-		.text("Hands Speed");
+	timeSVG.append("g").append("image")
+		.attr("class", "graphImage")
+		.attr("x", leftMargin-iconW*2)
+		.attr("y", yBottom-iconW*4)
+		.attr("width", iconW*2)
+		.attr("height", iconW*2)
+		.attr("xlink:href","assets/icons0/Hands.png")
+		.attr("opacity",0);
+	// timeSVG.append("g").append("text")
+	// 	.attr("class", "graphTitle")
+	// 	.attr("x", leftMargin-3)
+	// 	.attr("y", yTop)
+	// 	.attr("text-anchor","end")
+	// 	.attr("fill",seshCol)
+	// 	.text("Hands Speed");
 	timeSVG.append("g").append("line")
 		.attr("class", "graphLine")
 		.attr("x1", leftMargin)
@@ -2552,7 +2567,7 @@ function showStats(){
       	.attr("transform", function(d, i) { 
       		// console.log(d);
       		var x = stRectScale(d); //-leftMargin; //-rectWidth/2
-			var y = yAxisBottom+100; //specialHeight+specialHeight/2+4; //-topMargin/2;
+			var y = yAxisBottom+70; //specialHeight+specialHeight/2+4; //-topMargin/2;
       		return "translate(" + x + "," + y + ")"; 
       	});
 
@@ -2563,7 +2578,7 @@ function showStats(){
 			return i;
 		})
 		.attr("width", rectWidth)
-		.attr("height", rectHeight/2)
+		.attr("height", rectHeight/4)
 		.attr("fill","none")
 		.attr("stroke","none")  
 		// .attr("stroke-width",1);
@@ -2585,7 +2600,7 @@ function showStats(){
 		.range([10, rectWidth-20])
 
 	var totY = 24;
-	var totH = rectHeight/4;
+	var totH = rectHeight/8;
 	var statsTotal = statsR.append("rect")
 		.attr("class","full")
 		.attr("x", 10).attr("y",totY)

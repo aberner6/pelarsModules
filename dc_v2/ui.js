@@ -37,11 +37,11 @@ var rightThird = w-rectWidth*2; //center+(rectWidth/2);
 
 // var rightThirdz = w-rectWidth; //center+(rectWidth/2);
 var xaRectScale = d3.scale.linear()
-	.domain([1, howManyDataStreams/2])
-	.range([leftThird, rightThird])
+	.domain([0,5])
+	.range([leftThird+rectWidth, rightThird-rectWidth-iconW*2])
 var xbRectScale = d3.scale.linear()
-	.domain([5, howManyDataStreams])
-	.range([leftThird, rightThird])
+	.domain([2,9])
+	.range([leftThird+rectWidth/2, rightThird-rectWidth])
 
 
 var xRectScale = d3.scale.linear()
@@ -51,8 +51,10 @@ var x2RectScale = d3.scale.linear()
 	.domain([5, 8])
 	.range([rectWidth, w-rectWidth*2])
 var x3RectScale = d3.scale.linear()
-	.domain([0, howManyDataStreams-1])
-	.range([rectWidth*2.4, w-rectWidth*2.4])
+	.domain([0, howManyDataStreams])
+	.range([leftThird+rectWidth, rightThird-rectWidth/2])
+
+	// .range([rectWidth*2.4, w-rectWidth*2.4])
 //colors
 var hardwareColor = "#15989C";
 var softwareColor = "#B19B80";
@@ -82,10 +84,13 @@ function setSVG(){
 var prevName = [];
 var index = 0;
 var specialHeight = (h/howManyDataStreams)-10;
-var smallY =  specialHeight-10;
+var smallY =  specialHeight; //-10;
 var smallWidth = rectWidth/3;
 var smallHeight = specialHeight/2;
+// var medWidth = rectWidth/2;
+// var medHeight = specialHeight
 var backData;
+var sumSVG;
 function makeThings(data){
 	svgBack= d3.select("#container").append("svg")
 		.attr("class", "backSVG")
@@ -99,6 +104,14 @@ function makeThings(data){
 		.attr("width", w)
 		.attr("height", timeSVGH)  
 		.style("margin-top","1px");
+
+	sumSVG= d3.select("#container").append("svg")
+		.attr("class", "sumSVG")
+		.style("position","absolute").style("left","0px")
+		.style("display","none")
+		.attr("width",w).attr("height",h-topMargin)
+		.attr("transform", "translate(" + 0 + "," + h+topMargin + ")")
+d3.select(".backSVG").append("svg:circle").attr("cx",w/2 - 5).attr("cy",h/4).attr("fill","pink").attr("r",10)
 	backData = data;
 console.log(data);
 	var backR = svgBack.selectAll("g")
@@ -108,22 +121,57 @@ console.log(data);
 		.append("g")
 		.attr("class", "backRects")
       	.attr("transform", function(d, i) { 
-      		var x;
-			if(i<5){
-				console.log(i+d.name+"under"+xaRectScale(i));
-				x = xaRectScale(i); //-leftMargin; //-rectWidth/2
-			} 
-			else{
-				console.log(i+d.name+"over"+xbRectScale(i))
-				x = xbRectScale(i); //-leftMargin; //-rectWidth/2
-			}
-			var y;
-			if(i<5){
+      		var x,y;
+    //   		if(d.name=="Timeline"){
+				// y = topHalf-topMargin;
+				// x = leftThird; 
+    //   			return "translate(" + x + "," + y + ")"; 
+    //   		}
+    //   		if(d.name=="Summary"){
+				// y = topHalf-topMargin;
+				// x = rightThird; 
+    //   			return "translate(" + x + "," + y + ")"; 
+    //   		}
+      		if(d.type==1){
 				y = topHalf-topMargin;
-			}else{
-				y = bottomHalf-topMargin;
-			}			
-      		return "translate(" + x + "," + y + ")"; 
+				x = leftThird+rectWidth/2; 
+      			return "translate(" + x + "," + y + ")";       			
+      		}
+      		if(d.type==4){
+				y = topHalf-topMargin;
+				x = rightThird-rectWidth/2; 
+      			return "translate(" + x + "," + y + ")";     			
+      		}
+      		if(d.type==2){
+      			console.log(i);
+				y = topHalf+topMargin*iconW;
+				x = xaRectScale(i); //-leftMargin; //-rectWidth/2
+      			return "translate(" + x + "," + y + ")"; 
+			} 
+			if(d.type==3){
+				console.log(i);
+				y = topHalf+topMargin*iconW*1.5;
+				x = xbRectScale(i); //-leftMargin; //-rectWidth/2
+	      		return "translate(" + x + "," + y + ")"; 
+      		}
+
+			// var y;
+		
+      	// });
+
+      		// if(d.name=="Timeline"){
+      		// 	x=center-rectWidth/2;
+      		// return "translate(" + x + "," + y + ")"; 
+      		// }
+      		// if(d.name=="Summary"){
+      		// 	x=center+rectWidth/2;
+      		// return "translate(" + x + "," + y + ")"; 
+      		// }
+      		// else{
+	      		// x = x3RectScale(i);
+				// y = smallY; 
+      		// return "translate(" + x + "," + y + ")"; 
+      		// }		
       	});
     var origStroke = 2;
   	theseRects = backR.append("rect")
@@ -131,11 +179,31 @@ console.log(data);
 		.attr("class",function(d,i){
 			return i;
 		})
-		.attr("width", rectWidth)
-		.attr("height", rectHeight)
+		.attr("width", function(d){
+			if(d.name=="Timeline" || d.name=="Summary"){
+				return rectWidth;
+			}else{
+				return smallWidth;
+			}
+
+		})
+		.attr("height", function(d){
+			if(d.name=="Timeline" || d.name=="Summary"){
+				return rectHeight;
+			}else{
+				return 0;
+			}
+		})
 		.attr("fill","white")
 		.attr("stroke","lightgray")  
-		.attr("stroke-width",1) 
+		.attr("stroke-width",1)
+		.attr("opacity",function(d,i){
+      		if(d.name=="Timeline" || d.name=="Summary"){
+				return 1;
+			} else{
+				// return 0;
+			}			
+		})
 
 	var textName = backR.append("text")
 		.attr("id","name")
@@ -148,7 +216,15 @@ console.log(data);
 	      .attr("x", function(d,i){
 	      	var adjust = $(".name"+i).width();
 	      	return rectWidth/2-adjust/2;
-	      });
+	      })
+	      .attr("opacity", function(d){
+			if(d.name=="Timeline" || d.name=="Summary"){
+				return 1;
+			}
+			else{
+				return 0;
+			}
+	      })
 	var textIcon = backR.append("image")
 		.attr("id","capt")
 		.attr("class",function(d,i){
@@ -157,25 +233,72 @@ console.log(data);
         .attr("xlink:href",function(d,i){
         	return "assets/icons0/"+d.name+".png"
         })
-		.attr("x", rectWidth/2-pressW/2)
-		.attr("y", rectHeight/2-pressW/2)
-		.attr("width", pressW)
-		.attr("height", pressW)
-		.attr("opacity", 1)
+		.attr("x", function(d,i){
+			if(d.name=="Timeline" || d.name=="Summary"){
+				return rectWidth/2-pressW/2;
+			}
+			else{
+				return rectWidth/6-pressW/4;
+			}
+		})
+		.attr("y", function(d){
+			if(d.name=="Timeline" || d.name=="Summary"){
+				return rectHeight/2-pressW/2;
+			}else{
+				return specialHeight/4-pressW/4;
+			}
+		})
+		.attr("width", function(d){
+			if(d.name=="Timeline" || d.name=="Summary"){
+				return pressW;
+			}
+			else{
+				return pressW/2;
+			}
+		})
+		.attr("height", function(d){
+			if(d.name=="Timeline" || d.name=="Summary"){
+				return pressW;
+			}
+			else{
+				return pressW/2;
+			}
+		})
+		.attr("opacity", function(d){
+			if(d.name=="Timeline" || d.name=="Summary"){
+				return 1;
+			}
+			else{
+				// return 0;
+			}
+		})
         .on("click", function(d,i){
         	console.log("image clicked");
+        	// d3.select(this).each(moveToFront);
         	d3.selectAll("g.backRects")
         		.transition()
 		      	.attr("transform", function(d, i) {  
-		      		var x = x3RectScale(i);
-					var y = smallY; //smallY // specialHeight-10	
-		      		return "translate(" + x + "," + (y) + ")"; 
-		      	});
+		      		var x, y;
+					// y = smallY-smallHeight-origStroke*2;
+		   //    		if(d.name=="Timeline"){
+		   //    			x=center-smallWidth/2-origStroke;
+		   //    			return "translate(" + x + "," + y + ")"; 
+		   //    		}
+		   //    		if(d.name=="Summary"){
+		   //    			x=center+smallWidth/2-origStroke;;
+		   //    			return "translate(" + x + "," + y + ")"; 
+		   //    		}else{
+			      		x = x3RectScale(i);
+						y = smallY; //smallY // specialHeight-10	
+			      		return "translate(" + x + "," + (y) + ")"; 		      			
+		      		// }
+		      	})
 			d3.selectAll("#rectangle")
         		.transition()
-        		.attr("width", smallWidth) //rectWidth/3
-        		.attr("height", smallHeight) //specialHeight/2
-			
+        		.attr("opacity",1)
+        		.attr("width", smallWidth)
+        		.attr("height", smallHeight) 
+
         	d3.selectAll("#capt")
         		.transition()
         		.attr("x", rectWidth/6-pressW/4)
@@ -185,7 +308,7 @@ console.log(data);
         		.attr("opacity",1);
         	clicked = true;
         	if(clicked){
-		    	d3.selectAll("#name").attr("opacity",0);
+		    	d3.selectAll("#name").transition().attr("opacity",0);
 		    	d3.selectAll("#textDescrip").attr("opacity",0);
         	}
 
@@ -210,23 +333,10 @@ console.log(data);
         	makeShow(whichName);
 			console.log(d);
         })
-	// var statsIcon = svgBack.append("g").attr("class","stats")
-	// 	.append("image")
-	// 	.attr("class","stats")
- //        .attr("xlink:href",function(d,i){
- //        	return "assets/icons0/stats.png"
- //        })
-	// 	.attr("x", rectWidth/2)
-	// 	.attr("y", h-rectHeight/2)
-	// 	.attr("width", pressW)
-	// 	.attr("height", pressW)
-	// 	.attr("opacity", 1)
-	// 	.on("click", function(){
-	// 		makeShow("stats")
-	// 	})
+
     	textIcon
 	        .on("mouseover", function(d,i){
-	        	if(unClicked ==0){
+	        	if(unClicked ==0 && (d.name=="Timeline" || d.name=="Summary")){
 		        	d3.select("text.capt"+i)
 		        		.attr("opacity",1);
 		        	d3.select("image.capt"+i)
@@ -259,7 +369,9 @@ console.log(data);
 	      .attr("dy", ".35em")
 	      .attr("opacity",0)
 	      .text(function(d,i) {    
-				return d.descrip;
+		      	if (d.name=="Timeline" || d.name=="Summary"){
+					return d.descrip;
+				} else{}
 			})
           .call(wrap, rectWidth-20);
 
@@ -270,15 +382,28 @@ console.log(data);
         	d3.selectAll("g.backRects")
         		.transition()
 		      	.attr("transform", function(d, i) {  
-		      		var x = x3RectScale(i);
-					var y = smallY; //smallY // specialHeight-10	
-		      		return "translate(" + x + "," + (y) + ")"; 
-		      	});
+		      		var x, y;
+					// y = smallY-smallHeight-origStroke*2;
+		   //    		if(d.name=="Timeline"){
+		   //    			x=center-smallWidth/2-origStroke;
+		   //    			return "translate(" + x + "," + y + ")"; 
+		   //    		}
+		   //    		if(d.name=="Summary"){
+		   //    			x=center+smallWidth/2+origStroke;
+		   //    			return "translate(" + x + "," + y + ")"; 
+		   //    		}else{
+			      		x = x3RectScale(i);
+						y = smallY; //smallY // specialHeight-10	
+			      		return "translate(" + x + "," + (y) + ")"; 		      			
+		      		// }
+		      	})
+
 			d3.selectAll("#rectangle")
         		.transition()
+				.attr("opacity",1)
         		.attr("width", smallWidth) //rectWidth/3
         		.attr("height", smallHeight) //specialHeight/2
-			
+
         	d3.selectAll("#capt")
         		.transition()
         		.attr("x", rectWidth/6-pressW/4)
@@ -299,8 +424,6 @@ console.log(data);
         			return darkColor;
         		})
 
-        		// .transition()
-        		// .attr("width", rectWidth/2)
 			if(index>1&&whichName==prevName[index-1]){
 				clickedAgain = true;
 				console.log(whichName+clickedAgain+prevName[index-1])
@@ -314,7 +437,7 @@ console.log(data);
 
     	theseRects
 	        .on("mouseover", function(d,i){
-	        	if(unClicked ==0){
+	        	if(unClicked ==0 && (d.name=="Timeline" || d.name=="Summary")){
 		        	d3.select("text.capt"+i)
 		        		.attr("opacity",1);
 		        	d3.select("image.capt"+i)
@@ -372,38 +495,45 @@ var buttonShow = false;
 function makeShow(whichName){
 	var hoverData = whichName;
 	console.log(hoverData+"hover data")	
-	if(hoverData=="Hands"){
+	if(hoverData == "Timeline"){
 		$("g.axis").show();
+	}
+	// if(hoverData=="Hands"){
+	// 	// $("g.axis").show();
+	// 	showingHands();
+	// 	showingPhotos();
+	// }
+	// if(hoverData=="Faces"){
+		// $("g.axis").show();
+		// revealFaces();
+	// }
+	if(hoverData=="Body"){
+		d3.selectAll(".graphImage").transition().attr("opacity",1)
+		revealFaces();
 		showingHands();
 		showingPhotos();
 	}
 	if(hoverData=="Phases"){
-		$("g.axis").show();
 		revealPhases();
 	}
-	if(hoverData=="Faces"){
-		$("g.axis").show();
-		revealFaces();
-	}
 	if(hoverData=="Button"){
-		$("g.axis").show();
 		revealButton();
 	}
 	if(hoverData=="Documentation"){
-		$("g.axis").show();
 		revealDoc();
+	}
+	if(hoverData=="Kit"){
+		d3.selectAll(".kitlabels").transition().attr("opacity",1)
+		$("g#arduinoPath").show();
+		$("g#arduinoRect").show();
+	}
+	if(hoverData == "Summary"){
+		$("g.statsRects").show()
 	}
 	if(hoverData=="Links"){
 		$("#plot").show();
 	}
-	if(hoverData=="Kit"){
-		d3.selectAll(".kitlabels").transition().attr("opacity",1)
-		$("g.axis").show();
-		$("g#arduinoPath").show();
-		$("g#arduinoRect").show();
-	}
-	if(hoverData == "Statistics"){
-		$("g.statsRects").show()
-	}
-	// if(hoverData ==)
+}
+var moveToFront = function() { 
+    this.parentNode.appendChild(this); 
 }
