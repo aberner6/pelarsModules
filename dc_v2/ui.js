@@ -459,6 +459,25 @@ console.log(data);
 				    d3.selectAll("#textDescrip").attr("opacity",0)		        			        		
 	        	}
 	        });
+	$('image#capt').tipsy({ 
+			gravity: 'nw', 
+			html: true, 
+			title: function() {
+				var dis = this.__data__;
+		  		// var url1 = dis.name;//+"?token="+token;
+				console.log(dis);
+				// var deferit = $.Deferred();
+				// deferit
+				//   .done(func1)
+				// deferit.resolve();
+				// function func1(){
+				// 	$.get(url1, function(capt){
+				// 		captionDoc = capt;
+				// 	})
+				// }
+					return dis.name;
+			}
+	});
 
 	function wrap(text, width) {
 	  text.each(function() {
