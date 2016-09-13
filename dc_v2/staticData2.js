@@ -6,6 +6,17 @@
 var thisSession = 0;
 var token = 0;
 
+var overview;
+var timelineImgWidth = 60; //(w/imgData[0].length)*6;
+var timelineImgHeight = timelineImgWidth*1.3;
+var timelineImgY = yAxisBottom-timelineImgHeight+40;//timeSVGH/2+iconW+25;
+var timelineThunderY = timeSVGH/2+iconW/2+21;
+var timelineBottomY = timeSVGH;
+var bigImgWidth = 8*60; 
+var bigImgHeight = 6*60; 
+var caption;
+var captionDoc;
+
 
 //more values
 var topMarg = 10;
@@ -152,6 +163,8 @@ var yAxisBottom = h-200;
 	// }
 // var activateHoverbox;
   	var durTrans = 1500;
+
+
 
 $(document).ready(function() {
 	// getToken(); //returns the token
@@ -376,6 +389,8 @@ function sendNestedData(){
 	    xAxisCall.call(xAxis)
 	        .attr("class", "axis") //Assign "axis" class
 	        .attr("text-anchor", "end")
+	        // .attr("transform", "translate(" + (0) + ", " + (forceheight) + ")"); //150	        
+	        // .attr("transform", "translate(" + (0) + ", " + (h/2) + ")"); //150	        
 	        .attr('transform', 'translate(0, ' + (yAxisBottom) + ')');
 //new addition
 $("g.axis").hide();	        
@@ -672,16 +687,7 @@ function parsePhotos(multiData){
 		}
 	}, 3000);	
 }
-var overview;
-var timelineImgWidth = 60; //(w/imgData[0].length)*6;
-var timelineImgHeight = timelineImgWidth*1.3;
-var timelineImgY = yAxisBottom-timelineImgHeight+40;//timeSVGH/2+iconW+25;
-var timelineThunderY = timeSVGH/2+iconW/2+21;
-var timelineBottomY = timeSVGH;
-var bigImgWidth = 8*60; 
-var bigImgHeight = 6*60; 
-var caption;
-var captionDoc;
+
 function showPhotos(){
 
 //autoImg = system images
@@ -1644,11 +1650,15 @@ function goHands(handData, summaryHands){
 	// 	yBottom = 0;
 	// 	yTop = 1;
 	// }
+
+////FOR WEDNESDAY
+		// yBottom = lineHY;
+		// yTop = 0;
+////FOR WEDNESDAY
 	var yActivePath;
   	yActivePath = d3.scale.linear() 
 		.domain([0,maxActiveOverall])
 		.range([yBottom, yTop]); 
-		// .range([timeSVGH-maxRadius, timeSVGH/2+(maxFaces*faceRadius)]); //timeSVGH/2
 
  	xActivePath = d3.scale.linear() 
 		.domain([startTime, endTime])
@@ -1802,13 +1812,13 @@ function showingPhotos(){
 // }
 
 var yHPath, ySPath, minTotal, maxTotal, pathS, pathH, index, lineS, lineH, svgPath;
-var ardRectSVG;
+var ardRectSVG, ardPathSVG;
 var arduinoRectangles;
 var newSoft = [];
 var newHard = [];
+var lineHY = h/2;
+
 function showIDE(){
-	yOther
-	    .rangePoints([topMarg, forceheight]);
 
 	// timeX2.domain([startTime, endTime]).range([forcewidth/4, forcewidth]);
 	// timeX2
@@ -1820,17 +1830,24 @@ function showIDE(){
 
 	ardRectSVG = svgMain.append("g")
         .attr("id", "arduinoRect")
-        .attr("transform", "translate(" + (0) + ", " + (yAxisBottom+20) + ")");
-        // .attr("transform", "translate(" + (leftMargin) + ", " + (h/2) + ")");
+        .attr("transform", "translate(" + (0) + ", " + (lineHY) + ")"); //yAxisBottom-forceheight+42
+
     console.log(startTime);
     console.log(endTime);
 
-	var ardPathSVG = svgMain.append("g")
+	ardPathSVG = svgMain.append("g")
         .attr("id", "arduinoPath")
-        .attr("transform", "translate(" + (0) + ", " + ((h/2)+5) + ")");
+        .attr("transform", "translate(" + (0) + ", " + (0) + ")");
 //new addition
 $("g#arduinoPath").hide();
 $("g#arduinoRect").hide();
+
+	var thisMax;
+	// var pathHeight = lineHY - belowIcons;
+	var maxLength = 32; //FIX THIS
+	var possibleY = d3.scale.linear()
+		.domain([0, maxLength])
+		.range([0, lineHY]);
 
 	arduinoRectangles = ardRectSVG.selectAll(".ide")
 		.data(ide_nest2)
@@ -1858,7 +1875,11 @@ $("g#arduinoRect").hide();
 				uniqueHards = unique(hardNames);
 				uniqueSofts = unique(softNames);
 				bothHS = uniqueHards.concat(uniqueSofts);
-				yOther.domain(bothHS);
+				thisMax = possibleY(bothHS.length);
+				console.log(thisMax+"THISMAX"+bothHS.length);
+				yOther
+					.domain(bothHS)
+				    .rangePoints([topMarg, thisMax]); //lineHY
 			}
 			return d.name;
 		})
@@ -1905,6 +1926,8 @@ $("g#arduinoRect").hide();
 		.attr("stroke", "none")
 		.attr("opacity",.4);
 
+	var iconKeyX = leftMargin-53;
+	var wordKeyX = leftMargin-28;
     var iconsHS;
     iconsHS = ardRectSVG.selectAll(".iconsHS")
            .data(bothHS)
@@ -1936,42 +1959,6 @@ $("g#arduinoRect").hide();
 		.attr("font-size",8)
 		.attr("text-anchor","start");
 
-	var radiusKey = 4;
-	var hardwareKeyX = leftMargin-radiusKey*2;
-	var softwareKeyX = hardwareKeyX;
-	var hardwareKeyY = yAxisBottom - 20; 	    //.rangePoints([topMarg, forceheight]);
-	var softwareKeyY = yAxisBottom-20+(radiusKey*4);
-
-	var kitColor = timeSVG.append("g").attr("class","kitlabels")
-		.append("circle")
-	    .attr("cx", hardwareKeyX)
-	    .attr("cy", hardwareKeyY)
-	    .attr("r", radiusKey)
-	    .attr("fill",hardwareColor)
-	    .attr("stroke",hardwareColor)
-	var	kitNameColor = timeSVG.append("g").attr("class","kitlabels")
-		.append("text")
-	    .attr("x",hardwareKeyX-radiusKey*2)
-	    .attr("y", hardwareKeyY)
-	    .text("Hardware")
-	    .attr("text-anchor","end")
-	var kitColor2 = timeSVG.append("g").attr("class","kitlabels")
-		.append("circle")
-	    .attr("cx", softwareKeyX)
-	    .attr("cy", softwareKeyY)
-	    .attr("r", radiusKey)
-	    .attr("fill",softwareColor)
-	    .attr("stroke",softwareColor)
-	var	kitNameColor2 = timeSVG.append("g").attr("class","kitlabels")
-		.append("text")
-	    .attr("x", softwareKeyX-radiusKey*2)
-	    .attr("y", softwareKeyY)
-	    .text("Software")
-	    .attr("text-anchor","end")
-	d3.selectAll(".kitlabels").attr("opacity",0)
-
-
-
 	arduinoRectangles.selectAll(".logCC")
 		.data(function(d) {
 			return d.values;				
@@ -1989,8 +1976,8 @@ $("g#arduinoRect").hide();
 				return timeXTrue(d.time)			
 			} else{ }		
 		})
-	    .attr("y1", topMarg)
-	    .attr("y2", forceheight) 
+	    .attr("y1", topMarg) //check
+	    .attr("y2", thisMax)  //check w photo
 	    .attr("fill","none")
 	    .attr("stroke",function(d){
 			if(d.mod=="C"){
@@ -2107,61 +2094,15 @@ $("g#arduinoRect").hide();
 	//       .range([leftMargin, w-rightMargin]);
 	// var xPath0 = d3.scale.linear()
 	//       .domain([startTime,endTime]).range([0, 0]);
-
 //PATHS
 	yHPath = d3.scale.linear()
 	      .domain([0,maxHeight+1]) //max hardware components
-	      .range([timeSVGH/2-(maxFaces*faceRadius), 0]);
+	      // .range([forceheight, 0]); //height of the little rectangles area
+	      .range([lineHY, belowIcons+timelineImgWidth]);
 	ySPath = d3.scale.linear()
 	      .domain([0,maxHeight+1]) //max software components
-	      .range([timeSVGH/2-(maxFaces*faceRadius), 0]);
+	      .range([lineHY, belowIcons+timelineImgWidth]);
 
-	// lineH = d3.svg.area()
-	// 	.x(function(d, i) { 
-	// 		if(d==undefined){ return 0; }
-	// 			else{
-	// 	       	return timeXTrue(d.time);      			
-	// 			}
-	// 	})
-	// 	.y0(timeSVGH/2-(maxFaces*faceRadius))
-	// 	.y1(function(d, i) { 
-	// 		if(d==undefined){return 0;}
-	// 		if(d.total<0){ return 0}
-	// 			else{
-	// 				return yHPath(d.total);  //actually totals now
-	// 			}
-	// 	})
-	// 	.interpolate("linear");
-
-	// lineS = d3.svg.area()
-	// 	.x(function(d, i) { 
-	// 		if(d==undefined){ 
-	// 			return 0; 
-	// 		}
-	// 		else{
-	// 	       	return timeXTrue(d.time);      			
-	// 		}
-	// 	})
-	// 	.y0(timeSVGH/2-(maxFaces*faceRadius))
-	// 	.y1(function(d, i) { 
-	// 		if(d==undefined){
-	// 			console.log("in here undefined")
-	// 			// return 0;
-	// 			return ySPath(0); 
-	// 		}
-	// 		if(d.total<0){ 
-	// 			// return 0
-	// 			return ySPath(0); 
-	// 		}
-	// 		if(d.total==0){ 
-	// 			// console.log("in here zero")
-	// 			return ySPath(0); //timeSVGH/2-(maxFaces*faceRadius)
-	// 		}
-	// 			else{
-	// 				return ySPath(d.total); 
-	// 			}
-	// 	})
-	// 	.interpolate("linear");
 	lineH = d3.svg.area()
 		.x(function(d, i) { 
 			if(d==undefined){ console.log("no") }
@@ -2169,7 +2110,7 @@ $("g#arduinoRect").hide();
 		       	return timeXTrue(parseInt(d.key));      			
 				}
 		})
-		.y0(timeSVGH/2-(maxFaces*faceRadius))
+		.y0(lineHY)
 		.y1(function(d, i) { 
 			if(d==undefined){return 0;}
 			if(d.total<0){ return 0}
@@ -2186,7 +2127,7 @@ $("g#arduinoRect").hide();
 		       	return timeXTrue(parseInt(d.key));      			
 				}
 		})
-		.y0(timeSVGH/2-(maxFaces*faceRadius))
+		.y0(lineHY)
 		.y1(function(d, i) { 
 			if(d==undefined){return 0;}
 			if(d.total<0){ return 0}
@@ -2214,11 +2155,63 @@ $("g#arduinoRect").hide();
 		.attr("fill",softwareColor)
 		.attr("opacity",opacityPath)
 		.attr("stroke",softwareColor);
-
 	pathS
 		.datum(newSoft) //softUseComp
     	.attr("class","timepathS")
 		.attr("d", lineS);
+
+
+	var radiusKey = 4;
+	var iconKeyX = leftMargin-53;
+	var wordKeyX = leftMargin-28;
+	var hardwareKeyX = wordKeyX;//leftMargin-radiusKey*2;
+	var softwareKeyX = hardwareKeyX;
+	var circKeyX = iconKeyX+radiusKey*2;
+	var hardwareKeyY = -33;//lineHY; 	    //.rangePoints([topMarg, forceheight]);
+	var softwareKeyY = hardwareKeyY+(radiusKey*4); //lineHY
+
+	var kitColor = ardRectSVG.append("g").attr("class","kitlabels")
+		.append("circle").attr("class","hardware")
+	    .attr("cx", circKeyX)
+	    .attr("cy", hardwareKeyY)
+	    .attr("r", radiusKey)
+	    .attr("fill",hardwareColor)
+	    .attr("stroke",hardwareColor)
+	var	kitNameColor = ardRectSVG.append("g").attr("class","kitlabels")
+		.append("text").attr("class","hardware")
+	    .attr("x",hardwareKeyX)
+	    .attr("y", hardwareKeyY)
+	    .text("HW")
+	    .attr("text-anchor","start")
+	var kitColor2 = ardRectSVG.append("g").attr("class","kitlabels")
+		.append("circle").attr("class","software")
+	    .attr("cx", circKeyX)
+	    .attr("cy", softwareKeyY)
+	    .attr("r", radiusKey)
+	    .attr("fill",softwareColor)
+	    .attr("stroke",softwareColor)
+	var	kitNameColor2 = ardRectSVG.append("g").attr("class","kitlabels")
+		.append("text").attr("class","software")
+	    .attr("x", softwareKeyX)
+	    .attr("y", softwareKeyY)
+	    .text("SW")
+	    .attr("text-anchor","start")
+	d3.selectAll(".kitlabels").attr("opacity",0)
+
+	$('circle.hardware').tipsy({ 
+			gravity: 'nw', 
+			html: true, 
+			title: function() {
+				return "Hardware Activity";
+			}
+	});
+	$('circle.software').tipsy({ 
+			gravity: 'nw', 
+			html: true, 
+			title: function() {
+				return "Programming Activity";
+			}
+	});
 
     function ardUseTotals(index) {
         var total = 0;

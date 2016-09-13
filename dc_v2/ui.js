@@ -1,6 +1,6 @@
 var h = $("#container").height();
 var w = $("#container").innerWidth();
-
+var h2 = h*1.6;
 // var leftMargin = 20;
 var rightMargin = 35;
 // var cwidth=200,cheight=200,cmargin=25,maxr=5;
@@ -16,6 +16,7 @@ var anchor = "middle";
 var topMargin = 100;
 var svgMain, timeSVG;
 //forcediagram width, height
+var numClicked = 0;
 var forcewidth = w/3-15;
 var forceheight = h/3.5;
 //small height
@@ -88,9 +89,15 @@ function setSVG(){
 var prevName = [];
 var index = 0;
 var specialHeight = (h/howManyDataStreams)-10;
-var smallY =  specialHeight; //-10;
+var smallY =  specialHeight/2; //-10;
+
 var smallWidth = rectWidth/3;
 var smallHeight = specialHeight/2;
+
+
+var topIcons = smallY/2;
+var bottomIcons = topIcons+smallHeight;
+var belowIcons = bottomIcons+smallHeight;
 // var medWidth = rectWidth/2;
 // var medHeight = specialHeight
 var backData;
@@ -98,7 +105,7 @@ var sumSVG;
 function makeThings(data){
 	svgBack= d3.select("#container").append("svg")
 		.attr("class", "backSVG")
-		.attr("width",w).attr("height",h+topMargin)
+		.attr("width",w).attr("height",h2)
 		.attr("transform", "translate(" + 0 + "," + 0 + ")")
 	svgMain = svgBack;
 
@@ -127,16 +134,6 @@ var marginal = 1.2;
 		.attr("class", "backRects")
       	.attr("transform", function(d, i) { 
       		var x,y;
-    //   		if(d.name=="Timeline"){
-				// y = topHalf-topMargin;
-				// x = leftThird; 
-    //   			return "translate(" + x + "," + y + ")"; 
-    //   		}
-    //   		if(d.name=="Summary"){
-				// y = topHalf-topMargin;
-				// x = rightThird; 
-    //   			return "translate(" + x + "," + y + ")"; 
-    //   		}
       		if(d.type==1){
 				y = topHalf*marginal //-topMargin;
 				x = leftThird+rectWidth-iconW*2; 
@@ -158,25 +155,7 @@ var marginal = 1.2;
 				y = topHalf*marginal+topMargin*iconW*1.5;
 				x = xbRectScale(i); //-leftMargin; //-rectWidth/2
 	      		return "translate(" + x + "," + y + ")"; 
-      		}
-
-			// var y;
-		
-      	// });
-
-      		// if(d.name=="Timeline"){
-      		// 	x=center-rectWidth/2;
-      		// return "translate(" + x + "," + y + ")"; 
-      		// }
-      		// if(d.name=="Summary"){
-      		// 	x=center+rectWidth/2;
-      		// return "translate(" + x + "," + y + ")"; 
-      		// }
-      		// else{
-	      		// x = x3RectScale(i);
-				// y = smallY; 
-      		// return "translate(" + x + "," + y + ")"; 
-      		// }		
+      		}	
       	});
     var origStroke = 2;
   	theseRects = backR.append("rect")
@@ -201,30 +180,17 @@ var marginal = 1.2;
 		})
 		.attr("fill","white")
 		.attr("stroke",function(d,i){
-			// if(d.side==1){
-			// 	return "gray"
-			// }
-			// if(d.side==2){
-			// 	return "blueviolet"
-			// }
-			if(d.side==3){
-				return "lightblue"
-			} else{
-				return "lightgray"
-			}
-			// return typeScale(d.side);
-			// if(d.type==
-			// 	return "lightgray"
-			// 	}else{
-			// 		return "lightgray";
-			// 	}  
+				if(d.side==3){
+					return "lightblue"
+				} else{
+					return "lightgray"
+				}
 			})
 		.attr("stroke-width",1)
 		.attr("opacity",function(d,i){
       		if(d.name=="Timeline" || d.name=="Summary"){
 				return 1;
 			} else{
-				// return 0;
 			}			
 		})
 
@@ -238,7 +204,11 @@ var marginal = 1.2;
 	      .text(function(d) { return d.name })
 	      .attr("x", function(d,i){
 	      	var adjust = $(".name"+i).width();
-	      	return rectWidth/2-adjust/2;
+			if(d.name=="Timeline" || d.name=="Summary"){
+		      	return rectWidth/2-adjust/2;
+			}else{
+		      	return smallWidth/2-adjust/2;
+			}
 	      })
 	      .attr("opacity", function(d){
 			if(d.name=="Timeline" || d.name=="Summary"){
@@ -305,11 +275,11 @@ var marginal = 1.2;
 					// y = smallY-smallHeight-origStroke*2;
 		      		if(d.name=="Timeline" || d.name=="Summary"){
 			      		x = x3RectScale(i);
-						y = smallY/2; //smallY // specialHeight-10	
+						y = topIcons; //smallY // specialHeight-10	
 			      		return "translate(" + x + "," + (y) + ")";
 			      	} else{
 			      		x = x3RectScale(i);
-						y = smallY/2+smallHeight; //smallY // specialHeight-10	
+						y = bottomIcons; //smallY // specialHeight-10	 
 			      		return "translate(" + x + "," + (y) + ")";			      		
 			      	}		      			
 		   //    			x=center-smallWidth/2-origStroke;
@@ -354,12 +324,12 @@ var marginal = 1.2;
         			index++;      			
         			return origStroke*2;
         		})
-						d3.selectAll("#rectangle").transition()
-			        		.attr("stroke-width", function(d,i){
-			        			if(d.side==whichSide || d.side==3){
-				        			return origStroke*2;
-			        			}
-			        		})  
+						// d3.selectAll("#rectangle").transition()
+			   //      		.attr("stroke-width", function(d,i){
+			   //      			if(d.side==whichSide || d.side==3){
+				  //       			return origStroke*2;
+			   //      			}
+			   //      		})  
         		// .transition()
         		// .attr("width", rectWidth/2)
 			if(index>1&&whichName==prevName[index-1]){
@@ -436,11 +406,11 @@ var marginal = 1.2;
 		      		// }
 		      		if(d.name=="Timeline" || d.name=="Summary"){
 			      		x = x3RectScale(i);
-						y = smallY/2; //smallY // specialHeight-10	
+						y = topIcons; //smallY // specialHeight-10	
 			      		return "translate(" + x + "," + (y) + ")";
 			      	} else{
 			      		x = x3RectScale(i);
-						y = smallY/2+smallHeight; //smallY // specialHeight-10	
+						y = bottomIcons; //smallY // specialHeight-10	
 			      		return "translate(" + x + "," + (y) + ")";			      		
 			      	}	
 		      	})
@@ -472,13 +442,13 @@ var marginal = 1.2;
         			index++;
         			return origStroke*2;
         		})
-			d3.selectAll("#rectangle")
-				// .transition()
-        		.attr("stroke-width", function(d,i){
-        			if(d.side==whichSide || d.side==3){
-	        			return origStroke*2;
-        			}
-        		})  
+			// d3.selectAll("#rectangle")
+			// 	// .transition()
+   //      		.attr("stroke-width", function(d,i){
+   //      			if(d.side==whichSide || d.side==3){
+	  //       			return origStroke*2;
+   //      			}
+   //      		})  
 			if(index>1&&whichName==prevName[index-1]){
 				clickedAgain = true;
 				console.log(whichName+clickedAgain+prevName[index-1])
@@ -566,11 +536,13 @@ var marginal = 1.2;
 
 var handsShow = false;
 var buttonShow = false;
+
 function makeShow(whichName){
 	var hoverData = whichName;
 	console.log(hoverData+"hover data")	
 	if(hoverData == "Timeline"){
 		$("g.axis").show();
+
 	}
 	// if(hoverData=="Hands"){
 	// 	// $("g.axis").show();
@@ -582,10 +554,11 @@ function makeShow(whichName){
 		// revealFaces();
 	// }
 	if(hoverData=="Body"){
-		d3.selectAll(".graphImage").transition().attr("opacity",1)
+		numClicked+=2;
+		d3.selectAll(".graphImage").transition().attr("opacity",1);
 		revealFaces();
 		showingHands();
-		showingPhotos();
+		console.log(numClicked+"numClicked")
 	}
 	if(hoverData=="Phases"){
 		revealPhases();
@@ -595,11 +568,14 @@ function makeShow(whichName){
 	}
 	if(hoverData=="Documentation"){
 		revealDoc();
+		showingPhotos();
 	}
 	if(hoverData=="Kit"){
+		numClicked+=2;
 		d3.selectAll(".kitlabels").transition().attr("opacity",1)
 		$("g#arduinoPath").show();
 		$("g#arduinoRect").show();
+		console.log(numClicked+"numClicked")
 	}
 	if(hoverData == "Summary"){
 		$("g.statsRects").show()

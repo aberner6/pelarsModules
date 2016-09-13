@@ -31,6 +31,22 @@ body{
 /*            width: 8.27in;
     height: 5.83in;*/
 }
+.backSVG{
+    /*height:100%;*/
+    margin: 0;
+    padding: 0;
+    background-repeat: no-repeat;
+    /*font-family: Officina;*/
+    font-family:Gotham;
+    color: white;
+    font-size: 10px;
+    text-align: center;
+    position: relative;
+    /*top: 75px;*/
+    left: 2px;
+    background-color: #f7f7f7;
+    margin:1%;
+}
 
 #timeline {
     /*margin-top: .55in;*/
