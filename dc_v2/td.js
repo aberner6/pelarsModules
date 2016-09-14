@@ -82,3 +82,41 @@ pathH
 		d3.selectAll(".logCC").transition()
 				.attr("y1", topMarg) 
 			    .attr("y2", thisMax) 
+
+//to transition the hand paths
+	yBottom = belowIcons;
+	yTop = lineHY;
+
+ 	yActivePath 
+		.range([yBottom, yTop]); 
+//hand1
+ 	lineActive1 
+		.y(function(d, i) { return yActivePath(d); })
+		.interpolate("bundle")
+  	pathActive1
+  		.transition().duration(durTrans)  
+  		.attr("d", lineActive1);
+//hand2
+ 	lineActive2
+		.y(function(d, i) { return yActivePath(d); })
+		.interpolate("bundle")
+  	pathActive2
+  		.transition().duration(durTrans)  
+  		.attr("d", lineActive2);
+//hand3
+ 	lineActive3
+		.y(function(d, i) { return yActivePath(d); })
+		.interpolate("bundle")
+  	pathActive3
+  		.transition().duration(durTrans)  
+  		.attr("d", lineActive3);
+
+//TO TRANSITION THE FACES
+faceY=yTop+2*maxTotal*faceRadius;
+
+	d3.selectAll(".facerect")	
+		.transition()
+	    .attr("y", function(d,i){
+	    	return faceY-(d.num*faceRadius);
+	    })
+

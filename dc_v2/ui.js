@@ -78,6 +78,11 @@ var unClicked = 0;
 var svgBack;
 var clicked = false;
 var clickedAgain = false;
+
+var topIcons;
+var bottomIcons;
+var belowIcons;
+
 function setSVG(){
 	d3.tsv("data/descrips.tsv", function(error, dataS) {
 	  // x.domain([0, d3.max(data, function(d) { return d.value; })]);
@@ -95,9 +100,9 @@ var smallWidth = rectWidth/3;
 var smallHeight = specialHeight/2;
 
 
-var topIcons = smallY/2;
-var bottomIcons = topIcons+smallHeight;
-var belowIcons = bottomIcons+smallHeight;
+topIcons = smallY/2;
+bottomIcons = topIcons+smallHeight;
+belowIcons = bottomIcons+smallHeight*2;
 // var medWidth = rectWidth/2;
 // var medHeight = specialHeight
 var backData;

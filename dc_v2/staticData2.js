@@ -154,16 +154,19 @@ var activeTwo = [];
 var activeThree = [];
 
 var numSelected = 0;
-var yBottom;
-var yTop;
+// var yBottom;
+// var yTop;
 var yAxisBottom = h-200;
 	// if(firstSelect==true){
-		yBottom = yAxisBottom;
-		yTop = h/2;
+		// yBottom = yAxisBottom;
+		// yTop = h/2;
 	// }
 // var activateHoverbox;
-  	var durTrans = 1500;
-
+var lineHY = h/2;
+var durTrans = 1500;
+var yBottom = belowIcons;
+var yTop = lineHY;
+var maxTotal = 3;
 
 
 $(document).ready(function() {
@@ -368,8 +371,8 @@ var timeXTrue = d3.scale.linear().range([leftMargin, w-rightMargin]);
 
 function sendNestedData(){
 	if (typeof nested_data !== "undefined"){
-	    var xAxisCall = svgMain.append('g');
 
+	    var xAxisCall = svgMain.append('g');
 		// var leftMargin = 100;
 	    var xAxis = d3.svg.axis();
 	    var xAxisScale = d3.time.scale()
@@ -388,10 +391,8 @@ function sendNestedData(){
 	        .tickFormat(timeFormat);
 	    xAxisCall.call(xAxis)
 	        .attr("class", "axis") //Assign "axis" class
-	        .attr("text-anchor", "end")
-	        // .attr("transform", "translate(" + (0) + ", " + (forceheight) + ")"); //150	        
-	        // .attr("transform", "translate(" + (0) + ", " + (h/2) + ")"); //150	        
-	        .attr('transform', 'translate(0, ' + (yAxisBottom) + ')');
+	        .attr("text-anchor", "end")     
+	        .attr('transform', 'translate(0, ' + (lineHY) + ')');
 //new addition
 $("g.axis").hide();	        
 	console.log(nested_data)
@@ -958,20 +959,19 @@ d3.selectAll("image.clip-rect").transition().attr("x", function(d){ return timeX
 	// d3.selectAll(".docL")		
 }
 
-var faceY = yTop-80;
+var faceY = yTop+2*maxTotal*faceRadius;
 var faceColor = "#AB47BC";
 function goFace(faceData){
 	var minTotal, maxTotal;
 	var thisMany = [];
-	maxTotal = 4;
 
 	var yOffset = h/2;
 	var mini = 4;
 	var heightPanel = 100;
+
 	var faceSpot = d3.scale.linear()
 	  .domain([0, maxTotal])
 	  .range([faceY+20, yTop-20]);
-
 
 	rectFace = timeSVG.append("g").attr("class","facerect").selectAll(".facerect")
 	    .data(faceData.values)
@@ -982,6 +982,7 @@ function goFace(faceData){
 	    	return timeX(d.time)
 	    })
 	    .attr("y", function(d,i){
+	    	if(d.num>3){ console.log(d.num+"big") }
 	    	return faceY-(d.num*faceRadius);
 	    })
 	    .attr("height", function(d,i){
@@ -1005,10 +1006,10 @@ function goFace(faceData){
 
 	timeSVG.append("g").append("image")
 		.attr("class", "graphImage")
-		.attr("x", leftMargin-iconW*3)
-		.attr("y", faceY-iconW*2)
-		.attr("width", iconW*3)
-		.attr("height", iconW*3)
+		.attr("x", leftMargin-iconW*2)
+		.attr("y", faceY-iconW*1.5)
+		.attr("width", iconW*3-10)
+		.attr("height", iconW*3-10)
 		.attr("xlink:href","assets/icons0/Faces.png")
 		.attr("opacity",0)
 	// timeSVG.append("g").append("text")
@@ -1036,6 +1037,9 @@ function revealFaces(){
 		.attr("x", function(d){
 			return timeX(d.time);
 		})
+	    // .attr("y", function(d,i){
+	    // 	return faceY-(d.num*faceRadius);
+	    // })
 }
 function revealButton(){
 	// timeX.range([leftMargin, w-rightMargin]);
@@ -1638,23 +1642,7 @@ function goHands(handData, summaryHands){
 
 //should the max just be represented as the max value for Y?
 	var BigMax = overallVals.hand_speed.mean;
-	// var yActivePath;
-  	// yActivePath = d3.scale.linear() 
-		// .domain([0,BigMax]).range([timeSVGH-maxRadius, timeSVGH/2+(maxFaces*faceRadius)]); //timeSVGH/2
 
-// at any given point in time (Y) X-value represents the average speed over the previous 80 data records
-	// if(numSelected==1){
-		yBottom = yAxisBottom;
-		yTop = h/2;
-	// } else{
-	// 	yBottom = 0;
-	// 	yTop = 1;
-	// }
-
-////FOR WEDNESDAY
-		// yBottom = lineHY;
-		// yTop = 0;
-////FOR WEDNESDAY
 	var yActivePath;
   	yActivePath = d3.scale.linear() 
 		.domain([0,maxActiveOverall])
@@ -1716,7 +1704,7 @@ function goHands(handData, summaryHands){
 	timeSVG.append("g").append("image")
 		.attr("class", "graphImage")
 		.attr("x", leftMargin-iconW*2)
-		.attr("y", yBottom-iconW*4)
+		.attr("y", yBottom-iconW*2)
 		.attr("width", iconW*2)
 		.attr("height", iconW*2)
 		.attr("xlink:href","assets/icons0/Hands.png")
@@ -1728,16 +1716,26 @@ function goHands(handData, summaryHands){
 	// 	.attr("text-anchor","end")
 	// 	.attr("fill",seshCol)
 	// 	.text("Hands Speed");
+	timeSVG.append("g").append("circle")
+		.attr("class", "graphImage")
+		.attr("cx", leftMargin)
+		.attr("cy", yBottom)
+		.attr("r", 3)
+		.attr("fill", seshCol)
+		.attr("opacity",0);
+
 	timeSVG.append("g").append("line")
-		.attr("class", "graphLine")
+		.attr("class", "graphImage")
 		.attr("x1", leftMargin)
-		.attr("x2", w-rightMargin)
-		.attr("y1", yTop)
+		.attr("x2", leftMargin)
+		.attr("y1", yBottom)
 		.attr("y2", yTop)
-		.attr("stroke-width",.5)
-		.attr("stroke",darkColor);
-	$("text.graphTitle").hide()
-	$("line.graphLine").hide()
+		.attr("stroke-width",1)
+		.attr("stroke", "black")
+		.attr("opacity",0);
+
+	// $("text.graphTitle").hide()
+	// $("line.graphLine").hide()
 
 
 	// var miniCirc1 = timeSVG.selectAll(".minC1")
@@ -1816,8 +1814,6 @@ var ardRectSVG, ardPathSVG;
 var arduinoRectangles;
 var newSoft = [];
 var newHard = [];
-var lineHY = h/2;
-
 function showIDE(){
 
 	// timeX2.domain([startTime, endTime]).range([forcewidth/4, forcewidth]);
@@ -1876,7 +1872,7 @@ $("g#arduinoRect").hide();
 				uniqueSofts = unique(softNames);
 				bothHS = uniqueHards.concat(uniqueSofts);
 				thisMax = possibleY(bothHS.length);
-				console.log(thisMax+"THISMAX"+bothHS.length);
+				// console.log(thisMax+"THISMAX"+bothHS.length);
 				yOther
 					.domain(bothHS)
 				    .rangePoints([topMarg, thisMax]); //lineHY
