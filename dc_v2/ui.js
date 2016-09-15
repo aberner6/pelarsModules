@@ -559,6 +559,9 @@ function makeShow(whichName){
 		d3.selectAll(".graphImage").transition().attr("opacity",1);
 		revealFaces();
 		showingHands();
+		if(numClicked==4){
+			moveDown();
+		}
 		console.log(numClicked+"numClicked")
 	}
 	if(hoverData=="Phases"){
@@ -576,6 +579,9 @@ function makeShow(whichName){
 		d3.selectAll(".kitlabels").transition().attr("opacity",1)
 		$("g#arduinoPath").show();
 		$("g#arduinoRect").show();
+		if(numClicked==4){
+			moveDown();
+		}
 		console.log(numClicked+"numClicked")
 	}
 	if(hoverData == "Summary"){
@@ -586,17 +592,25 @@ function makeShow(whichName){
 	}
 	// for (i=0; i<prevName.length; i++){
 		// if((prevName[i]=="Body")&&(prevName[i-1]=="Kit")){
-		if(numClicked==4){	
-			revealFaces();
-			showingHands();
-			d3.selectAll(".graphImage")
-				.transition()
-				.attr("opacity",1)
-				.each("end", function(){
-					callMinis();					
-				})
-		}
+		// var ready = false;	
+		// if(numClicked==4){
+		// 	revealFaces();
+		// 	showingHands();
+		// 	d3.selectAll(".graphImage")
+		// 		.transition()
+		// 		.attr("opacity",1)
+		// 		.each("end", function(){
+		// 			// callMinis();	
+		// 			ready=true;				
+		// 		})
+		// 	if(ready){
+		// 		callMinis();
+		// 	}
+		// }
 	// }
+}
+function moveDown(){
+	callMinis();
 }
 function callMinis(){
 	miniOne();
@@ -639,7 +653,42 @@ function miniOne(){
 	d3.selectAll("circle.graphImage").transition().attr("cy",yBottom);
 	d3.selectAll("line.graphImage").transition().attr("y1",yBottom);
 	d3.selectAll("#hands.graphImage").transition().attr("y",yBottom);
+	d3.selectAll(".graphImage").transition().attr("opacity",1);
+	revealFaces();
+	showingHands();
 }
+function unshowBody(){
+	d3.selectAll(".graphImage").transition().attr("opacity",0);
+	hideFaces(); //dereveal
+	hideHands(); //hide
+	expandKit();
+}
+
+function hideFaces(){
+	timeX.range([leftMargin, leftMargin]);
+
+	$(".faceTitle").hide();
+
+	d3.selectAll(".faceLine")
+	    .attr("x1", timeX(startTime))
+	    .attr("x2", timeX(endTime))
+
+	d3.selectAll(".pathLine")
+		.transition()
+	    .attr("x1", timeX(startTime))
+	    .attr("x2", timeX(endTime))
+	    .attr("opacity",0)
+	    .attr("y1", faceY)
+	    .attr("y2", faceY);
+
+	d3.selectAll(".facerect")	
+		.transition()
+		.attr("fill", "none")
+		.attr("x", function(d){
+			return timeX(d.time);
+		})
+}
+
 function miniTwo(){
 // #2
 //TO TRANSITION THE FACES
@@ -657,6 +706,90 @@ function miniTwo(){
 		.transition()
 	    .attr("y1", yBottom-faceHeight)
 	    .attr("y2", yBottom-faceHeight);
+}
+function expandBody(){
+	d3.selectAll(".graphImage").transition().attr("opacity",1);
+	revealFaces();
+	showingHands();
+	// faceY=yBottom-2*maxTotal*faceRadius;
+	// d3.selectAll(".facerect")	
+	// 	.transition()
+	//     .attr("y", function(d,i){
+	//     	return faceY-(d.num*faceRadius);
+	//     })
+	// d3.selectAll("#face.graphImage").transition().attr("y",faceY-iconW);
+
+	// var faceHeight = 2*maxTotal*faceRadius;
+	// d3.selectAll(".faceLine")
+	// 	.transition()
+	//     .attr("y1", yBottom-faceHeight)
+	//     .attr("y2", yBottom-faceHeight);	
+}
+function expandKit(){
+	faceY = lineHY;
+	yHPath.range([faceY, belowIcons]);
+
+	//CHANGE THE Y PLACEMENT ACCORDINGLY
+		d3.selectAll("circle.hardware")
+			.transition().attr("cy", faceY-radiusKey)
+		d3.selectAll("circle.software")
+			.transition().attr("cy", faceY-(radiusKey*5))
+		d3.selectAll("text.hardware")
+			.transition().attr("y", faceY)
+		d3.selectAll("text.software")
+			.transition().attr("y", faceY-(radiusKey*4))
+
+		d3.selectAll(".pathLine")
+			.transition()
+		    .attr("y1", faceY)
+		    .attr("y2", faceY);
+
+	lineH = d3.svg.area()
+			.x(function(d, i) { 
+				if(d==undefined){ console.log("no") }
+					else{
+			       	return timeXTrue(parseInt(d.key));      			
+					}
+			})
+			.y0(faceY)
+			.y1(function(d, i) { 
+				if(d==undefined){return 0;}
+				if(d.total<0){ return 0}
+					else{
+						return yHPath(d.values[0].total); 
+					}
+			})
+			.interpolate("linear");
+	pathH
+		.transition().attr("class","timepathH")
+		.attr("d", lineH);
+
+	ySPath.range([faceY, belowIcons]);
+	lineS = d3.svg.area()
+			.x(function(d, i) { 
+				if(d==undefined){ console.log("no") }
+					else{
+			       	return timeXTrue(parseInt(d.key));      			
+					}
+			})
+			.y0(faceY)
+			.y1(function(d, i) { 
+				if(d==undefined){return 0;}
+				if(d.total<0){ return 0}
+					else{
+						return ySPath(d.values[0].total); 
+					}
+			})
+			.interpolate("linear");
+	pathS
+		.transition().attr("class","timepathS")
+		.attr("d", lineS);	
+}
+function unshowKit(){
+	d3.selectAll(".kitlabels").transition().attr("opacity",0)
+	$("g#arduinoPath").hide();
+	$("g#arduinoRect").hide();
+	expandBody();
 }
 function miniThree(){
 	// #3

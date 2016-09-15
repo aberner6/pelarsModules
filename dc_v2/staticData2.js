@@ -1037,9 +1037,6 @@ function revealFaces(){
 		.attr("x", function(d){
 			return timeX(d.time);
 		})
-	    // .attr("y", function(d,i){
-	    // 	return faceY-(d.num*faceRadius);
-	    // })
 }
 function revealButton(){
 	// timeX.range([leftMargin, w-rightMargin]);
