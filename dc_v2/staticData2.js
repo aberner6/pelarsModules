@@ -2208,12 +2208,12 @@ $("g#arduinoRect").hide();
 	var softwareKeyX = hardwareKeyX;
 	var circKeyX = iconKeyX+radiusKey*2;
 	var hardwareKeyY = lineHY-radiusKey*4;//-33;//lineHY; 	    //.rangePoints([topMarg, forceheight]);
-	var softwareKeyY = hardwareKeyY+(radiusKey*2); //lineHY
+	var softwareKeyY = hardwareKeyY+(radiusKey*4); //lineHY
 
 	var kitColor = ardPathSVG.append("g").attr("class","kitlabels")
 		.append("circle").attr("class","hardware")
 	    .attr("cx", circKeyX)
-	    .attr("cy", hardwareKeyY)
+	    .attr("cy", hardwareKeyY-radiusKey)
 	    .attr("r", radiusKey)
 	    .attr("fill",hardwareColor)
 	    .attr("stroke",hardwareColor)
@@ -2226,7 +2226,7 @@ $("g#arduinoRect").hide();
 	var kitColor2 = ardPathSVG.append("g").attr("class","kitlabels")
 		.append("circle").attr("class","software")
 	    .attr("cx", circKeyX)
-	    .attr("cy", softwareKeyY)
+	    .attr("cy", softwareKeyY-radiusKey)
 	    .attr("r", radiusKey)
 	    .attr("fill",softwareColor)
 	    .attr("stroke",softwareColor)

@@ -166,7 +166,7 @@ var marginal = 1.2;
   	theseRects = backR.append("rect")
 		.attr("id","rectangle")
 		.attr("class",function(d,i){
-			return i;
+			return d.name;
 		})
 		.attr("width", function(d){
 			if(d.name=="Timeline" || d.name=="Summary"){
@@ -299,11 +299,6 @@ var marginal = 1.2;
 			   //    		return "translate(" + x + "," + (y) + ")"; 		      			
 		      		// }
 		      	})
-			d3.selectAll("#rectangle")
-        		.transition()
-        		.attr("opacity",1)
-        		.attr("width", smallWidth)
-        		.attr("height", smallHeight) 
 
         	d3.selectAll("#capt")
         		.transition()
@@ -327,8 +322,18 @@ var marginal = 1.2;
         			console.log(whichSide);
         			prevName.push(whichName);
         			index++;      			
-        			return origStroke*2;
+        			return 0;
         		})
+			d3.selectAll("#rectangle")
+        		.transition()
+        		.attr("opacity",1)
+        		.attr("width", smallWidth)
+        		.attr("height", smallHeight) 
+        	d3.selectAll("#rectangle"+"."+whichName)
+        		.attr("stroke-width", function(d,i){
+    				return origStroke*2;
+        		})
+
 						// d3.selectAll("#rectangle").transition()
 			   //      		.attr("stroke-width", function(d,i){
 			   //      			if(d.side==whichSide || d.side==3){
@@ -549,15 +554,6 @@ function makeShow(whichName){
 		$("g.axis").show();
 
 	}
-	// if(hoverData=="Hands"){
-	// 	// $("g.axis").show();
-	// 	showingHands();
-	// 	showingPhotos();
-	// }
-	// if(hoverData=="Faces"){
-		// $("g.axis").show();
-		// revealFaces();
-	// }
 	if(hoverData=="Body"){
 		numClicked+=2;
 		d3.selectAll(".graphImage").transition().attr("opacity",1);
@@ -588,15 +584,29 @@ function makeShow(whichName){
 	if(hoverData=="Links"){
 		$("#plot").show();
 	}
-	if((prevName[prevName.length-1]=="Body")&&(prevName[prevName.length-2]=="Kit")||(prevName[prevName.length-1]=="Kit")&&(prevName[prevName.length-2]=="Body")){
-		miniOne();
-		miniTwo();
-		miniThree();
-		miniFour();
-	}
+	// for (i=0; i<prevName.length; i++){
+		// if((prevName[i]=="Body")&&(prevName[i-1]=="Kit")){
+		if(numClicked==4){	
+			revealFaces();
+			showingHands();
+			d3.selectAll(".graphImage")
+				.transition()
+				.attr("opacity",1)
+				.each("end", function(){
+					callMinis();					
+				})
+		}
+	// }
+}
+function callMinis(){
+	miniOne();
+	miniTwo();
+	miniThree();
+	miniFour();	
 }
 
 function miniOne(){
+	var durTrans = 500;
 // #1
 //to transition the hand paths
 	yBottom = belowIcons*2;
@@ -657,9 +667,9 @@ function miniThree(){
 
 	//CHANGE THE Y PLACEMENT ACCORDINGLY
 		d3.selectAll("circle.hardware")
-			.transition().attr("cy", faceY)
+			.transition().attr("cy", faceY-radiusKey)
 		d3.selectAll("circle.software")
-			.transition().attr("cy", faceY-(radiusKey*4))
+			.transition().attr("cy", faceY-(radiusKey*5))
 		d3.selectAll("text.hardware")
 			.transition().attr("y", faceY)
 		d3.selectAll("text.software")
@@ -739,3 +749,13 @@ var moveToFront = function() {
 }
 
 
+
+	// if(hoverData=="Hands"){
+	// 	// $("g.axis").show();
+	// 	showingHands();
+	// 	showingPhotos();
+	// }
+	// if(hoverData=="Faces"){
+		// $("g.axis").show();
+		// revealFaces();
+	// }
