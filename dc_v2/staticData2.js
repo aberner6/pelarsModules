@@ -169,6 +169,7 @@ var yTop = lineHY;
 var maxTotal = 3;
 
 var yActivePath;
+var radiusKey = 4;
 $(document).ready(function() {
 	// getToken(); //returns the token
 	getData(thisSession, token);
@@ -994,16 +995,6 @@ function goFace(faceData){
 		.attr("stroke","none")
 	maxFaces = d3.max(faceNum);
 
-	timeSVG.append("g").append("line")
-		.attr("class", "faceLine")
-	    .attr("x1", timeX(startTime))
-	    .attr("x2", timeX(endTime)) //timeX(startTime)+timeX(endTime)-timeX(startTime))
-	    .attr("y1", faceY)//faceY-maxFaces*faceRadius+2*(maxFaces*faceRadius))
-	    .attr("y2", faceY)//faceY-maxFaces*faceRadius+2*(maxFaces*faceRadius))
-	    .attr("fill", "none")
-		.attr("stroke","grey")
-		.attr("stroke-dasharray",1);
-
 	timeSVG.append("g").append("image")
 		.attr("class", "graphImage")
 		.attr("id","face")
@@ -1031,6 +1022,14 @@ function revealFaces(){
 	d3.selectAll(".faceLine")
 	    .attr("x1", timeX(startTime))
 	    .attr("x2", timeX(endTime))
+
+	d3.selectAll(".pathLine")
+		.transition()
+	    .attr("x1", timeX(startTime))
+	    .attr("x2", timeX(endTime))
+	    .attr("opacity",1)
+	    .attr("y1", faceY)
+	    .attr("y2", faceY);
 
 	d3.selectAll(".facerect")	
 		.transition()
@@ -1498,9 +1497,6 @@ function goHands(handData, summaryHands){
 		  		return "hand";
 	  	});
 
-
-
-
 	var rx1 = [];
 	var ry1 = [];
 	var time1 = [];
@@ -1762,6 +1758,15 @@ function goHands(handData, summaryHands){
 		.attr("stroke", "black")
 		.attr("opacity",0);
 
+	timeSVG.append("g").append("line")
+		.attr("class", "faceLine")
+	    .attr("x1", timeX(startTime))
+	    .attr("x2", timeX(endTime))
+	    .attr("y1", yBottom)
+	    .attr("y2", yBottom)
+	    .attr("fill", "none")
+		.attr("stroke","grey")
+		.attr("stroke-dasharray",1);
 	// $("text.graphTitle").hide()
 	// $("line.graphLine").hide()
 
@@ -2118,6 +2123,17 @@ $("g#arduinoRect").hide();
 	//       .range([leftMargin, w-rightMargin]);
 	// var xPath0 = d3.scale.linear()
 	//       .domain([startTime,endTime]).range([0, 0]);
+
+	timeSVG.append("g").append("line")
+		.attr("class", "pathLine")
+	    .attr("x1", timeX(startTime))
+	    .attr("x2", timeX(endTime))
+	    .attr("y1", belowIcons+timelineImgWidth)
+	    .attr("y2", belowIcons+timelineImgWidth)
+	    .attr("fill", "none")
+		.attr("stroke","grey")
+		.attr("stroke-dasharray",1)
+		.attr("opacity",0)
 //PATHS
 	yHPath = d3.scale.linear()
 	      .domain([0,maxHeight+1]) //max hardware components
@@ -2185,36 +2201,36 @@ $("g#arduinoRect").hide();
 		.attr("d", lineS);
 
 
-	var radiusKey = 4;
+
 	var iconKeyX = leftMargin-53;
 	var wordKeyX = leftMargin-28;
 	var hardwareKeyX = wordKeyX;//leftMargin-radiusKey*2;
 	var softwareKeyX = hardwareKeyX;
 	var circKeyX = iconKeyX+radiusKey*2;
-	var hardwareKeyY = -33;//lineHY; 	    //.rangePoints([topMarg, forceheight]);
-	var softwareKeyY = hardwareKeyY+(radiusKey*4); //lineHY
+	var hardwareKeyY = lineHY-radiusKey*4;//-33;//lineHY; 	    //.rangePoints([topMarg, forceheight]);
+	var softwareKeyY = hardwareKeyY+(radiusKey*2); //lineHY
 
-	var kitColor = ardRectSVG.append("g").attr("class","kitlabels")
+	var kitColor = ardPathSVG.append("g").attr("class","kitlabels")
 		.append("circle").attr("class","hardware")
 	    .attr("cx", circKeyX)
 	    .attr("cy", hardwareKeyY)
 	    .attr("r", radiusKey)
 	    .attr("fill",hardwareColor)
 	    .attr("stroke",hardwareColor)
-	var	kitNameColor = ardRectSVG.append("g").attr("class","kitlabels")
+	var	kitNameColor = ardPathSVG.append("g").attr("class","kitlabels")
 		.append("text").attr("class","hardware")
 	    .attr("x",hardwareKeyX)
 	    .attr("y", hardwareKeyY)
 	    .text("HW")
 	    .attr("text-anchor","start")
-	var kitColor2 = ardRectSVG.append("g").attr("class","kitlabels")
+	var kitColor2 = ardPathSVG.append("g").attr("class","kitlabels")
 		.append("circle").attr("class","software")
 	    .attr("cx", circKeyX)
 	    .attr("cy", softwareKeyY)
 	    .attr("r", radiusKey)
 	    .attr("fill",softwareColor)
 	    .attr("stroke",softwareColor)
-	var	kitNameColor2 = ardRectSVG.append("g").attr("class","kitlabels")
+	var	kitNameColor2 = ardPathSVG.append("g").attr("class","kitlabels")
 		.append("text").attr("class","software")
 	    .attr("x", softwareKeyX)
 	    .attr("y", softwareKeyY)
