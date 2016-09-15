@@ -168,7 +168,7 @@ var yBottom = belowIcons;
 var yTop = lineHY;
 var maxTotal = 3;
 
-
+var yActivePath;
 $(document).ready(function() {
 	// getToken(); //returns the token
 	getData(thisSession, token);
@@ -1006,6 +1006,7 @@ function goFace(faceData){
 
 	timeSVG.append("g").append("image")
 		.attr("class", "graphImage")
+		.attr("id","face")
 		.attr("x", leftMargin-iconW*2)
 		.attr("y", faceY-iconW*1.5)
 		.attr("width", iconW*3-10)
@@ -1643,7 +1644,6 @@ function goHands(handData, summaryHands){
 //should the max just be represented as the max value for Y?
 	var BigMax = overallVals.hand_speed.mean;
 
-	var yActivePath;
   	yActivePath = d3.scale.linear() 
 		.domain([0,maxActiveOverall])
 		.range([yBottom, yTop]); 
@@ -1671,6 +1671,33 @@ function goHands(handData, summaryHands){
   	pathActive1
   		.datum(softS1)
   		.attr("d", lineActiveZip);
+	// draw the scatterplot
+	// timeSVG.selectAll("dot")									
+	// 	.data(softS1)											
+	// .enter().append("circle")								
+	// 	.attr("r", 3)	
+	// 	.attr("cx", function(d,i) { return xActivePath(activeOne[i].thisTime); })	 
+	// 	.attr("cy", function(d) { return yActivePath(d); })
+	// Tooltip stuff after this
+	  //   .on("mouseover", function(d) {		
+   //          div.transition()
+			// 	.duration(500)	
+			// 	.style("opacity", 0);
+			// div.transition()
+			// 	.duration(200)	
+			// 	.style("opacity", .9);	
+			// div	.html(
+			// 	'<a href= "http://google.com">' + // The first <a> tag
+			// 	formatTime(d.date) +
+			// 	"</a>" +                          // closing </a> tag
+			// 	"<br/>"  + d.close)	 
+			// 	.style("left", (d3.event.pageX) + "px")			 
+			// 	.style("top", (d3.event.pageY - 28) + "px");
+			// });
+
+
+
+
 
   	lineActive2 = d3.svg.line()
 		.x(function(d, i) { return xActivePath(activeTwo[i].thisTime); })
@@ -1703,6 +1730,7 @@ function goHands(handData, summaryHands){
 
 	timeSVG.append("g").append("image")
 		.attr("class", "graphImage")
+		.attr("id","hands")
 		.attr("x", leftMargin-iconW*2)
 		.attr("y", yBottom-iconW*2)
 		.attr("width", iconW*2)

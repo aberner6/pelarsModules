@@ -39,29 +39,7 @@
 
 
 
-var lineHY = h/4;
-yHPath.range([lineHY, 0]);
-lineH = d3.svg.area()
-		.x(function(d, i) { 
-			if(d==undefined){ console.log("no") }
-				else{
-		       	return timeXTrue(parseInt(d.key));      			
-				}
-		})
-		.y0(lineHY)
-		.y1(function(d, i) { 
-			if(d==undefined){return 0;}
-			if(d.total<0){ return 0}
-				else{
-					return yHPath(d.values[0].total); 
-				}
-		})
-		.interpolate("linear");
-pathH
-	.transition().attr("class","timepathH")
-	.attr("d", lineH);
-
-
+// var lineHY = h/4;
 
 
 //to transition the logs
@@ -84,7 +62,7 @@ pathH
 			    .attr("y2", thisMax) 
 
 //to transition the hand paths
-	yBottom = belowIcons;
+	yBottom = belowIcons*2;
 	yTop = lineHY;
 
  	yActivePath 
@@ -110,13 +88,66 @@ pathH
   	pathActive3
   		.transition().duration(durTrans)  
   		.attr("d", lineActive3);
+d3.selectAll("circle.graphImage").transition().attr("cy",yBottom);
+d3.selectAll("line.graphImage").transition().attr("y1",yBottom);
+d3.selectAll("#hands.graphImage").transition().attr("y",yBottom);
 
 //TO TRANSITION THE FACES
-faceY=yTop+2*maxTotal*faceRadius;
-
+// faceY=yTop+2*maxTotal*faceRadius;
+faceY=yBottom-2*maxTotal*faceRadius;
 	d3.selectAll(".facerect")	
 		.transition()
 	    .attr("y", function(d,i){
 	    	return faceY-(d.num*faceRadius);
 	    })
+d3.selectAll("#face.graphImage").transition().attr("y",faceY-iconW);
+// d3.selectAll("#face.graphImage").transition().attr("y",faceY);
 
+
+//for the arduino paths
+faceY=yBottom-4*maxTotal*faceRadius;
+
+yHPath.range([faceY, belowIcons]);
+
+//CHANGE THE Y PLACEMENT ACCORDINGLY
+d3.selectAll("circle.hardware")//.attr("opacity",0)
+lineH = d3.svg.area()
+		.x(function(d, i) { 
+			if(d==undefined){ console.log("no") }
+				else{
+		       	return timeXTrue(parseInt(d.key));      			
+				}
+		})
+		.y0(faceY)
+		.y1(function(d, i) { 
+			if(d==undefined){return 0;}
+			if(d.total<0){ return 0}
+				else{
+					return yHPath(d.values[0].total); 
+				}
+		})
+		.interpolate("linear");
+pathH
+	.transition().attr("class","timepathH")
+	.attr("d", lineH);
+
+ySPath.range([faceY, belowIcons]);
+lineS = d3.svg.area()
+		.x(function(d, i) { 
+			if(d==undefined){ console.log("no") }
+				else{
+		       	return timeXTrue(parseInt(d.key));      			
+				}
+		})
+		.y0(faceY)
+		.y1(function(d, i) { 
+			if(d==undefined){return 0;}
+			if(d.total<0){ return 0}
+				else{
+					return ySPath(d.values[0].total); 
+				}
+		})
+		.interpolate("linear");
+pathS
+	.transition().attr("class","timepathS")
+	.attr("d", lineS);
