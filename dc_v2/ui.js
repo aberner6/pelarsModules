@@ -785,12 +785,14 @@ function expandKit(){
 		.transition().attr("class","timepathS")
 		.attr("d", lineS);	
 }
-function unshowKit(){
+var unshowKit;
+unshowKit = function(){
 	d3.selectAll(".kitlabels").transition().attr("opacity",0)
 	$("g#arduinoPath").hide();
 	$("g#arduinoRect").hide();
 	expandBody();
 }
+
 function miniThree(){
 	// #3
 	//for the arduino paths
