@@ -121,12 +121,17 @@ function makeThings(data){
 		.attr("height", timeSVGH)  
 		.style("margin-top","1px");
 
-	sumSVG= d3.select("#container").append("svg")
-		.attr("class", "sumSVG")
-		.style("position","absolute").style("left","0px")
-		.style("display","none")
-		.attr("width",w).attr("height",h-topMargin)
-		.attr("transform", "translate(" + 0 + "," + h+topMargin + ")")
+	d3.select(".backSVG").append("svg:rect").attr("class","behind")
+		.attr("x",10).attr("y",belowIcons)
+		.attr("fill","white").attr("width",w-30).attr("height",h)
+		.attr("opacity",0)
+// d3.selectAll(".behind").transition().attr("width",w-30)
+	// sumSVG= timeSVG.append("svg")
+	// 	.attr("class", "sumSVG")
+	// 	.style("position","absolute").style("left","0px")
+	// 	.style("display","none")
+	// 	.attr("width",w).attr("height",h-topMargin)
+	// 	.attr("transform", "translate(" + 0 + "," + h+topMargin + ")")
 d3.select(".backSVG").append("svg:circle").attr("cx",w/2 - 5).attr("cy",h/4).attr("fill","pink").attr("r",10)
 	backData = data;
 console.log(data);
@@ -572,7 +577,9 @@ function makeShow(whichName){
 	}
 	if(hoverData=="Documentation"){
 		revealDoc();
-		showingPhotos();
+		revealPhotos();
+		// overview.transition().attr("height",timelineImgHeight)
+		// showingPhotos();
 	}
 	if(hoverData=="Kit"){
 		numClicked+=2;

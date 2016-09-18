@@ -1,0 +1,38 @@
+[
+    {
+        "creator": "client",
+        "data": "http://pelars.sssup.it/pelars/multimedia/1159/2806",
+        "id": 2806,
+        "mimetype": "jpg",
+        "session": 1159,
+        "size": 107586,
+        "time": 1.45759958541E12,
+        "trigger": "manual",
+        "type": "image",
+        "view": "people"
+    },
+    {
+        "creator": "client",
+        "data": "http://pelars.sssup.it/pelars/multimedia/1159/2807",
+        "id": 2807,
+        "mimetype": "png",
+        "session": 1159,
+        "size": 163508,
+        "time": 1.457599585943E12,
+        "trigger": "manual",
+        "type": "image",
+        "view": "screen"
+    },
+    {
+        "creator": "client",
+        "data": "http://pelars.sssup.it/pelars/multimedia/1159/2808",
+        "id": 2808,
+        "mimetype": "jpg",
+        "session": 1159,
+        "size": 632285,
+        "time": 1.457599585425E12,
+        "trigger": "manual",
+        "type": "image",
+        "view": "workspace"
+    }
+]
