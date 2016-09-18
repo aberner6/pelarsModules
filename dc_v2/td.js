@@ -46,6 +46,23 @@
 
 
 
+
+//phase pie
+		//new addition
+$("g.piePhase").hide()
+
+
+
+
+
+
+
+
+
+
+
+
+
 function miniOne(){
 // #1
 //to transition the hand paths

@@ -112,7 +112,7 @@ var whatTime = [];
 var yOther = d3.scale.ordinal()
 var xPath;
 var timeX = d3.scale.linear()
-	.range([0, 0]);
+	.range([leftMargin, w-rightMargin]);
 var timeX2 = d3.scale.linear();
 var y = d3.scale.ordinal()
     .domain(interactionTypes)
@@ -400,15 +400,15 @@ $("g.axis").hide();
 	for(i=0; i<nested_data.length; i++){
 		// console.log(nested_data[i])
 		if(nested_data[i].key==types[3]){
-			goFace(nested_face[i]); //FACE
+			// goFace(nested_face[i]); //FACE
 		}
 		if(nested_data[i].key==types[1]){
-			goIDE(nested_data[i].values); //IDE					
+			// goIDE(nested_data[i].values); //IDE					
 		}
 	}
 	for(i=0; i<nested_data.length; i++){
 		if(nested_data[i].key==types[0]){ //HAND
-			goHands(nested_data[i], nest_again[i].values);
+			// goHands(nested_data[i], nest_again[i].values);
 		}
 	}	
 }
@@ -694,6 +694,7 @@ function parsePhotos(multiData){
 	}, 3000);	
 }
 
+//then make it so you can click right and x out?
 function showPhotos(){
 
 //autoImg = system images
@@ -712,7 +713,7 @@ function showPhotos(){
 			return timeX(d.time)-timelineImgWidth/4;
 	    })
 		// .attr("y", butLineY1)
-		.attr("y", timelineImgY)  //622
+		.attr("y", lineHY-timelineImgHeight/2)  //622
 		.attr("opacity",1)
 		// .attr("y", timelineImgY)  //622//yAxisBottom-timelineImgHeight+40
 		.attr("width", timelineImgWidth)
@@ -739,7 +740,7 @@ function showPhotos(){
 	    				return timeX(d.time)-bigImgWidth/2;
 	    			}
 	    		})
-	    		.attr("y", timelineImgY-bigImgHeight+bigImgHeight/4)
+	    		.attr("y", lineHY-bigImgHeight+bigImgHeight/4)
 	    		.attr("width",bigImgWidth)
 	    		.attr("height",bigImgHeight)
 	    		.transition()
@@ -748,7 +749,7 @@ function showPhotos(){
 	    			// console.log(d+"image clicked")
 	    			return timeX(d.time)-timelineImgWidth/4;
 	    		})
-				.attr("y", timelineImgY)  //622
+				.attr("y", lineHY-timelineImgHeight/2)  //622
 	    		.attr("width", timelineImgWidth)
 	    		.attr("height", timelineImgHeight)   
 	    })    
@@ -1020,7 +1021,6 @@ function goFace(faceData){
 }
 
 function revealFaces(){
-	timeX.range([leftMargin, w-rightMargin]);
 
 	$(".faceTitle").show();
 
@@ -2466,25 +2466,23 @@ $("g.piePhase").hide()
 		.enter()
 	  	.append("rect")
 	  	.attr("class","phase")
-		  .attr("x",function(d,i){
-		  	console.log(d);
-		  	console.log(timeX(d.start))
-		  	return timeX(d.start); 
-		  })
-		  .attr("y",0)
-		  .attr("width",function(d,i){
-		  	return timeX(d.end)-timeX(d.start);
-		  })
-		  .attr("height",timeSVGH)//-2*cmargin)
-		  .attr("fill",function(d,i){
-		  	if(d.num%2==0){
-		  		return "none"
-		  	} else{
-		  		return "lightgray";
-		  	}
-		  })
-		  .attr("opacity",.1)
-		  .attr("stroke","grey")
+		.attr("x", function(d){
+			return timeX(d.start);
+		})
+		.attr("y",0)
+		.attr("width",function(d,i){
+			return timeX(d.end)-timeX(d.start);
+		})
+		.attr("height",timeSVGH)//-2*cmargin)
+		.attr("fill",function(d,i){
+			if(d.num%2==0){
+				return "none"
+			} else{
+				return "lightgray";
+			}
+		})
+		.attr("opacity",0)
+		.attr("stroke","grey")
 
 	var textPhase = timeSVG.selectAll(".phaseText")
 		.data(obs)
@@ -2532,21 +2530,12 @@ function revealPhases(){
 		.range([leftMargin, w-rightMargin]);
 	d3.selectAll(".phase")
 		.transition()
-		.attr("x", function(d){
-			return timeX(d.start);
-		})
-		.attr("width",function(d,i){
-			return timeX(d.end)-timeX(d.start);
-		})
 		.attr("y", phaseY)
-		.attr("height", yAxisBottom-phaseY);
+		.attr("height", yAxisBottom-phaseY)
+		.attr("opacity",.2)
 
 	d3.selectAll(".phaseText")
 		.transition()
-		.attr("x",function(d,i){
-			var currentX = timeX(d.start)+(timeX(d.end)-timeX(d.start))/2;
-			return currentX;	
-		})
 		.attr("y", phaseY);
 	$(".phaseText").show();	
 }
