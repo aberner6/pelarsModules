@@ -557,7 +557,6 @@ function makeShow(whichName){
 	console.log(hoverData+"hover data")	
 	if(hoverData == "Timeline"){
 		$("g.axis").show();
-
 	}
 	if(hoverData=="Body"){
 		numClicked+=2;

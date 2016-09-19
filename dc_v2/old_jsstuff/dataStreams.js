@@ -1,3 +1,35 @@
+vidIcon
+revealDocu(){
+	d3.select(".vidicon").attr("opacity",1)
+}
+//phase pie
+		//new addition
+$("g.piePhase").hide()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 var iconBut1 = timeSVG.selectAll(".button1")	
 
 lightbulb = timeSVG.selectAll(".clip-circ"+lIndex+"l")

@@ -1,55 +1,39 @@
-	ardRectSVG = svgMain.append("g")
-        .attr("id", "arduinoRect")
-        .attr("transform", "translate(" + (0) + ", " + ((smallY/2+smallHeight)*2) + ")"); //150
-        // .attr("transform", "translate(" + (leftMargin) + ", " + (h/2) + ")");
-    console.log(startTime);
-    console.log(endTime);
-
-	var ardPathSVG = svgMain.append("g")
-        .attr("id", "arduinoPath")
-        .attr("transform", "translate(" + (0) + ", " + (yAxisBottom-forceheight) + ")");
-
-
-
-	pathS
-		.datum(newSoft) //softUseComp
-    	.attr("class","timepathS")
-		.attr("d", lineS);
-
-	lineS = d3.svg.area()
-		.x(function(d, i) { 
-			if(d==undefined){ console.log("no") }
-				else{
-		       	return timeXTrue(parseInt(d.key));      			
-				}
-		})
-		.y0(timeSVGH/2-(maxFaces*faceRadius))
-		.y1(function(d, i) { 
-			if(d==undefined){return 0;}
-			if(d.total<0){ return 0}
-				else{
-					return ySPath(d.values[0].total); 
-				}
-		})
-		.interpolate("linear");
-	ySPath = d3.scale.linear()
-	      .domain([0,maxHeight+1]) //max software components
-	      .range([timeSVGH/2-(maxFaces*faceRadius), 0]);
-
-
-
-
-
-
-
-
-
-
-
-
+// for vidIcon
+revealDocu(){
+	d3.select(".vidicon").attr("opacity",1)
+}
 //phase pie
-		//new addition
 $("g.piePhase").hide()
+
+
+resNote = timeSVG.selectAll(".commentIcon")
+studCommentDoc = timeSVG.selectAll(".studCommentIcon")
+studImgDoc = timeSVG.selectAll(".camIcon")
+var docImg = svgMain.selectAll(".clip-circ"+lIndex+"SD")
+    .attr("id","clip-circ")
+
+
+//for network node moving viz
+var vis = svgMain //for the visualization
+    .append('svg:g')
+	path2 = vis.selectAll("path2")
+	    .attr("class","link2") 
+	circNode = vis.selectAll("nodez")
+//for links non-moving viz
+var plot = svgMain.append("g")
+    .attr("id", "plot")
+d3.select("#plot").selectAll(".link")
+
+
+
+
+
+
+
+
+
+
+
 
 
 

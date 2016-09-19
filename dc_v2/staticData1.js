@@ -162,7 +162,7 @@ var yAxisBottom = h-200;
 		// yTop = h/2;
 	// }
 // var activateHoverbox;
-var lineHY = h/2;
+var lineHY = h/1.3; //h/2
 var durTrans = 1500;
 var yBottom = belowIcons;
 var yTop = lineHY;
@@ -711,7 +711,7 @@ function parsePhotos(multiData){
 		if(autoImg.length>0){ //researcherCaptions.length>0 && 
 			// console.log(studentCaptions.length+"studentCaptions length")
 			showPhotos();
-			// showStudDoc();
+			showStudDoc();
 			clearInterval(imageProcessing);	
 		}
 	}, 3000);	
@@ -784,22 +784,7 @@ function revealPhotos(){
 }
 
 function showStudDoc(){
-	// var timeXTrue = d3.scale.linear()
-	// 	.domain([startTime, endTime])
-	// 	.range([leftMargin, w-rightMargin]);
-	// var resNote;
-	// resNote = timeSVG.selectAll(".commentIcon")
-	// 	.data(researcherNote) //when moused over this yields text
-	// resNote.enter()
-	// 	.append("image")
-	// 	.attr("class","commentIcon")
-	// 	.attr("xlink:href", "assets/pencil.png") //just checking now put back to thunder
-	// 	.attr("x", function(d){
-	// 		return timeX(d.time);
-	// 	})
-	// 	.attr("y", timelineBottomY)
-	// 	.attr("width",iconW)
-	// 	.attr("height",iconW);
+
 	var studCommentDoc;
 	var docIcon = iconW*2;
 	studCommentDoc = timeSVG.selectAll(".studCommentIcon")
@@ -864,6 +849,7 @@ function showStudDoc(){
 			moveAllToFront();
 		})
 		.on("mouseout", function(d,i){
+			var thisData = d3.select(this);
 			var lIndex = i;
 			var thisTime = thisData[0][0].__data__.time;
 
@@ -931,6 +917,54 @@ function showStudDoc(){
 		.attr("y2", butLineY1) //-10
 		.attr("stroke-width",.1)
 		.attr("stroke","grey");
+
+
+
+    var x = document.createElement("VIDEO");
+
+    if (x.canPlayType("video/mp4")) {
+        x.setAttribute("src","assets/vid/15350.mp4");
+    } else {
+    }
+    x.setAttribute("width", w/2); //"800");
+    x.setAttribute("class", "video");
+    x.setAttribute("height", lineHY-100) //"500");
+    // x.setAttribute("width", "320");
+    // x.setAttribute("class", "video");
+    // x.setAttribute("height", "240");
+    x.setAttribute("controls", "controls");
+    document.body.appendChild(x);	
+
+
+	var studVid = timeSVG.append("image")
+		.attr("class","vidIcon")
+		.attr("xlink:href", "assets/icons0/Video.png") //just checking now put back to thunder
+		.attr("x", timeXTrue(endTime)-docIcon/2)
+		.attr("y", butLineY1)
+		.attr("width",docIcon)
+		.attr("height",docIcon)
+		.attr("opacity",0)
+		.on("click", function(){
+			console.log("clicked");
+			$(".video").show();	
+			$(".x").show();	
+		})
+	var studVidLine = timeSVG.append("line")
+		.attr("class","vidIconLine")
+		.attr("x1", timeXTrue(endTime))
+		.attr("x2", timeXTrue(endTime))
+		.attr("y1", butLineY1)
+		.attr("y2", butLineY1)
+		.attr("stroke-width",.1)
+		.attr("stroke","grey");
+
+	var studVidX = timeSVG.append("text")
+		.attr("class","vidX")
+		.attr("x", 1008)
+		.attr("y", 119)
+		.attr("fill","red")
+		.text("X").attr("font-size", 32)
+
 	// for (i=0; i<docuImg.length; i++){
 	// 	insideDoc.push(docuImg[i].data)		
 	// }
@@ -983,6 +1017,9 @@ function showStudDoc(){
 function revealDoc(){
 	d3.selectAll(".camIcon").transition().attr("opacity",1).attr("y",butY-30)
 	d3.selectAll(".studCommentIcon").transition().attr("opacity",1).attr("y",butY-30)
+
+	d3.selectAll(".vidIcon").attr("opacity",1).attr("y",butY-30)
+	d3.selectAll(".vidIconLine").transition().attr("y2",butLineY2-15)
 
 d3.selectAll("image.clip-rect").transition().attr("x", function(d){ return timeX(d.time)}).attr("opacity",1)
 
