@@ -21,6 +21,7 @@ body{
     background-color: white;
     display: none;
     width: 50%;
+    border: 6px solid lightgrey;
 }
 .vidX{
     right: 26.3%;
@@ -29,8 +30,11 @@ body{
     background-color: white;
     display: none;
     border: 4px solid red;
-  display:none;
+    display:none;
+    opacity:1;
+    cursor: pointer;
 }
+
 #container {
     /*width:100%;*/
     height:100%;

@@ -107,10 +107,12 @@ belowIcons = bottomIcons+smallHeight*2;
 // var medHeight = specialHeight
 var backData;
 var sumSVG;
+var behindSVG;
+
 function makeThings(data){
 	svgBack= d3.select("#container").append("svg")
 		.attr("class", "backSVG")
-		.attr("width",w).attr("height",h2)
+		.attr("width",w).attr("height",h)
 		.attr("transform", "translate(" + 0 + "," + 0 + ")")
 	svgMain = svgBack;
 
@@ -121,7 +123,7 @@ function makeThings(data){
 		.attr("height", timeSVGH)  
 		.style("margin-top","1px");
 
-	d3.select(".backSVG").append("svg:rect").attr("class","behind")
+	behindSVG = d3.select(".backSVG").append("svg:rect").attr("class","behind")
 		.attr("x",10).attr("y",belowIcons)
 		.attr("fill","white").attr("width",w-30).attr("height",h)
 		.attr("opacity",0)

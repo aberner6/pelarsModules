@@ -947,7 +947,7 @@ function showStudDoc(){
 		.on("click", function(){
 			console.log("clicked");
 			$(".video").show();	
-			$(".x").show();	
+			$(".vidX").show();	
 		})
 	var studVidLine = timeSVG.append("line")
 		.attr("class","vidIconLine")
@@ -958,12 +958,42 @@ function showStudDoc(){
 		.attr("stroke-width",.1)
 		.attr("stroke","grey");
 
+	var studVidRectX = timeSVG.append("rect")
+		.attr("class","vidX")
+		.attr("x", w/2+w/4)
+		.attr("y", 146-25)
+		.attr("width", 32)
+		.attr("height", 32)
+		.attr("fill","white")
+		.attr("stroke-width",4)
+		.attr("stroke","lightgrey")
+		.on("mouseover", function(){
+			d3.select(this).transition()
+				.attr("fill","lightgrey")
+		})
+		.on("mouseout", function(){
+			d3.select(this).transition()
+				.attr("fill","white")
+		})
 	var studVidX = timeSVG.append("text")
 		.attr("class","vidX")
-		.attr("x", 1008)
-		.attr("y", 119)
+		.attr("x", w/2+w/4+4)
+		.attr("y", 148)
 		.attr("fill","red")
 		.text("X").attr("font-size", 32)
+		.on("mouseover", function(){
+			d3.select(this).transition()
+				.attr("fill","lightgrey")
+		})
+		.on("mouseout", function(){
+			d3.select(this).transition()
+				.attr("fill","red")
+		})
+		.on("click", function(){
+			$(".video").hide();	
+			$(".vidX").hide();				
+		})
+
 
 	// for (i=0; i<docuImg.length; i++){
 	// 	insideDoc.push(docuImg[i].data)		
