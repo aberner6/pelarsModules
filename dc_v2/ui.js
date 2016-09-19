@@ -139,7 +139,7 @@ function makeThings(data){
 	// 	.style("display","none")
 	// 	.attr("width",w).attr("height",h-topMargin)
 	// 	.attr("transform", "translate(" + 0 + "," + h+topMargin + ")")
-d3.select(".backSVG").append("svg:circle").attr("cx",w/2 - 5).attr("cy",h/4).attr("fill","pink").attr("r",10)
+// d3.select(".backSVG").append("svg:circle").attr("cx",w/2 - 5).attr("cy",h/4).attr("fill","pink").attr("r",10)
 	backData = data;
 console.log(data);
 var marginal = 1.2;
@@ -599,6 +599,7 @@ function makeShow(whichName){
 	}
 	if(hoverData == "Summary"){
 		$("g.statsRects").show()
+		$(".svgTwo").show();
 	}
 	if(hoverData=="Links"){
 		$("#plot").show();

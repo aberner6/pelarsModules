@@ -176,7 +176,7 @@ var butLineY2 = yBottom+(iconW/2)+3; //butLineY2+iconW+3)
 var butY = butLineY2-iconW/2;
 
 $(document).ready(function() {
-	// getToken(); //returns the token
+	getToken(); //returns the token
 	getData(thisSession, token);
 
 	var getNext = setInterval(function(){
@@ -207,7 +207,7 @@ function getToken(){
 function getSession(token){
 	console.log(token+"token");
 	$.getJSON("http://pelars.sssup.it:8080/pelars/session?token="+token,function(json1){
-		thisSession = parseInt(json1[json1.length-1].session);
+		thisSession = 1593;//parseInt(json1[json1.length-1].session);
 		//1320
 	})
 }
@@ -454,19 +454,19 @@ function parseButton(incomingData){
 	}); 
 	console.log(button2.length + "button 2")
 
-	// for(i=0; i<button1.length; i++){
-		$.getJSON("data/button1.json", function(json){
-		// $.getJSON("http://pelars.sssup.it/pelars/snapshot/"+thisSession+"/"+(button1[i].time/1000000000000)+"E12"+"?token="+token, function(json){
+	for(i=0; i<button1.length; i++){
+		// $.getJSON("data/button1.json", function(json){
+		$.getJSON("http://pelars.sssup.it/pelars/snapshot/"+thisSession+"/"+(button1[i].time/1000000000000)+"E12"+"?token="+token, function(json){
 			btnImg1.push(json);
 		})
-	// }
+	}
 
-	// for(i=0; i<button2.length; i++){
-		$.getJSON("data/button2.json", function(json){
-		// $.getJSON("http://pelars.sssup.it/pelars/snapshot/"+thisSession+"/"+(button2[i].time/1000000000000)+"E12"+"?token="+token, function(json){
+	for(i=0; i<button2.length; i++){
+		// $.getJSON("data/button2.json", function(json){
+		$.getJSON("http://pelars.sssup.it/pelars/snapshot/"+thisSession+"/"+(button2[i].time/1000000000000)+"E12"+"?token="+token, function(json){
 			btnImg2.push(json);
 		})
-	// }
+	}
 
 	var getImage = setInterval(function(){  //returns the session		
 		if(btnImg1.length>0 || btnImg2.length>0){
@@ -682,40 +682,88 @@ function parsePhotos(multiData){
 				docuImg.push(imgData[0][i]);
 			}
 		}
-////online version
-	// function processURL(){
-	// 	for(i=0; i<docuNote.length; i++){
-	// 		var url1 = docuNote[i].data+"?token="+token;
-	// 		$.get(url1, function(caption){
-	// 			studentCaptions.push(caption)
-	// 		})
-	// 	}
-	// }
-	// var urlProcessing = setInterval(function(){  //returns the session		
-	// 	if(autoImg.length>0 && docuImg.length>0 && docuNote.length>0){ //&& researcherNote.length>0
-	// 		console.log(docuImg.length+"docuImg length")
-	// 		processURL();
-	// 		clearInterval(urlProcessing);	
-	// 	}
-	// }, 1000);
-	// var imageProcessing = setInterval(function(){  //returns the session		
-	// 	if(studentCaptions.length>0){ //researcherCaptions.length>0 && 
-	// 		console.log(studentCaptions.length+"studentCaptions length")
-	// 		showPhotos();
-	// 		showStudDoc();
-	// 		clearInterval(imageProcessing);	
-	// 	}
-	// }, 3000);
-//	//online version	
+	function processURL(){
+		// for(i=0; i<researcherNote.length; i++){
+		// 	var url1 = researcherNote[i].data+"?token="+token;
+		// 	$.get(url1, function(caption){
+		// 		researcherCaptions.push(caption)
+		// 	})
+		// }
+		for(i=0; i<docuNote.length; i++){
+			var url1 = docuNote[i].data+"?token="+token;
+			$.get(url1, function(caption){
+				studentCaptions.push(caption)
+			})
+		}
+	}
+	var urlProcessing = setInterval(function(){  //returns the session		
+		if(autoImg.length>0 && docuImg.length>0 && docuNote.length>0){ //&& researcherNote.length>0
+			console.log(docuImg.length+"docuImg length")
+			processURL();
+			clearInterval(urlProcessing);	
+		}
+	}, 1000);
 	var imageProcessing = setInterval(function(){  //returns the session		
-		if(autoImg.length>0){ //researcherCaptions.length>0 && 
-			// console.log(studentCaptions.length+"studentCaptions length")
+		if(studentCaptions.length>0){ //researcherCaptions.length>0 && 
+			console.log(studentCaptions.length+"studentCaptions length")
 			showPhotos();
 			showStudDoc();
 			clearInterval(imageProcessing);	
 		}
 	}, 3000);	
 }
+// function parsePhotos(multiData){
+// 	imgData = multiData;
+// 	var captionsText = [];
+// 	console.log(multiData.length+"multiData length - photos");
+// 		for(i=0; i<imgData[0].length; i++){
+// 			if(imgData[0][i].creator=="client" && imgData[0][i].type=="image" && imgData[0][i].view=="workspace"){
+// 				autoImg.push(imgData[0][i]);
+// 			}
+// 			// if(imgData[0][i].creator=="observer" && imgData[0][i].type=="text"){
+// 			// 	researcherNote.push(imgData[0][i]);
+// 			// }
+// 			if(imgData[0][i].creator=="student" && imgData[0][i].type=="text"){
+// 				docuNote.push(imgData[0][i])
+// 			}
+// 			if(imgData[0][i].creator=="student" && imgData[0][i].type=="image"){
+// 				docuImg.push(imgData[0][i]);
+// 			}
+// 		}
+// ////online version
+// 	function processURL(){
+// 		for(i=0; i<docuNote.length; i++){
+// 			var url1 = docuNote[i].data+"?token="+token;
+// 			$.get(url1, function(caption){
+// 				studentCaptions.push(caption)
+// 			})
+// 		}
+// 	}
+// 	var urlProcessing = setInterval(function(){  //returns the session		
+// 		if(autoImg.length>0 && docuImg.length>0 && docuNote.length>0){ //&& researcherNote.length>0
+// 			console.log(docuImg.length+"docuImg length")
+// 			processURL();
+// 			clearInterval(urlProcessing);	
+// 		}
+// 	}, 1000);
+// 	var imageProcessing = setInterval(function(){  //returns the session		
+// 		if(studentCaptions.length>0){ //researcherCaptions.length>0 && 
+// 			console.log(studentCaptions.length+"studentCaptions length")
+// 			showPhotos();
+// 			showStudDoc();
+// 			clearInterval(imageProcessing);	
+// 		}
+// 	}, 3000);
+// //	//online version	
+// 	// var imageProcessing = setInterval(function(){  //returns the session		
+// 	// 	if(autoImg.length>0){ //researcherCaptions.length>0 && 
+// 	// 		// console.log(studentCaptions.length+"studentCaptions length")
+// 	// 		showPhotos();
+// 	// 		showStudDoc();
+// 	// 		clearInterval(imageProcessing);	
+// 	// 	}
+// 	// }, 3000);	
+// }
 
 //then make it so you can click right and x out?
 function showPhotos(){
@@ -737,10 +785,10 @@ function showPhotos(){
 	    })
 		// .attr("y", butLineY1)
 		.attr("y", lineHY-timelineImgHeight/2)  //622
-		.attr("opacity",1)
+		.attr("opacity",0)
 		// .attr("y", timelineImgY)  //622//yAxisBottom-timelineImgHeight+40
 		.attr("width", timelineImgWidth)
-		.attr("height", 0)
+		.attr("height", timelineImgHeight)
 	    .attr("xlink:href", function(d, i) {
 			return "images/frustration.png";
 			// d.data;                    	                       		
@@ -781,7 +829,8 @@ function showPhotos(){
 }
 
 function revealPhotos(){
-	overview.transition().attr("height",timelineImgHeight)
+	overview.transition().attr("opacity",1) 
+	// ("height",timelineImgHeight)
 }
 
 function showStudDoc(){
@@ -929,7 +978,7 @@ function showStudDoc(){
     }
     x.setAttribute("width", w/2); //"800");
     x.setAttribute("class", "video");
-    x.setAttribute("height", lineHY-100) //"500");
+    x.setAttribute("height", lineHY*1.5) //"500");
     // x.setAttribute("width", "320");
     // x.setAttribute("class", "video");
     // x.setAttribute("height", "240");
@@ -941,7 +990,7 @@ function showStudDoc(){
 		.attr("class","vidIcon")
 		.attr("xlink:href", "assets/icons0/Video.png") //just checking now put back to thunder
 		.attr("x", timeXTrue(endTime)-docIcon/2)
-		.attr("y", butLineY1)
+		.attr("y", butLineY1*2)
 		.attr("width",docIcon)
 		.attr("height",docIcon)
 		.attr("opacity",0)
@@ -1569,6 +1618,44 @@ function makeEdge(linkData, linkNodes, linkLinks){
 	        .attr("d", curve);
 	}
     drawKey(); //should be in the right position
+	var thisH = timeSVGH+topMargin-250;
+	var descripSVG = svgT
+		.append("g")
+		.attr("class","descripSVG")
+		.attr("width",forcewidth)
+		.attr("height",forceheight)  
+		.attr("transform", "translate(" + (forcewidth) + "," + (thisH*2) + ")")
+
+	var descripRect = descripSVG.append("rect")
+		.attr("width",forcewidth)
+		.attr("height",forceheight*1.5)
+		.attr("class","descripRect")
+		.attr("x",5)
+		.attr("y",0)
+		.attr("fill","none").attr("stroke","lightgrey")
+	var moreOrLessHands;
+	if(sessionHandProx> allProxMax){
+		moreOrLessHands = "MORE";
+	} else{
+		moreOrLessHands = "LESS";
+	}
+	var moreOrLessFace;
+	if(sessionFaceProx> allFaceProx){
+		moreOrLessFace= "MORE";
+	} else{
+		moreOrLessFace = "LESS";
+	}
+	var descriptionCaption = descripSVG.append("text")
+		.attr("id","description")
+		.attr("class","descripCapt")
+		descriptionCaption
+	      .attr("x", forcewidth/4)
+	      .attr("y", thisH/4)
+	      .attr("font-size",12)
+	      .attr("dy", "4.5em")
+	      .attr("opacity",1)
+	      .text("In this session, the PELARS system observed that you used the following hardware elements: "+uniqueHards+" and the following software elements: "+uniqueSofts+" . The difference in usage of these elements - that is, the items you used in only software, were "+diffSoftHard+ ". You pressed the lightbulb button a total of "+button1.length+" times"+" and pressed the stormcloud a total of "+button2.length+" times. In the system's observation of your hand movements, we noticed that your group's hands were "+moreOrLessHands+" usual proximity to one another. Your group's faces were "+moreOrLessFace+" close to one another. See below for further statistics on these averages.")
+          .call(wrap2, forcewidth-20);
 }
 
 var maxActiveOverall;
@@ -2695,7 +2782,7 @@ function showStats(){
 		.domain(statsNames)
 		.rangePoints([leftThird, rightThird])
 
-	statsR = timeSVG.append("g").selectAll(".statsRects")
+	statsR = svgT.append("g").selectAll(".statsRects")
 		.data(statsNames)
 		.enter()
 		.append("g")
@@ -2934,6 +3021,7 @@ function showStats(){
 		.attr("stroke-width",statWidth)
 		.attr("stroke-dasharray", 1)
 		.attr("opacity", compOpa/2);
+
 
 	$('.mean').tipsy({ 
 			gravity: 'nw', 
@@ -3208,4 +3296,26 @@ function pelars_authenticate(){
 	});
 	return res;
 }
-	
+	function wrap2(text, width) {
+	  text.each(function() {
+	    var text = d3.select(this),
+	        words = text.text().split(/\s+/).reverse(),
+	        word,
+	        line = [],
+	        lineNumber = 0,
+	        lineHeight = 1.5, // ems
+	        y = text.attr("y"),
+	        dy = parseFloat(text.attr("dy")),
+	        tspan = text.text(null).append("tspan").attr("x", 30).attr("y", y).attr("dy", dy + "em");
+	    while (word = words.pop()) {
+	      line.push(word);
+	      tspan.text(line.join(" "));
+	      if (tspan.node().getComputedTextLength() > width) {
+	        line.pop();
+	        tspan.text(line.join(" "));
+	        line = [word];
+	        tspan = text.append("tspan").attr("x", 30).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+	      }
+	    }
+	  });
+	}
