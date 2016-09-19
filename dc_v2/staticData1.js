@@ -548,8 +548,8 @@ function drawButton(button1, button2, img1, img2){
                 	// if(d.time>=thisTime && d.time<=thisTime+timeMargin){
 	                	if(d.view=="workspace"){
 	                		console.log(d.view)
-	                		// return d.data;
-	                		return "images/frustration.png"	
+	                		return d.data;
+	                		// return "images/frustration.png"	
 	                	} else {
 	                		// return (btnNest1[lIndex].values[0][0].data) 
 	                	}
@@ -621,8 +621,8 @@ function drawButton(button1, button2, img1, img2){
                 .attr("xlink:href", function(d, i) {
 	                	if(d.view=="workspace"){
 	                		console.log(d.view)
-	                		return "images/frustration.png"
-	                		// return d.data;
+	                		// return "images/frustration.png"
+	                		return d.data;
 	                	} else {
 	                		// return btnNest2[tIndex].values[0][0].data//btnImg2[tIndex][0].data; 
 	                	}
@@ -790,8 +790,8 @@ function showPhotos(){
 		.attr("width", timelineImgWidth)
 		.attr("height", timelineImgHeight)
 	    .attr("xlink:href", function(d, i) {
-			return "images/frustration.png";
-			// d.data;                    	                       		
+			// return "images/frustration.png";
+			return d.data;                    	                       		
 	    })
 	    .on("click", function(d,i){
 	    	d3.select(this)
