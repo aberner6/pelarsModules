@@ -162,7 +162,7 @@ var yAxisBottom = h-200;
 		// yTop = h/2;
 	// }
 // var activateHoverbox;
-var lineHY = h/1.3; //h/2
+var lineHY = h/2; //h/2
 var durTrans = 1500;
 var yBottom = belowIcons;
 var yTop = lineHY;
@@ -419,15 +419,15 @@ $("g.axis").hide();
 	for(i=0; i<nested_data.length; i++){
 		// console.log(nested_data[i])
 		if(nested_data[i].key==types[3]){
-			// goFace(nested_face[i]); //FACE
+			goFace(nested_face[i]); //FACE
 		}
 		if(nested_data[i].key==types[1]){
-			// goIDE(nested_data[i].values); //IDE					
+			goIDE(nested_data[i].values); //IDE					
 		}
 	}
 	for(i=0; i<nested_data.length; i++){
 		if(nested_data[i].key==types[0]){ //HAND
-			// goHands(nested_data[i], nest_again[i].values);
+			goHands(nested_data[i], nest_again[i].values);
 		}
 	}	
 }
@@ -775,7 +775,8 @@ function showPhotos(){
 	    		.attr("width", timelineImgWidth)
 	    		.attr("height", timelineImgHeight)   
 			d3.select(this).each(moveToFront);
-	    })    
+	    })
+	// d3.selectAll(overview).moveToFront;    
 //mobile image data back up?
 }
 
@@ -1355,11 +1356,19 @@ function makeEdge(linkData, linkNodes, linkLinks){
 	var radius = diameter / 2;
 	var margin = 60;
 
+	var linksSVG = svgT
+		.append("g")
+		.attr("class","buttonSVG")
+		.attr("width",forcewidth)
+		.attr("height",forceheight)  
+		.style("border","1px solid white") 
+		.attr("transform", "translate(" + (forcewidth) + "," + (timeSVGH+topMargin) + ")")
+
+
   // create plot area within svg image
-    var plot = svgMain.append("g")
+    var plot = linksSVG.append("g")
         .attr("id", "plot")
         .attr("transform", "translate(" + (w/2-(radius/2)+100) + ", " + ((h/2)-(radius/2)+36) + ")");
-        // <g id="plot" transform="translate(700.4166666666666, 300.4166666666667)" 
     function drawKey(){
 		var kitColor3 = plot.append("g").attr("class","backlabels")
 				.append("circle")
@@ -1414,13 +1423,13 @@ function makeEdge(linkData, linkNodes, linkLinks){
 
     // // calculate node positions
     circleLayout(linkNodes);
-    console.log("linkNodes")
-	console.log(linkNodes);
+ //    console.log("linkNodes")
+	// console.log(linkNodes);
     // // draw edges first
     // drawLinks(graph.links);
     drawCurves(linkLinks);
-    console.log("linkLinks")
-    console.log(linkLinks)
+    // console.log("linkLinks")
+    // console.log(linkLinks)
 
     // draw nodes last
     drawNodes(linkNodes);
@@ -1453,7 +1462,7 @@ function makeEdge(linkData, linkNodes, linkLinks){
 	    var color = d3.scale.category20();
 		var radius = 5;
 //new addition
-$("#plot").hide();
+// $("#plot").hide();
 
 	// Generates a tooltip for a SVG circle element based on its ID
 	function addTooltip(circle) {
@@ -1955,7 +1964,7 @@ function showIDE(){
 
 	ardRectSVG = svgMain.append("g")
         .attr("id", "arduinoRect")
-        .attr("transform", "translate(" + (0) + ", " + (lineHY) + ")"); //yAxisBottom-forceheight+42
+        .attr("transform", "translate(" + (0) + ", " + (lineHY+20) + ")"); //yAxisBottom-forceheight+42
 
     console.log(startTime);
     console.log(endTime);
@@ -2115,7 +2124,13 @@ $("g#arduinoRect").hide();
 				return .5			
 			} else{ return 0 }	    	
 	    })
-
+	$('.logCC').tipsy({ 
+			gravity: 'nw', 
+			html: true, 
+			title: function() {
+				return "Software Manipulation";
+			}
+	});
 
 
 
@@ -2478,7 +2493,9 @@ function showPhases(phasesJSON){
 	    .outerRadius(outerRadius);
 	var labelr = radius/1.7 + 22; // radius for label anchor
 
-	var netSVG = svgMain
+	// var translateX = radius+margin;
+	// var transl
+	var netSVG = svgT
 		.append("g")
 		.attr("class","piePhase")
 		.attr("width",forcewidth)
@@ -2486,9 +2503,10 @@ function showPhases(phasesJSON){
 		.append("g")
 		.style("border","1px solid white") 
 		.style("margin-top","1px")
-		.attr("transform", "translate(" + radius+margin + "," + (timeSVGH+radius+topMargin) + ")")
+		.attr("transform", "translate(" + (radius+margin) + "," + (timeSVGH+radius+topMargin) + ")")
+		// .attr("transform", "translate(" + radius+margin + "," + (timeSVGH+radius+topMargin) + ")")
 		//new addition
-$("g.piePhase").hide()
+// $("g.piePhase").hide()
 	var pathPie = netSVG.selectAll("pathPie")
 	    .data(pie(phaseArray))
 	  	.enter().append("path")
@@ -2518,7 +2536,7 @@ $("g.piePhase").hide()
 	            // pythagorean theorem for hypotenuse
 	            h = Math.sqrt(x*x + y*y);
 	    	if ((y/h * labelr)>outerRadius/2) {
-	    		return "1.5em"
+	    		return "-.5em"
 	    	}
 			else{
 				return ("-.8em")

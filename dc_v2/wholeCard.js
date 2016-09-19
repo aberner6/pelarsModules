@@ -133,6 +133,8 @@ var timeSVG = svgMain
 	.attr("height",timeSVGH)  
 	.style("margin-top","1px");
 
+// var forcewidth = w/3-15;
+// var forceheight = h/3.5;
 var buttonSVG = svgMain
 // d3.select("#ardinfo")
 	.append("g")

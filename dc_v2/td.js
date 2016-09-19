@@ -5,6 +5,11 @@ revealDocu(){
 //phase pie
 $("g.piePhase").hide()
 
+	var netSVG = behindSVG
+	var linksSVG = behindSVG
+d3.select(".behind").each(moveToFront)
+// [Array[1]]
+
 
 resNote = timeSVG.selectAll(".commentIcon")
 studCommentDoc = timeSVG.selectAll(".studCommentIcon")

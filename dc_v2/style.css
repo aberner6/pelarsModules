@@ -11,8 +11,14 @@ body{
     font-weight: 100;
     src: url('assets/Fonts/Gotham-Book.otf');
 }
-.behind{
+/*.behindRect{
   display:none;
+}*/
+.svgTwo{
+  display:none;
+  position: absolute;
+  top: 0px;
+  left: 0px;
 }
 .video{
     right: 25.6%;
