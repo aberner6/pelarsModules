@@ -33,8 +33,17 @@ d3.select("#plot").selectAll(".link")
 
 
 
-
-
+//for a radial approach
+ var thetaAxes = d3.time.scale()
+        .domain([startTime, endTime])
+        .range([-Math.PI / 2, Math.PI * 1.5 ])
+dayRadii = 100;
+var buttonUse = d3.selectAll(".button1");
+var camIcon = d3.selectAll(".camIcon");
+camIcon
+	.attr("transform","translate(600,500)")
+	.attr('x',function(d){ return (Math.cos( thetaAxes( d.time ) ) * dayRadii)  })
+    .attr('y',function(d){ return (Math.sin( thetaAxes( d.time ) ) * dayRadii) })
 
 
 
