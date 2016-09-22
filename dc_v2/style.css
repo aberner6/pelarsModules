@@ -167,6 +167,12 @@ image#clip-circ:hover {
     /*transform: translate(0px,10px);*/
 }
 
+#capt:hover{
+  cursor:pointer;
+  opacity:.4;
+}
+
+
 
 image.button1{
   cursor:pointer;
@@ -174,9 +180,9 @@ image.button1{
 image.camIcon{
   cursor:pointer;
 }
-image.studCommentIcon{
+/*image.studCommentIcon{
   cursor:pointer;
-}
+}*/
 image.vidIcon{
   cursor:pointer;
 }

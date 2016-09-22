@@ -176,7 +176,7 @@ var butLineY2 = yBottom+(iconW/2)+3; //butLineY2+iconW+3)
 var butY = butLineY2-iconW/2;
 
 $(document).ready(function() {
-	// getToken(); //returns the token
+	getToken(); //returns the token
 	getData(thisSession, token);
 
 	var getNext = setInterval(function(){
@@ -872,15 +872,17 @@ function showStudDoc(){
 			var lIndex = i;
 			console.log(docuImg[lIndex]);
 
-		    var docImg = svgMain.selectAll(".clip-circ"+lIndex+"SD")
+		    var docImg = svgMain.selectAll(".SD"+lIndex)
+		    // (".clip-circ"+lIndex+"SD")
                 .data(docuImg) 
-                .attr("id","clip-circ")
+                // .attr("id","clip-circ")
                 .attr("x", timeXTrue(thisTime)-btnImgW/2)
             docImg
                 .enter()
                 .append("image")
-                .attr("class", "clip-circ"+lIndex+"SD")
-                .attr("id","clip-circ")
+                .attr("class", "SD"+lIndex)
+                // .attr("class", "clip-circ"+lIndex+"SD")
+                // .attr("id","clip-circ")
                 .attr("x", timeXTrue(thisTime)-btnImgW/2)
 				.attr("y", butY+20)
 				// .attr("y", butLineY2+btnImgH)
@@ -891,7 +893,8 @@ function showStudDoc(){
                 })
         		.attr("opacity",1);
 
-			d3.selectAll(".clip-circ"+lIndex+"SD")
+			d3.selectAll(".SD"+lIndex)
+			// .selectAll(".clip-circ"+lIndex+"SD")
 				.transition()
 				.duration(2000)
 				.attr("opacity",1)
@@ -903,7 +906,8 @@ function showStudDoc(){
 			var lIndex = i;
 			var thisTime = thisData[0][0].__data__.time;
 
-			d3.selectAll(".clip-circ"+lIndex+"SD")
+			d3.selectAll(".SD"+lIndex)
+			// (".clip-circ"+lIndex+"SD")
 				.transition()
 				.duration(2000)
 				.attr("opacity",0)
@@ -912,30 +916,30 @@ function showStudDoc(){
                 .attr("x", timeXTrue(thisTime)-btnImgW/2)
 				.attr("y", butY+20)
 				// .attr("y", butLineY2-btnImgH)
-		})
-		.on("click", function(d,i){
-			var lIndex = i;
-			d3.selectAll(".clip-circ"+lIndex+"SD")
-				.transition()
-				.duration(500)
-				.attr("width", bigImgWidth)
-				.attr("height", bigImgHeight)
-	    		.attr("x", function(d,i){
-	    			if(timeXTrue(d.time)-bigImgWidth/2<leftMargin){
-	    				console.log("under left edge")
-	    				return leftMargin;
-	    			}
-	    			else if(timeXTrue(d.time)-bigImgWidth/2>(w-rightMargin-bigImgWidth)){
-	    				console.log("over right edge")
-	    				return w-rightMargin-bigImgWidth;
-	    			}
-	    			else{
-	    				return timeXTrue(d.time)-bigImgWidth/2;
-	    			}
-	    		})
-	    		.attr("y", timelineImgY-bigImgHeight+bigImgHeight/4)
-				.attr("opacity",1)			
 		});
+		// .on("click", function(d,i){
+		// 	var lIndex = i;
+		// 	d3.selectAll(".clip-circ"+lIndex+"SD")
+		// 		.transition()
+		// 		.duration(500)
+		// 		.attr("width", bigImgWidth)
+		// 		.attr("height", bigImgHeight)
+	 //    		.attr("x", function(d,i){
+	 //    			if(timeXTrue(d.time)-bigImgWidth/2<leftMargin){
+	 //    				console.log("under left edge")
+	 //    				return leftMargin;
+	 //    			}
+	 //    			else if(timeXTrue(d.time)-bigImgWidth/2>(w-rightMargin-bigImgWidth)){
+	 //    				console.log("over right edge")
+	 //    				return w-rightMargin-bigImgWidth;
+	 //    			}
+	 //    			else{
+	 //    				return timeXTrue(d.time)-bigImgWidth/2;
+	 //    			}
+	 //    		})
+	 //    		.attr("y", timelineImgY-bigImgHeight+bigImgHeight/4)
+		// 		.attr("opacity",1)			
+		// });
 
 	var docLine = timeSVG.selectAll(".docL")	
 		.data(docuImg)
@@ -1055,14 +1059,18 @@ function showStudDoc(){
 	// 		title: function() {
 	// 			var dis = this.__data__;
 	// 	  		var url1 = dis.data+"?token="+token;
-	// 			console.log(dis);
+	// 	  		// var captionDoc;
+	// 	  		// func1(url1);
+	// 			// console.log(dis.data);
+	// 			// return dis.data;
 	// 			var deferit = $.Deferred();
 	// 			deferit
 	// 			  .done(func1)
 	// 			deferit.resolve();
-	// 			function func1(){
+	// 			function func1(url1){
 	// 				$.get(url1, function(capt){
 	// 					captionDoc = capt;
+	// 					// return capt;
 	// 				})
 	// 			}
 	// 				return captionDoc;
