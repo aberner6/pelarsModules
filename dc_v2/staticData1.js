@@ -1,6 +1,5 @@
 var dataaccess = {}
 
-var token = 0;
 
 var overview;
 var timelineImgWidth = 60; //(w/imgData[0].length)*6;
@@ -182,6 +181,7 @@ function dataStart() {
 			timeout : 2000,
 			dataType: "json",
 			type : "GET",
+			crossDomain: true,
 			url : url,
 			async: false,
 			success : function(result) { 
@@ -196,8 +196,8 @@ function dataStart() {
 		dataaccess = {
 			getToken: function () {} ,
 			getData: function (session,fx) { $.getJSONSync("data/data1.json",fx); },
-			getContent: function (session,fx) { $.getJSONSync("data/content.json",fx); },
-			getPost: function (session,fx) { $.getJSONSync("data/postSession.json",fx); },
+			getContent: function (session,fx) { $.getJSONSync("data/postSession.json",fx); },
+			getContextContent: function (session,fx) { $.getJSONSync("data/content.json",fx); },
 			getMultimedias: function (session,fx) { $.getJSONSync("data/multimedia.json",fx); },
 			getPhases: function (session,fx) { $.getJSONSync("data/phaseData.json",fx); },
 			getLastSession: function () { return 1593 },
@@ -210,10 +210,10 @@ function dataStart() {
 	else
 	{
 		dataaccess = {
-			getToken: function () { pelars_getToken() } ,
+			getToken: pelars_getToken ,
 			getData: function (session,fx) { pelars_getData(session,fx) },
 			getContent: function (session,fx) { pelars_getContent(session,fx) },
-			getPost: function (session,fx) { pelars_getPost(session,fx) },
+			getContextContent: function (session,fx) { $.getJSONSync("data/content.json",fx); },
 			getPhases: function (session,fx) { pelars_getPhases(session,fx) },
 			getSnapshot(session,time,fx) { pelars_getSnapshot(session,time,fx); },
 			getLastSession: function () { return pelars_getLastSession() },
@@ -221,7 +221,6 @@ function dataStart() {
 			getMultimedia: function (session,id,fx) { pelars_getMultimedia(session,id,fx) }
 		}		
 	}
-
 	dataaccess.getToken()
 	if(thisSession == "last")
 		thisSession = dataaccess.getLastSession()
@@ -305,40 +304,55 @@ var seshProxMean = sessionHandProx;
 var seshSpeedMean = sessionHandSpeed;
 var allSpeedMax, allSpeedMean, allProxMean;
 var allFaceProx, allPresence, allScreen;
-var allSpeedMin, allProxMin, allFaceMin, allPresenceMin, allPresenceMax, allScreenMax, allScreenMin;
+var allSpeedMin, allProxMin, allProxMax;
+var allFaceMin, allFaceMax;
+var allPresenceMin, allPresenceMax, allScreenMax, allScreenMin;
 
 function getOverallValues(thisSession) {
 	//NEEDS TO BE SYNCED WITH SERVER
 	//not online
-	dataaccess.getContent(thisSession, function(json)
+	dataaccess.getContextContent(thisSession, function(json)
 	{
 		overallVals = json;
-		allSpeedMax = overallVals.hand_speed.max;
-		allSpeedMean = overallVals.hand_speed.mean;
-		allProxMax = overallVals.hand_distance.max;
-		allProxMean = overallVals.hand_distance.mean;
+		if(overallVals.hand_speed)
+		{
+			allSpeedMax = overallVals.hand_speed.max;
+			allSpeedMean = overallVals.hand_speed.mean;
+			allSpeedMin = overallVals.hand_speed.min;
+		}
+		else
+		{
 
-		allFaceMax = overallVals.face_distance.max;
-		allFaceProx = overallVals.face_distance.mean;
+		}
+		if(overallVals.hand_distance)
+		{
+			allProxMax = overallVals.hand_distance.max;
+			allProxMean = overallVals.hand_distance.mean;
+			allProxMin = overallVals.hand_distance.min;
+		}
 
-		allPresence = overallVals.presence.mean;
-		allScreen = overallVals.time_looking.mean;
+		if(overallVals.face_distance)
+		{
+			allFaceMax = overallVals.face_distance.max;
+			allFaceProx = overallVals.face_distance.mean;
+			allFaceMin = overallVals.face_distance.min;
+		}
 
-
-		allSpeedMin = overallVals.hand_speed.min;
-		allProxMin = overallVals.hand_distance.min;
-
-		allFaceMin = overallVals.face_distance.min;
-
-		allPresenceMin = overallVals.presence.min;
-		allPresenceMax = overallVals.presence.max;
-
-		allScreenMax = overallVals.time_looking.max;
-		allScreenMin = overallVals.time_looking.min;
-
+		if(overallVals.presence)
+		{
+			allPresence = overallVals.presence.mean;
+			allPresenceMin = overallVals.presence.min;
+			allPresenceMax = overallVals.presence.max;
+		}
+		if(overallVals.time_looking)
+		{
+			allScreen = overallVals.time_looking.mean;
+			allScreenMax = overallVals.time_looking.max;
+			allScreenMin = overallVals.time_looking.min;
+		}
 	})
 
-	dataaccess.getPost(thisSession,function(json){
+	dataaccess.getContent(thisSession,function(json){
 		sessionVals = json;
 		for (i=0; i<json.length; i++){
 			if(json[i].name=="aftersession_hand_speed"){
@@ -377,13 +391,6 @@ function getMulti(session)
 }
 
 
-// var mobileData = [];
-// function mobileImages(thisSession,token){
-// 	$.getJSON("http://pelars.sssup.it:8080/pelars/multimedia/"+thisSession+"/mobile?token="+token,function(mobileJSON){
-// 		mobileData.push(mobileJSON);
-// 		console.log(mobileData+"mobile data");
-// 	})
-// }
 var phaseData;
 function getPhases(session) {
 	dataaccess.getPhases(session, function(phasesJSON){
@@ -489,6 +496,7 @@ function parseButton(session,incomingData){
 	for(i=0; i<button1.length; i++){
 		// $.getJSON("data/button1.json", function(json){
 			dataaccess.getSnapshot(session,(button1[i].time/1000000000000)+"E12", function(json){
+				console.log("PUSHING Snapshot "+json)
 				btnImg1.push(json);
 			})
 		}
@@ -496,6 +504,7 @@ function parseButton(session,incomingData){
 		for(i=0; i<button2.length; i++){
 		// $.getJSON("data/button2.json", function(json){
 			dataaccess.getSnapshot(session,(button2[i].time/1000000000000)+"E12", function(json){
+				console.log("PUSHING Snapshot "  + json)
 				btnImg2.push(json);
 			})
 		}
@@ -722,7 +731,7 @@ iconBut1.enter()
 		// 	})
 		// }
 		for(i=0; i<docuNote.length; i++){
-			var url1 = docuNote[i].data+"?token="+token;
+			var url1 = docuNote[i].data+"?token="+pelarstoken;
 			$.get(url1, function(caption){
 				studentCaptions.push(caption)
 			})
@@ -1862,7 +1871,7 @@ if(three.length>0){
 	//which is the most active
 
 //should the max just be represented as the max value for Y?
-var BigMax = overallVals.hand_speed.mean;
+var BigMax = !overallVals.hand_speed ? 0 : overallVals.hand_speed.mean;
 
 yActivePath = d3.scale.linear()
 .domain([0,maxActiveOverall])
