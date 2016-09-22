@@ -587,10 +587,10 @@ iconBut1.enter()
                 .attr("xlink:href", function(d, i) {
                 	console.log(d.view);
                 	// if(d.time>=thisTime && d.time<=thisTime+timeMargin){
-                		if(d.view=="workspace"){
-                			console.log(d.view)
-                			return d.data;
-	                		// return "images/frustration.png"
+	                	if(d.view=="workspace"){
+	                		console.log(d.view)
+	                		// return d.data;
+	                		return "images/frustration.png"	
 	                	} else {
 	                		// return (btnNest1[lIndex].values[0][0].data)
 	                	}
@@ -660,10 +660,10 @@ iconBut1.enter()
                 .attr("height", btnImgH)
                 .attr("opacity",1)
                 .attr("xlink:href", function(d, i) {
-                	if(d.view=="workspace"){
-                		console.log(d.view)
-	                		// return "images/frustration.png"
-	                		return d.data;
+	                	if(d.view=="workspace"){
+	                		console.log(d.view)
+	                		return "images/frustration.png"
+	                		// return d.data;
 	                	} else {
 	                		// return btnNest2[tIndex].values[0][0].data//btnImg2[tIndex][0].data;
 	                	}
@@ -771,8 +771,13 @@ iconBut1.enter()
 // 				docuImg.push(imgData[0][i]);
 // 			}
 // 		}
-// ////online version
 // 	function processURL(){
+// 		// for(i=0; i<researcherNote.length; i++){
+// 		// 	var url1 = researcherNote[i].data+"?token="+token;
+// 		// 	$.get(url1, function(caption){
+// 		// 		researcherCaptions.push(caption)
+// 		// 	})
+// 		// }
 // 		for(i=0; i<docuNote.length; i++){
 // 			var url1 = docuNote[i].data+"?token="+token;
 // 			$.get(url1, function(caption){
@@ -803,8 +808,59 @@ iconBut1.enter()
 // 	// 		showStudDoc();
 // 	// 		clearInterval(imageProcessing);
 // 	// 	}
-// 	// }, 3000);
 // }
+function parsePhotos(multiData){
+	imgData = multiData;
+	var captionsText = [];
+	console.log(multiData.length+"multiData length - photos");
+		for(i=0; i<imgData[0].length; i++){
+			if(imgData[0][i].creator=="client" && imgData[0][i].type=="image" && imgData[0][i].view=="workspace"){
+				autoImg.push(imgData[0][i]);
+			}
+			// if(imgData[0][i].creator=="observer" && imgData[0][i].type=="text"){
+			// 	researcherNote.push(imgData[0][i]);
+			// }
+			if(imgData[0][i].creator=="student" && imgData[0][i].type=="text"){
+				docuNote.push(imgData[0][i])
+			}
+			if(imgData[0][i].creator=="student" && imgData[0][i].type=="image"){
+				docuImg.push(imgData[0][i]);
+			}
+		}
+////online version
+	// function processURL(){
+	// 	for(i=0; i<docuNote.length; i++){
+	// 		var url1 = docuNote[i].data+"?token="+token;
+	// 		$.get(url1, function(caption){
+	// 			studentCaptions.push(caption)
+	// 		})
+	// 	}
+	// }
+	// var urlProcessing = setInterval(function(){  //returns the session		
+	// 	if(autoImg.length>0 && docuImg.length>0 && docuNote.length>0){ //&& researcherNote.length>0
+	// 		console.log(docuImg.length+"docuImg length")
+	// 		processURL();
+	// 		clearInterval(urlProcessing);	
+	// 	}
+	// }, 1000);
+	// var imageProcessing = setInterval(function(){  //returns the session		
+	// 	if(studentCaptions.length>0){ //researcherCaptions.length>0 && 
+	// 		console.log(studentCaptions.length+"studentCaptions length")
+	// 		showPhotos();
+	// 		showStudDoc();
+	// 		clearInterval(imageProcessing);	
+	// 	}
+	// }, 3000);
+//	//online version	
+	var imageProcessing = setInterval(function(){  //returns the session		
+		if(autoImg.length>0){ //researcherCaptions.length>0 && 
+			// console.log(studentCaptions.length+"studentCaptions length")
+			showPhotos();
+			showStudDoc();
+			clearInterval(imageProcessing);	
+		}
+	}, 3000);	
+}
 
 //then make it so you can click right and x out?
 function showPhotos(){
@@ -830,33 +886,33 @@ overview
 		// .attr("y", timelineImgY)  //622//yAxisBottom-timelineImgHeight+40
 		.attr("width", timelineImgWidth)
 		.attr("height", timelineImgHeight)
-		.attr("xlink:href", function(d, i) {
-			// return "images/frustration.png";
-			return d.data;
-		})
-		.on("click", function(d,i){
-			d3.select(this)
-			.transition()
-			.duration(500)
-			.attr("x", function(d,i){
-				if(timeX(d.time)-bigImgWidth/2<leftMargin){
-					console.log("under left edge")
-					return leftMargin;
-				}
-				else if(timeX(d.time)-bigImgWidth/2>(w-rightMargin-bigImgWidth)){
-					console.log("over right edge")
-					return w-rightMargin-bigImgWidth;
-				}
-				else{
-					return timeX(d.time)-bigImgWidth/2;
-				}
-			})
-			.attr("y", lineHY-bigImgHeight+bigImgHeight/4)
-			.attr("width",bigImgWidth)
-			.attr("height",bigImgHeight)
-			.transition()
-			.delay(2000)
-			.attr("x", function(d){
+	    .attr("xlink:href", function(d, i) {
+			return "images/frustration.png";
+			// return d.data;                    	                       		
+	    })
+	    .on("click", function(d,i){
+	    	d3.select(this)
+	    		.transition()
+	    		.duration(500)
+	    		.attr("x", function(d,i){
+	    			if(timeX(d.time)-bigImgWidth/2<leftMargin){
+	    				console.log("under left edge")
+	    				return leftMargin;
+	    			}
+	    			else if(timeX(d.time)-bigImgWidth/2>(w-rightMargin-bigImgWidth)){
+	    				console.log("over right edge")
+	    				return w-rightMargin-bigImgWidth;
+	    			}
+	    			else{
+	    				return timeX(d.time)-bigImgWidth/2;
+	    			}
+	    		})
+	    		.attr("y", lineHY-bigImgHeight+bigImgHeight/4)
+	    		.attr("width",bigImgWidth)
+	    		.attr("height",bigImgHeight)
+	    		.transition()
+	    		.delay(2000)
+	    		.attr("x", function(d){
 	    			// console.log(d+"image clicked")
 	    			return timeX(d.time)-timelineImgWidth/4;
 	    		})
@@ -913,26 +969,29 @@ function showStudDoc(){
 			var lIndex = i;
 			console.log(docuImg[lIndex]);
 
-			var docImg = svgMain.selectAll(".clip-circ"+lIndex+"SD")
-			.data(docuImg)
-			.attr("id","clip-circ")
-			.attr("x", timeXTrue(thisTime)-btnImgW/2)
-			docImg
-			.enter()
-			.append("image")
-			.attr("class", "clip-circ"+lIndex+"SD")
-			.attr("id","clip-circ")
-			.attr("x", timeXTrue(thisTime)-btnImgW/2)
-			.attr("y", butY+20)
+		    var docImg = svgMain.selectAll(".SD"+lIndex)
+		    // (".clip-circ"+lIndex+"SD")
+                .data(docuImg) 
+                // .attr("id","clip-circ")
+                .attr("x", timeXTrue(thisTime)-btnImgW/2)
+            docImg
+                .enter()
+                .append("image")
+                .attr("class", "SD"+lIndex)
+                // .attr("class", "clip-circ"+lIndex+"SD")
+                // .attr("id","clip-circ")
+                .attr("x", timeXTrue(thisTime)-btnImgW/2)
+				.attr("y", butY+20)
 				// .attr("y", butLineY2+btnImgH)
 				.attr("width", btnImgW)
 				.attr("height", btnImgH)
 				.attr("xlink:href", function(d, i) {
-					return docuImg[lIndex].data;
+					return docuImg[lIndex].data+"?token="+pelarstoken;
 				})
 				.attr("opacity",1);
 
-				d3.selectAll(".clip-circ"+lIndex+"SD")
+			d3.selectAll(".SD"+lIndex)
+			// .selectAll(".clip-circ"+lIndex+"SD")
 				.transition()
 				.duration(2000)
 				.attr("opacity",1)
@@ -944,39 +1003,41 @@ function showStudDoc(){
 			var lIndex = i;
 			var thisTime = thisData[0][0].__data__.time;
 
-			d3.selectAll(".clip-circ"+lIndex+"SD")
-			.transition()
-			.duration(2000)
-			.attr("opacity",0)
-			.attr("width", btnImgW)
-			.attr("height", btnImgH)
-			.attr("x", timeXTrue(thisTime)-btnImgW/2)
-			.attr("y", butY+20)
+
+			d3.selectAll(".SD"+lIndex)
+			// (".clip-circ"+lIndex+"SD")
+				.transition()
+				.duration(2000)
+				.attr("opacity",0)
+				.attr("width", btnImgW)
+				.attr("height", btnImgH)
+                .attr("x", timeXTrue(thisTime)-btnImgW/2)
+				.attr("y", butY+20)
 				// .attr("y", butLineY2-btnImgH)
-			})
-		.on("click", function(d,i){
-			var lIndex = i;
-			d3.selectAll(".clip-circ"+lIndex+"SD")
-			.transition()
-			.duration(500)
-			.attr("width", bigImgWidth)
-			.attr("height", bigImgHeight)
-			.attr("x", function(d,i){
-				if(timeXTrue(d.time)-bigImgWidth/2<leftMargin){
-					console.log("under left edge")
-					return leftMargin;
-				}
-				else if(timeXTrue(d.time)-bigImgWidth/2>(w-rightMargin-bigImgWidth)){
-					console.log("over right edge")
-					return w-rightMargin-bigImgWidth;
-				}
-				else{
-					return timeXTrue(d.time)-bigImgWidth/2;
-				}
-			})
-			.attr("y", timelineImgY-bigImgHeight+bigImgHeight/4)
-			.attr("opacity",1)
 		});
+		// .on("click", function(d,i){
+		// 	var lIndex = i;
+		// 	d3.selectAll(".clip-circ"+lIndex+"SD")
+		// 		.transition()
+		// 		.duration(500)
+		// 		.attr("width", bigImgWidth)
+		// 		.attr("height", bigImgHeight)
+	 //    		.attr("x", function(d,i){
+	 //    			if(timeXTrue(d.time)-bigImgWidth/2<leftMargin){
+	 //    				console.log("under left edge")
+	 //    				return leftMargin;
+	 //    			}
+	 //    			else if(timeXTrue(d.time)-bigImgWidth/2>(w-rightMargin-bigImgWidth)){
+	 //    				console.log("over right edge")
+	 //    				return w-rightMargin-bigImgWidth;
+	 //    			}
+	 //    			else{
+	 //    				return timeXTrue(d.time)-bigImgWidth/2;
+	 //    			}
+	 //    		})
+	 //    		.attr("y", timelineImgY-bigImgHeight+bigImgHeight/4)
+		// 		.attr("opacity",1)			
+		// });
 
 		var docLine = timeSVG.selectAll(".docL")
 		.data(docuImg)
@@ -1096,14 +1157,18 @@ function showStudDoc(){
 	// 		title: function() {
 	// 			var dis = this.__data__;
 	// 	  		var url1 = dis.data+"?token="+token;
-	// 			console.log(dis);
+	// 	  		// var captionDoc;
+	// 	  		// func1(url1);
+	// 			// console.log(dis.data);
+	// 			// return dis.data;
 	// 			var deferit = $.Deferred();
 	// 			deferit
 	// 			  .done(func1)
 	// 			deferit.resolve();
-	// 			function func1(){
+	// 			function func1(url1){
 	// 				$.get(url1, function(capt){
 	// 					captionDoc = capt;
+	// 					// return capt;
 	// 				})
 	// 			}
 	// 				return captionDoc;
@@ -1304,7 +1369,6 @@ for(i=0; i<ide_nest2.length; i++){
 			}
 		}
 	}
-	console.log(links)
 
 	var circle, path, text;
 	var force;
@@ -1454,7 +1518,14 @@ function makeEdge(linkData, linkNodes, linkLinks){
 	.style("border","1px solid white")
 	.attr("transform", "translate(" + (forcewidth) + "," + (timeSVGH+topMargin-250) + ")")
 
-
+	d3.select(".buttonSVG").append("text")
+		.attr("class","buttonCaption")
+		.attr("x",0)
+		.attr("y",0)
+		.attr("text-anchor","middle")
+		 .attr("transform", "translate(" + (w/2-12) + ", " + ((h/2)-radius-40) + ")")	
+	 	.text("Links You Made in Your Program")
+		.attr("fill","#3d3d3c")
   // create plot area within svg image
   var plot = linksSVG.append("g")
   .attr("id", "plot")
@@ -1659,46 +1730,84 @@ function makeEdge(linkData, linkNodes, linkLinks){
 	    .attr("d", curve);
 	}
     drawKey(); //should be in the right position
-    var thisH = timeSVGH+topMargin-250;
-    var descripSVG = svgT
-    .append("g")
-    .attr("class","descripSVG")
-    .attr("width",forcewidth)
-    .attr("height",forceheight)
-    .attr("transform", "translate(" + (forcewidth) + "," + (thisH*2) + ")")
 
-    var descripRect = descripSVG.append("rect")
-    .attr("width",forcewidth)
-    .attr("height",forceheight*1.5)
-    .attr("class","descripRect")
-    .attr("x",5)
-    .attr("y",0)
-    .attr("fill","none").attr("stroke","lightgrey")
-    var moreOrLessHands;
-    if(sessionHandProx> allProxMax){
-    	moreOrLessHands = "MORE";
-    } else{
-    	moreOrLessHands = "LESS";
-    }
-    var moreOrLessFace;
-    if(sessionFaceProx> allFaceProx){
-    	moreOrLessFace= "MORE";
-    } else{
-    	moreOrLessFace = "LESS";
-    }
-    var descriptionCaption = descripSVG.append("text")
-    .attr("id","description")
-    .attr("class","descripCapt")
-    descriptionCaption
-    .attr("x", forcewidth/4)
-    .attr("y", thisH/4)
-    .attr("font-size",12)
-    .attr("dy", "4.5em")
-    .attr("opacity",1)
-    .text("In this session, the PELARS system observed that you used the following hardware elements: "+uniqueHards+" and the following software elements: "+uniqueSofts+" . The difference in usage of these elements - that is, the items you used in only software, were "+diffSoftHard+ ". You pressed the lightbulb button a total of "+button1.length+" times"+" and pressed the stormcloud a total of "+button2.length+" times. In the system's observation of your hand movements, we noticed that your group's hands were "+moreOrLessHands+" usual proximity to one another. Your group's faces were "+moreOrLessFace+" close to one another. See below for further statistics on these averages.")
-    .call(wrap2, forcewidth-20);
+	var descripRect = descripSVG.append("rect")
+		.attr("width",forcewidth)
+		.attr("height",forceheight*1.5)
+		.attr("class","descripRect")
+		.attr("x",5)
+		.attr("y",0)
+		.attr("fill","none").attr("stroke","lightgrey")
+
+
+	var clickLine = descripSVG.append("line")
+		.attr("class","clickThis")
+		.attr("x1",4)
+		.attr("x2",forcewidth/2-forcewidth/8)
+		.attr("y1",0)
+		.attr("y2",forceheight-forceheight/4)
+		.attr("stroke","grey");
+
+	var clickLine2 = descripSVG.append("line")
+		.attr("class","clickThis")
+		.attr("x1",forcewidth)
+		.attr("x2",forcewidth/2+forcewidth/8)
+		.attr("y1",0)
+		.attr("y2",forceheight-forceheight/4)
+		.attr("stroke","grey");
+
+	var clickRect = descripSVG.append("rect")
+		.attr("class","clickThis")
+		.attr("width",forcewidth/4)
+		.attr("height",forceheight/4)
+		.attr("x",forcewidth/2-forcewidth/8)
+		.attr("y",forceheight-forceheight/4)
+		.attr("fill","lightgray");
+
+	var clickText = descripSVG.append("text")
+		.attr("class","clickThis")
+		.attr("x",forcewidth/2)
+		.attr("y",forceheight-forceheight/8)
+		.attr("fill","white")
+		.attr("text-anchor","middle")
+		.text("PROJECT SUMMARY");
+
+	$(".clickThis").on("click", function(){
+		showSummary();
+		// clickedSummary = true;
+		$(".clickThis").hide();
+	});
+	// if(clickedSummary ==true){
+	// 	$(".clickThis").hide();
+	// }
 }
+function showSummary(){
+	var moreOrLessHands;
+	if(sessionHandProx> allProxMax){
+		moreOrLessHands = "MORE";
+	} else{
+		moreOrLessHands = "LESS";
+	}
+	var moreOrLessFace;
+	if(sessionFaceProx> allFaceProx){
+		moreOrLessFace= "MORE";
+	} else{
+		moreOrLessFace = "LESS";
+	}
+	var descriptionCaption = descripSVG.append("text")
+		.attr("id","description")
+		.attr("class","descripCapt")
+		descriptionCaption
+	      .attr("x", forcewidth/4)
+	      .attr("y", thisH/4)
+	      .attr("font-size",12)
+	      .attr("dy", "4.5em")
+	      .attr("opacity",1)
+	      .text("In this session, the PELARS system observed that you used the following hardware elements: "+uniqueHards+" and the following software elements: "+uniqueSofts+" . The difference in usage of these elements - that is, the items you used in only software, were "+diffSoftHard+ ". You pressed the lightbulb button a total of "+button1.length+" times"+" and pressed the stormcloud a total of "+button2.length+" times. In the system's observation of your hand movements, we noticed that your group's hands were "+moreOrLessHands+" usual proximity to one another. Your group's faces were "+moreOrLessFace+" close to one another. See below for further statistics on these averages.")
+          .call(wrap2, forcewidth-20);
 
+
+}
 var maxActiveOverall;
 var maxActive1, maxActive2, maxActive3;
 var pathActive1, lineActive1, pathActive2, lineActive2, pathActive3, lineActive3, pathActive0, lineActive0;
@@ -2633,6 +2742,13 @@ function showPhases(session,phasesJSON){
 	.style("margin-top","1px")
 	.attr("transform", "translate(" + (radius+margin) + "," + (timeSVGH+radius+topMargin-100) + ")")
 		// .attr("transform", "translate(" + radius+margin + "," + (timeSVGH+radius+topMargin) + ")")
+	d3.select(".piePhase").append("text")
+		.attr("class","pieCaption")
+		.attr("x",0)
+		.attr("y",0).attr("transform", "translate(" + (w/6) + ", " + ((h/4+80)) + ")")	
+		.attr("text-anchor","middle")
+	 	.text("How Long You Spent in Phases")
+		.attr("fill","#3d3d3c")
 		//new addition
 // $("g.piePhase").hide()
 var pathPie = netSVG.selectAll("pathPie")
@@ -2676,26 +2792,27 @@ var label_group = netSVG.append("svg:g")
 		y = c[1],
 	            // pythagorean theorem for hypotenuse
 	            h = Math.sqrt(x*x + y*y);
-	            if ((x/h * labelr)>outerRadius/2) {
-	            	return "1.5em"
-	            }
-	            else{
-	            	return ("-2.5em")
-	            }
-	        })
-	.attr("text-anchor", "middle")
-	.text(function(d, i) {
-		if(i==0){
-			return "Plan"
-		}
-		if(i==1){
-			return "Document"
-		}
-		if(i==2){
-			return "Reflect"
-		}
-	})
-	.attr("fill", function(d, i) { return color[i]; })
+
+	    	if ((x/h * labelr)>outerRadius/2) {
+	    		return "1.5em"
+	    	}
+			else{
+				return ("-2.5em")
+			}
+	    })
+	    .attr("text-anchor", "middle")
+	    .text(function(d, i) { 
+	    	if(i==0){
+	    		return "Plan"
+	    	}
+	    	if(i==1){
+	    		return "Build"
+	    	}
+	    	if(i==2){
+	    		return "Reflect"
+	    	}
+	    })
+	    .attr("fill", function(d, i) { return color[i]; })
 
 	obs = cleanArray(obs)
 
@@ -2808,67 +2925,83 @@ function overallStats(){
 			.attr("y", totalLabelY)
 			.text(whichType);
 
-			hoverbox.classed("hidden", false);
-		}
-		var statsR;
-		var seshCol = "red";
-		function showStats(){
-
+		hoverbox.classed("hidden", false);
+}
+var statsR;
+var seshCol = "red";
+function showStats(){
+var rectW = smallWidth;
 // var leftThird = rectWidth;//center-(rectWidth/2);
 // var rightThird = w-rectWidth*2; //center+(rectWidth/2);
 
-var statsNames = [];
-statsNames.push("Hands Speed","Hands Proximity", "Faces Proximity","Present at Table","Looking at Screen");
-var stRectScale = d3.scale.ordinal()
-.domain(statsNames)
-.rangePoints([leftThird, rightThird])
+	var statsNames = [];
+	statsNames.push("Hands Speed","Hands Proximity", "Faces Proximity","Present at Table","Looking at Screen");	
+	var stRectScale = d3.scale.ordinal()
+		.domain(statsNames)
+		.rangePoints([center-rectWidth, center+rectWidth])
 
-statsR = svgT.append("g").selectAll(".statsRects")
-.data(statsNames)
-.enter()
-.append("g")
-.attr("class", "statsRects")
-.attr("transform", function(d, i) {
+	statsR = svgT.append("g").selectAll(".statsRects")
+		.data(statsNames)
+		.enter()
+		.append("g")
+		.attr("class", "statsRects") 
+      	.attr("transform", function(d, i) { 
       		// console.log(d);
       		var x = stRectScale(d); //-leftMargin; //-rectWidth/2
-			var y = yAxisBottom+70; //specialHeight+specialHeight/2+4; //-topMargin/2;
-			return "translate(" + x + "," + y + ")";
-		});
+			var y = belowIcons;//yAxisBottom+70; //specialHeight+specialHeight/2+4; //-topMargin/2;
+      		return "translate(" + x + "," + y + ")"; 
+      	});
 
-var origStroke = 2;
-var statsRects = statsR.append("rect")
-.attr("id","statsRectangle")
-.attr("class",function(d,i){
-	return i;
-})
-.attr("width", rectWidth)
-.attr("height", rectHeight/4)
-.attr("fill","none")
-.attr("stroke","none")
+    var origStroke = 2;
+  	var statsRects = statsR.append("rect")
+		.attr("id","statsRectangle")
+		.attr("class",function(d,i){
+			return i;
+		})
+		.attr("width", rectW)
+		.attr("height", rectHeight/4)
+		.attr("fill","none")
+		.attr("stroke","none")  
 		// .attr("stroke-width",1);
 
-		var statsName = statsR.append("text")
+	// var statsName = statsR.append("text")
+	// 	.attr("id","statsName")
+	// 	.attr("class",function(d,i){
+	// 		return "statsName"+i;
+	// 	})
+	//       .attr("y", 15)
+	//       .attr("dy", ".35em")
+	//       .text(function(d) { return d })
+	//       .attr("x", function(d,i){
+	//       	var adjust = $(".statsName"+i).width();
+	//       	return 0;
+	//       });	
+	var statsName = statsR.append("text")
 		.attr("id","statsName")
 		.attr("class",function(d,i){
 			return "statsName"+i;
 		})
-		.attr("y", 15)
-		.attr("dy", ".35em")
-		.text(function(d) { return d })
-		.attr("x", function(d,i){
-			var adjust = $(".statsName"+i).width();
-			return rectWidth/2-adjust/2;
-		});
+	      .attr("y", 15)
+	      .attr("dy", ".35em")
+			.attr("text-anchor","middle")
+	      .attr("x", smallWidth/2)
+	      .text(function(d) { return d })
+	      // 	function(d,i){
+	      // 	var adjust = $(".statsName"+i).width();
+	      // 	return rectW/2-adjust/2;
+	      // });	
 
-		var statsX = d3.scale.linear()
-		.range([10, rectWidth-20])
+
+
+	var statsX = d3.scale.linear()
+		.range([10, rectW-20])
 
 		var totY = 24;
 		var totH = rectHeight/8;
 		var statsTotal = statsR.append("rect")
 		.attr("class","full")
 		.attr("x", 10).attr("y",totY)
-		.attr("width",rectWidth-20)
+		.attr("width",rectW-20)
 		.attr("height",totH)
 		.attr("fill","none")
 		.attr("stroke",darkColor);
@@ -3306,6 +3439,30 @@ function cleanArray(actual) {
 return newArray;
 }
 
+	function wrap2(text, width) {
+	  text.each(function() {
+	    var text = d3.select(this),
+	        words = text.text().split(/\s+/).reverse(),
+	        word,
+	        line = [],
+	        lineNumber = 0,
+	        lineHeight = 1.5, // ems
+	        y = text.attr("y"),
+	        dy = parseFloat(text.attr("dy")),
+	        tspan = text.text(null).append("tspan").attr("x", 30).attr("y", y).attr("dy", dy + "em");
+	    while (word = words.pop()) {
+	      line.push(word);
+	      tspan.text(line.join(" "));
+	      if (tspan.node().getComputedTextLength() > width) {
+	        line.pop();
+	        tspan.text(line.join(" "));
+	        line = [word];
+	        tspan = text.append("tspan").attr("x", 30).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+	      }
+	    }
+	  });
+	}
+
 function moveAllToFront(){
 	d3.selectAll(".button1").each(moveToFront);
 	d3.selectAll(".button2").each(moveToFront);
@@ -3318,26 +3475,3 @@ var moveToFront = function() {
 	this.parentNode.appendChild(this);
 }
 
-function wrap2(text, width) {
-	text.each(function() {
-		var text = d3.select(this),
-		words = text.text().split(/\s+/).reverse(),
-		word,
-		line = [],
-		lineNumber = 0,
-	        lineHeight = 1.5, // ems
-	        y = text.attr("y"),
-	        dy = parseFloat(text.attr("dy")),
-	        tspan = text.text(null).append("tspan").attr("x", 30).attr("y", y).attr("dy", dy + "em");
-	        while (word = words.pop()) {
-	        	line.push(word);
-	        	tspan.text(line.join(" "));
-	        	if (tspan.node().getComputedTextLength() > width) {
-	        		line.pop();
-	        		tspan.text(line.join(" "));
-	        		line = [word];
-	        		tspan = text.append("tspan").attr("x", 30).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
-	        	}
-	        }
-	    });
-}

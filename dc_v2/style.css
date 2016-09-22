@@ -20,6 +20,12 @@ body{
   top: 0px;
   left: 0px;
 }
+.clickThis{
+  cursor:pointer;
+}
+.clickThis:hover{
+  opacity:.3;
+}
 .video{
     right: 25.6%;
     top: 26%;
@@ -161,6 +167,12 @@ image#clip-circ:hover {
     /*transform: translate(0px,10px);*/
 }
 
+#capt:hover{
+  cursor:pointer;
+  opacity:.4;
+}
+
+
 
 image.button1{
   cursor:pointer;
@@ -168,9 +180,9 @@ image.button1{
 image.camIcon{
   cursor:pointer;
 }
-image.studCommentIcon{
+/*image.studCommentIcon{
   cursor:pointer;
-}
+}*/
 image.vidIcon{
   cursor:pointer;
 }
