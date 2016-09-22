@@ -1413,7 +1413,14 @@ function makeEdge(linkData, linkNodes, linkLinks){
 		.style("border","1px solid white") 
 		.attr("transform", "translate(" + (forcewidth) + "," + (timeSVGH+topMargin-250) + ")")
 
-
+	d3.select(".buttonSVG").append("text")
+		.attr("class","buttonCaption")
+		.attr("x",0)
+		.attr("y",0)
+		.attr("text-anchor","middle")
+		 .attr("transform", "translate(" + (w/2-12) + ", " + ((h/2)-radius-40) + ")")	
+	 	.text("Links You Made in Your Program")
+		.attr("fill","#3d3d3c")
   // create plot area within svg image
     var plot = linksSVG.append("g")
         .attr("id", "plot")
@@ -1618,13 +1625,6 @@ function makeEdge(linkData, linkNodes, linkLinks){
 	        .attr("d", curve);
 	}
     drawKey(); //should be in the right position
-	var thisH = timeSVGH+topMargin-250;
-	var descripSVG = svgT
-		.append("g")
-		.attr("class","descripSVG")
-		.attr("width",forcewidth)
-		.attr("height",forceheight)  
-		.attr("transform", "translate(" + (forcewidth) + "," + (thisH*2) + ")")
 
 	var descripRect = descripSVG.append("rect")
 		.attr("width",forcewidth)
@@ -1633,6 +1633,50 @@ function makeEdge(linkData, linkNodes, linkLinks){
 		.attr("x",5)
 		.attr("y",0)
 		.attr("fill","none").attr("stroke","lightgrey")
+
+
+	var clickLine = descripSVG.append("line")
+		.attr("class","clickThis")
+		.attr("x1",4)
+		.attr("x2",forcewidth/2-forcewidth/8)
+		.attr("y1",0)
+		.attr("y2",forceheight-forceheight/4)
+		.attr("stroke","grey");
+
+	var clickLine2 = descripSVG.append("line")
+		.attr("class","clickThis")
+		.attr("x1",forcewidth)
+		.attr("x2",forcewidth/2+forcewidth/8)
+		.attr("y1",0)
+		.attr("y2",forceheight-forceheight/4)
+		.attr("stroke","grey");
+
+	var clickRect = descripSVG.append("rect")
+		.attr("class","clickThis")
+		.attr("width",forcewidth/4)
+		.attr("height",forceheight/4)
+		.attr("x",forcewidth/2-forcewidth/8)
+		.attr("y",forceheight-forceheight/4)
+		.attr("fill","lightgray");
+
+	var clickText = descripSVG.append("text")
+		.attr("class","clickThis")
+		.attr("x",forcewidth/2)
+		.attr("y",forceheight-forceheight/8)
+		.attr("fill","white")
+		.attr("text-anchor","middle")
+		.text("PROJECT SUMMARY");
+
+	$(".clickThis").on("click", function(){
+		showSummary();
+		// clickedSummary = true;
+		$(".clickThis").hide();
+	});
+	// if(clickedSummary ==true){
+	// 	$(".clickThis").hide();
+	// }
+}
+function showSummary(){
 	var moreOrLessHands;
 	if(sessionHandProx> allProxMax){
 		moreOrLessHands = "MORE";
@@ -1656,8 +1700,31 @@ function makeEdge(linkData, linkNodes, linkLinks){
 	      .attr("opacity",1)
 	      .text("In this session, the PELARS system observed that you used the following hardware elements: "+uniqueHards+" and the following software elements: "+uniqueSofts+" . The difference in usage of these elements - that is, the items you used in only software, were "+diffSoftHard+ ". You pressed the lightbulb button a total of "+button1.length+" times"+" and pressed the stormcloud a total of "+button2.length+" times. In the system's observation of your hand movements, we noticed that your group's hands were "+moreOrLessHands+" usual proximity to one another. Your group's faces were "+moreOrLessFace+" close to one another. See below for further statistics on these averages.")
           .call(wrap2, forcewidth-20);
-}
 
+	function wrap2(text, width) {
+	  text.each(function() {
+	    var text = d3.select(this),
+	        words = text.text().split(/\s+/).reverse(),
+	        word,
+	        line = [],
+	        lineNumber = 0,
+	        lineHeight = 1.5, // ems
+	        y = text.attr("y"),
+	        dy = parseFloat(text.attr("dy")),
+	        tspan = text.text(null).append("tspan").attr("x", 30).attr("y", y).attr("dy", dy + "em");
+	    while (word = words.pop()) {
+	      line.push(word);
+	      tspan.text(line.join(" "));
+	      if (tspan.node().getComputedTextLength() > width) {
+	        line.pop();
+	        tspan.text(line.join(" "));
+	        line = [word];
+	        tspan = text.append("tspan").attr("x", 30).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+	      }
+	    }
+	  });
+	}
+}
 var maxActiveOverall;
 var maxActive1, maxActive2, maxActive3;
 var pathActive1, lineActive1, pathActive2, lineActive2, pathActive3, lineActive3, pathActive0, lineActive0;
@@ -2592,6 +2659,13 @@ function showPhases(phasesJSON){
 		.style("margin-top","1px")
 		.attr("transform", "translate(" + (radius+margin) + "," + (timeSVGH+radius+topMargin-100) + ")")
 		// .attr("transform", "translate(" + radius+margin + "," + (timeSVGH+radius+topMargin) + ")")
+	d3.select(".piePhase").append("text")
+		.attr("class","pieCaption")
+		.attr("x",0)
+		.attr("y",0).attr("transform", "translate(" + (w/6) + ", " + ((h/4+80)) + ")")	
+		.attr("text-anchor","middle")
+	 	.text("How Long You Spent in Phases")
+		.attr("fill","#3d3d3c")
 		//new addition
 // $("g.piePhase").hide()
 	var pathPie = netSVG.selectAll("pathPie")
@@ -2648,7 +2722,7 @@ function showPhases(phasesJSON){
 	    		return "Plan"
 	    	}
 	    	if(i==1){
-	    		return "Document"
+	    		return "Build"
 	    	}
 	    	if(i==2){
 	    		return "Reflect"
@@ -2772,7 +2846,7 @@ function overallStats(){
 var statsR;
 var seshCol = "red";
 function showStats(){
-
+var rectW = smallWidth;
 // var leftThird = rectWidth;//center-(rectWidth/2);
 // var rightThird = w-rectWidth*2; //center+(rectWidth/2);
 
@@ -2780,7 +2854,7 @@ function showStats(){
 	statsNames.push("Hands Speed","Hands Proximity", "Faces Proximity","Present at Table","Looking at Screen");	
 	var stRectScale = d3.scale.ordinal()
 		.domain(statsNames)
-		.rangePoints([leftThird, rightThird])
+		.rangePoints([center-rectWidth, center+rectWidth])
 
 	statsR = svgT.append("g").selectAll(".statsRects")
 		.data(statsNames)
@@ -2790,7 +2864,7 @@ function showStats(){
       	.attr("transform", function(d, i) { 
       		// console.log(d);
       		var x = stRectScale(d); //-leftMargin; //-rectWidth/2
-			var y = yAxisBottom+70; //specialHeight+specialHeight/2+4; //-topMargin/2;
+			var y = belowIcons;//yAxisBottom+70; //specialHeight+specialHeight/2+4; //-topMargin/2;
       		return "translate(" + x + "," + y + ")"; 
       	});
 
@@ -2800,12 +2874,24 @@ function showStats(){
 		.attr("class",function(d,i){
 			return i;
 		})
-		.attr("width", rectWidth)
+		.attr("width", rectW)
 		.attr("height", rectHeight/4)
 		.attr("fill","none")
 		.attr("stroke","none")  
 		// .attr("stroke-width",1);
 
+	// var statsName = statsR.append("text")
+	// 	.attr("id","statsName")
+	// 	.attr("class",function(d,i){
+	// 		return "statsName"+i;
+	// 	})
+	//       .attr("y", 15)
+	//       .attr("dy", ".35em")
+	//       .text(function(d) { return d })
+	//       .attr("x", function(d,i){
+	//       	var adjust = $(".statsName"+i).width();
+	//       	return 0;
+	//       });	
 	var statsName = statsR.append("text")
 		.attr("id","statsName")
 		.attr("class",function(d,i){
@@ -2813,21 +2899,25 @@ function showStats(){
 		})
 	      .attr("y", 15)
 	      .attr("dy", ".35em")
+			.attr("text-anchor","middle")
+	      .attr("x", smallWidth/2)
 	      .text(function(d) { return d })
-	      .attr("x", function(d,i){
-	      	var adjust = $(".statsName"+i).width();
-	      	return rectWidth/2-adjust/2;
-	      });	
+	      // 	function(d,i){
+	      // 	var adjust = $(".statsName"+i).width();
+	      // 	return rectW/2-adjust/2;
+	      // });	
+
+
 
 	var statsX = d3.scale.linear()
-		.range([10, rectWidth-20])
+		.range([10, rectW-20])
 
 	var totY = 24;
 	var totH = rectHeight/8;
 	var statsTotal = statsR.append("rect")
 		.attr("class","full")
 		.attr("x", 10).attr("y",totY)
-		.attr("width",rectWidth-20)
+		.attr("width",rectW-20)
 		.attr("height",totH)
 		.attr("fill","none")
 		.attr("stroke",darkColor);
@@ -3296,26 +3386,5 @@ function pelars_authenticate(){
 	});
 	return res;
 }
-	function wrap2(text, width) {
-	  text.each(function() {
-	    var text = d3.select(this),
-	        words = text.text().split(/\s+/).reverse(),
-	        word,
-	        line = [],
-	        lineNumber = 0,
-	        lineHeight = 1.5, // ems
-	        y = text.attr("y"),
-	        dy = parseFloat(text.attr("dy")),
-	        tspan = text.text(null).append("tspan").attr("x", 30).attr("y", y).attr("dy", dy + "em");
-	    while (word = words.pop()) {
-	      line.push(word);
-	      tspan.text(line.join(" "));
-	      if (tspan.node().getComputedTextLength() > width) {
-	        line.pop();
-	        tspan.text(line.join(" "));
-	        line = [word];
-	        tspan = text.append("tspan").attr("x", 30).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
-	      }
-	    }
-	  });
-	}
+
+

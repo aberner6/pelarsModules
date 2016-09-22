@@ -68,7 +68,8 @@ var x2RectScale = d3.scale.linear()
 	.range([rectWidth, w-rectWidth*2])
 var x3RectScale = d3.scale.linear()
 	.domain([0, howManyDataStreams])
-	.range([leftThird+rectWidth/2, rightThird-rectWidth/4])
+	.range([center-rectWidth, center+rectWidth])
+	// .range([leftThird+rectWidth/2, rightThird-rectWidth/4])
 
 	// .range([rectWidth*2.4, w-rectWidth*2.4])
 //colors
@@ -115,6 +116,8 @@ var backData;
 var sumSVG;
 var behindSVG;
 var svgT;
+var descripSVG;
+var thisH = timeSVGH+topMargin-250;
 
 function makeThings(data){
 	svgBack= d3.select("#container").append("svg")
@@ -135,8 +138,15 @@ function makeThings(data){
 		.attr("width",w).attr("height",h)
 		.attr("transform", "translate(" + 0 + "," + 0 + ")")
 	behindSVG = d3.select(".svgTwo").append("svg:rect").attr("class","behindRect")
-		.attr("x",10).attr("y",belowIcons-30)
+		.attr("x",10).attr("y",belowIcons-50)
 		.attr("fill","white").attr("width",w-30).attr("height",h)
+
+	descripSVG = svgT
+		.append("g")
+		.attr("class","descripSVG")
+		.attr("width",forcewidth)
+		.attr("height",forceheight)  
+		.attr("transform", "translate(" + (forcewidth) + "," + (thisH*2) + ")")
 		// .attr("opacity",0)
 // d3.selectAll(".behind").transition().attr("width",w-30)
 	// sumSVG= timeSVG.append("svg")
@@ -441,7 +451,6 @@ var marginal = 1.2;
 					// return smallHeight/2-iconW/2;
 				}
 			})
-
 	      .attr("dy", "0em")
 	      .attr("opacity",1)
 	      .text(function(d,i) {    
@@ -629,44 +638,53 @@ function makeShow(whichName){
 		$("g.axis").show();
 	}
 	if(hoverData=="Body"){
+		$("g.axis").show();
+
 		numClicked+=2;
 		d3.selectAll(".graphImage").transition().attr("opacity",1);
 		revealFaces();
 		showingHands();
-		if(numClicked==4){
+		if(numClicked>2&&numClicked%2==0){
 			moveDown();
 		}
 		console.log(numClicked+"numClicked")
 	}
 	if(hoverData=="Phases"){
+		$("g.axis").show();
 		revealPhases();
 	}
 	if(hoverData=="Button"){
+		$("g.axis").show();
 		revealButton();
 	}
 	if(hoverData=="Documentation"){
+		$("g.axis").show();
 		revealDoc();
 		revealPhotos();
 		// overview.transition().attr("height",timelineImgHeight)
 		// showingPhotos();
 	}
 	if(hoverData=="Kit"){
+		$("g.axis").show();
 		numClicked+=2;
 		d3.selectAll(".kitlabels").transition().attr("opacity",1)
 		$("g#arduinoPath").show();
 		$("g#arduinoRect").show();
-		if(numClicked==4){
+		if(numClicked>2&&numClicked%2==0){
 			moveDown();
 		}
 		console.log(numClicked+"numClicked")
 	}
 	if(hoverData == "Summary"){
+		$("g.axis").hide();
 		$("g.statsRects").show()
 		$(".svgTwo").show();
 	}
-	if(hoverData=="Links"){
-		$("#plot").show();
-	}
+	// if(hoverData=="Links"){
+	// 	$("g.axis").show();
+
+	// 	$("#plot").show();
+	// }
 	// for (i=0; i<prevName.length; i++){
 		// if((prevName[i]=="Body")&&(prevName[i-1]=="Kit")){
 		// var ready = false;	
