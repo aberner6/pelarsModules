@@ -82,14 +82,19 @@ var topIcons;
 var bottomIcons;
 var belowIcons;
 
-function setSVG(next){
+function setSVG()
+{
+	/// create a deferred because d3 has no knowledge of Promise
+	var d = $.Deferred()
 	d3.tsv("data/descrips.tsv", function(error, dataS) {
 	  // x.domain([0, d3.max(data, function(d) { return d.value; })]);
 	  dataIs.push(dataS);
 	  // console.log(data);
-	  makeThings(dataIs);
-	  next()
+	  makeThings(dataIs);	  
+	  d.resolve()  /// invoke the callback anyway
 	})
+	// the caller will link to deferred
+	return d
 }
 var prevName = [];
 var index = 0;
@@ -567,7 +572,9 @@ function makeShow(whichName){
 	}
 	if(hoverData=="Body"){
 		numClicked+=2;
-		d3.selectAll(".graphImage").transition().attr("opacity",1);
+		w = d3.selectAll(".graphImage")
+		if(w)
+			w.transition().attr("opacity",1);
 		revealFaces();
 		showingHands();
 		if(numClicked==4){

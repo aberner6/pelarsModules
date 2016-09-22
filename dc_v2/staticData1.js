@@ -170,6 +170,22 @@ var butLineY1 = lineHY;
 var butLineY2 = yBottom+(iconW/2)+3; //butLineY2+iconW+3)
 var butY = butLineY2-iconW/2;
 
+/// Equivalent to $.when(some)
+///$.makeResolved = function (x) { var d = $.Deferred(); d.resolve(x); return d; }
+/// Parallel case: $.when( d1, d2, d3 ) => all done or one rejected
+ 
+
+/// When a callback (then) return another promise they are chained
+/// by Emanuele Ruffaldi SSSA 2016
+$.runSequential = function (x) {
+
+	var d = x[0]()
+	for(var i = 1; i < x.length; i++)
+	{
+		d.then(x[i])
+	}
+	return d
+}
 
 function dataStart() {
 	var thisSession = getLocationParam("session") || "offline";
@@ -194,15 +210,15 @@ function dataStart() {
 	if(thisSession == "offline")
 	{
 		dataaccess = {
-			getToken: function () {} ,
-			getData: function (session,fx) { $.getJSONSync("data/data1.json",fx); },
-			getContent: function (session,fx) { $.getJSONSync("data/postSession.json",fx); },
-			getContextContent: function (session,fx) { $.getJSONSync("data/content.json",fx); },
-			getMultimedias: function (session,fx) { $.getJSONSync("data/multimedia.json",fx); },
-			getPhases: function (session,fx) { $.getJSONSync("data/phaseData.json",fx); },
-			getLastSession: function () { return 1593 },
-			getSnapshot(session,time,fx) { pelars_getSnapshot(session,time,fx); },
-			getMultimedia: function (session,id,fx) { pelars_getMultimedia(session,id,fx) },
+			getToken:  pelars_getToken,
+			getData: function (session) { return $.getJSON("data/data1.json") },
+			getContent: function (session) { return $.getJSON("data/postSession.json"); },
+			getContextContent: function (session) { return $.getJSON("data/content.json"); },
+			getMultimedias: function (session) { return $.getJSON("data/multimedia.json"); },
+			getPhases: function (session) { return $.getJSON("data/phaseData.json"); },
+			getLastSession: function () { return $.when(1593) },
+			getSnapshot(session,time) { return pelars_getSnapshot(session,time); },
+			getMultimedia: function (session,id) { return pelars_getMultimedia(session,id) },
 		}
 
 		thisSession = 1593
@@ -211,39 +227,66 @@ function dataStart() {
 	{
 		dataaccess = {
 			getToken: pelars_getToken ,
-			getData: function (session,fx) { pelars_getData(session,fx) },
-			getContent: function (session,fx) { pelars_getContent(session,fx) },
-			getContextContent: function (session,fx) { $.getJSONSync("data/content.json",fx); },
-			getPhases: function (session,fx) { pelars_getPhases(session,fx) },
-			getSnapshot(session,time,fx) { pelars_getSnapshot(session,time,fx); },
+			getData: function (session) { return pelars_getData(session) },
+			getContent: function (session) { return pelars_getContent(session) },
+			getContextContent: function (session) { return $.getJSON("data/content.json"); },
+			getPhases: function (session) { return pelars_getPhases(session) },
+			getSnapshot(session,time) { return pelars_getSnapshot(session,time); },
 			getLastSession: function () { return pelars_getLastSession() },
-			getMultimedias: function (session,fx) { pelars_getMultimedias(session,fx) },
-			getMultimedia: function (session,id,fx) { pelars_getMultimedia(session,id,fx) }
+			getMultimedias: function (session) { return pelars_getMultimedias(session) },
+			getMultimedia: function (session,id) { return pelars_getMultimedia(session,id) }
 		}		
 	}
-	dataaccess.getToken()
-	if(thisSession == "last")
-		thisSession = dataaccess.getLastSession()
 
-	dataaccess.session = thisSession
 
-	getOverallValues(thisSession);
-	getData(thisSession)
-	var getNext = setInterval(function(){
-		if(startFirst>0 && endFirst>startFirst){
-				//bad server
-				getMulti(thisSession);
-				getPhases(thisSession);
-				clearInterval(getNext);
+	var withSession = function (s)
+	{
+		// we receive the active session
+		thisSession = s
+		dataaccess.session = thisSession
+
+		getOverallValues(thisSession).then(
+			function ()
+			{
+				getData(thisSession).done(
+					function ()
+					{
+						var getNext = setInterval(function(){
+							if(startFirst>0 && endFirst>startFirst){
+									clearInterval(getNext);											
+									getMulti(thisSession).done(
+										function ()
+										{
+											getPhases(thisSession);
+										}
+									)
+								}
+							},2000);
+						var processNest = setInterval(function(){
+							console.log("two")
+							if(startTime>0 && endTime>startTime && nested_data.length>0){
+								sendNestedData(nested_data);
+								clearInterval(processNest);
+							}
+						},3000);		
+					}
+				)
 			}
-		},2000);
-	var processNest = setInterval(function(){
-		console.log("two")
-		if(startTime>0 && endTime>startTime && nested_data.length>0){
-			sendNestedData(nested_data);
-			clearInterval(processNest);
+		)
+	}
+
+	// obtain token (if needed) and then get last session, if needed, finally ...
+	dataaccess.getToken().done(
+		function ()
+		{
+			if(thisSession == "last")
+			{
+				dataaccess.getLastSession().done(withSession)
+			}
+			else
+				withSession(thisSession)
 		}
-	},3000);	
+	)
 }
 
 // var nest_again;
@@ -251,52 +294,55 @@ function dataStart() {
 // IF START TIME OF overall session IS DIFFERENT THAN START TIME OF phase data...
 function getData(thisSession) {
 
-		dataaccess.getData(thisSession, function(json){
-		startFirst = json[0].time; //for all of the data, this is the supposed start
-		endFirst = json[json.length-1].time; //for all of the data, this is the supposed end
-		firstData = json; //this is the overall set of data
-		data = json;
-		//first we have to check start and end times with the phases
-		console.log(new Date(startFirst)+"startFirst");
+		return dataaccess.getData(thisSession).done(
+			function(json){
+			startFirst = json[0].time; //for all of the data, this is the supposed start
+			endFirst = json[json.length-1].time; //for all of the data, this is the supposed end
+			firstData = json; //this is the overall set of data
+			data = json;
+			//first we have to check start and end times with the phases
+			console.log(new Date(startFirst)+"startFirst");
 
-		nest_again = d3.nest()
-		.key(function(d) { return d.type; })
-		.key(function(d){ return d.num; })
-		.rollup(function(leaves) {
-			return {
-				"max_time": d3.max(leaves, function(d) {
-					return parseFloat(d.time);
-				}),
-				"min_time": d3.min(leaves, function(d) {
-					return parseFloat(d.time);
-				}),
-				"meanX": d3.mean(leaves, function(d) {
-					return parseFloat(d.rx);
-				}),
-				"meanY": d3.mean(leaves, function(d) {
-					return parseFloat(d.ry);
-				}),
-				"deviationX": d3.mean(leaves, function(d){
-					return parseFloat(d.rx)
-				}),
-				"deviationY": d3.mean(leaves, function(d){
-					return parseFloat(d.ry)
-				})
+			nest_again = d3.nest()
+			.key(function(d) { return d.type; })
+			.key(function(d){ return d.num; })
+			.rollup(function(leaves) {
+				return {
+					"max_time": d3.max(leaves, function(d) {
+						return parseFloat(d.time);
+					}),
+					"min_time": d3.min(leaves, function(d) {
+						return parseFloat(d.time);
+					}),
+					"meanX": d3.mean(leaves, function(d) {
+						return parseFloat(d.rx);
+					}),
+					"meanY": d3.mean(leaves, function(d) {
+						return parseFloat(d.ry);
+					}),
+					"deviationX": d3.mean(leaves, function(d){
+						return parseFloat(d.rx)
+					}),
+					"deviationY": d3.mean(leaves, function(d){
+						return parseFloat(d.ry)
+					})
+				}
+			})
+			.entries(data);
+			console.log(nest_again + "nest again for summary");
+
+			nested_data = d3.nest()
+			.key(function(d) { return d.type; })
+			.key(function(d){ return d.num; })
+			.entries(data);
+
+			nested_face = d3.nest()
+			.key(function(d) { return d.type; })
+			.entries(data);
 			}
-		})
-		.entries(data);
-		console.log(nest_again + "nest again for summary");
+		)
+}
 
-		nested_data = d3.nest()
-		.key(function(d) { return d.type; })
-		.key(function(d){ return d.num; })
-		.entries(data);
-
-		nested_face = d3.nest()
-		.key(function(d) { return d.type; })
-		.entries(data);
-	})
-	}
 var overallVals;
 var sessionHandSpeed, sessionHandProx, sessionFaceProx, sessionPresence, sessionScreen;
 var sessionVals;
@@ -308,82 +354,99 @@ var allSpeedMin, allProxMin, allProxMax;
 var allFaceMin, allFaceMax;
 var allPresenceMin, allPresenceMax, allScreenMax, allScreenMin;
 
-function getOverallValues(thisSession) {
-	//NEEDS TO BE SYNCED WITH SERVER
-	//not online
-	dataaccess.getContextContent(thisSession, function(json)
-	{
-		overallVals = json;
-		if(overallVals.hand_speed)
-		{
-			allSpeedMax = overallVals.hand_speed.max;
-			allSpeedMean = overallVals.hand_speed.mean;
-			allSpeedMin = overallVals.hand_speed.min;
-		}
-		else
-		{
+function getOverallValues(thisSession) 
+{
+	return $.runSequential(
+		[
+			// deferred generator
+			function ()
+			{
+				console.log("getOverallValues getContextContent")
+				return dataaccess.getContextContent(thisSession).done(
+					function(json)
+					{
+						console.log("getOverallValues getContextContent DONE")
+						overallVals = json;
+						if(overallVals.hand_speed)
+						{
+							allSpeedMax = overallVals.hand_speed.max;
+							allSpeedMean = overallVals.hand_speed.mean;
+							allSpeedMin = overallVals.hand_speed.min;
+						}
+						else
+						{
 
-		}
-		if(overallVals.hand_distance)
-		{
-			allProxMax = overallVals.hand_distance.max;
-			allProxMean = overallVals.hand_distance.mean;
-			allProxMin = overallVals.hand_distance.min;
-		}
+						}
+						if(overallVals.hand_distance)
+						{
+							allProxMax = overallVals.hand_distance.max;
+							allProxMean = overallVals.hand_distance.mean;
+							allProxMin = overallVals.hand_distance.min;
+						}
 
-		if(overallVals.face_distance)
-		{
-			allFaceMax = overallVals.face_distance.max;
-			allFaceProx = overallVals.face_distance.mean;
-			allFaceMin = overallVals.face_distance.min;
-		}
+						if(overallVals.face_distance)
+						{
+							allFaceMax = overallVals.face_distance.max;
+							allFaceProx = overallVals.face_distance.mean;
+							allFaceMin = overallVals.face_distance.min;
+						}
 
-		if(overallVals.presence)
-		{
-			allPresence = overallVals.presence.mean;
-			allPresenceMin = overallVals.presence.min;
-			allPresenceMax = overallVals.presence.max;
-		}
-		if(overallVals.time_looking)
-		{
-			allScreen = overallVals.time_looking.mean;
-			allScreenMax = overallVals.time_looking.max;
-			allScreenMin = overallVals.time_looking.min;
-		}
-	})
+						if(overallVals.presence)
+						{
+							allPresence = overallVals.presence.mean;
+							allPresenceMin = overallVals.presence.min;
+							allPresenceMax = overallVals.presence.max;
+						}
+						if(overallVals.time_looking)
+						{
+							allScreen = overallVals.time_looking.mean;
+							allScreenMax = overallVals.time_looking.max;
+							allScreenMin = overallVals.time_looking.min;
+						}
+					}
+				)
+			},
+			// deferred generator
+			function ()
+			{
+				console.log("getOverallValues getContent")
+				return dataaccess.getContent(thisSession).done(
+					function(json) {
+						console.log("getOverallValues getContent DONE")
+						sessionVals = json;
+						for (i=0; i<json.length; i++){
+							if(json[i].name=="aftersession_hand_speed"){
+								sessionHandSpeed = json[i].result[(json[i].result.length)-1].overall;
+							}
+							if(json[i].name=="aftersession_hand_proximity"){
+								sessionHandProx = json[i].result.mean;
+							}
 
-	dataaccess.getContent(thisSession,function(json){
-		sessionVals = json;
-		for (i=0; i<json.length; i++){
-			if(json[i].name=="aftersession_hand_speed"){
-				sessionHandSpeed = json[i].result[(json[i].result.length)-1].overall;
+							if(json[i].name=="aftersession_face_proximity"){
+								sessionFaceProx = json[i].result.mean;
+							}
+
+							if(json[i].name=="aftersession_presence"){
+								sessionPresence = json[i].result.total_presence;
+							}
+							if(json[i].name=="aftersession_time_looking"){
+								sessionScreen = json[i].result.active_time;
+							}
+						}
+						showStats();
+						console.log(overallVals + " overall summary for session " + thisSession)
+					}
+				)
 			}
-			if(json[i].name=="aftersession_hand_proximity"){
-				sessionHandProx = json[i].result.mean;
-			}
-
-			if(json[i].name=="aftersession_face_proximity"){
-				sessionFaceProx = json[i].result.mean;
-			}
-
-			if(json[i].name=="aftersession_presence"){
-				sessionPresence = json[i].result.total_presence;
-			}
-			if(json[i].name=="aftersession_time_looking"){
-				sessionScreen = json[i].result.active_time;
-			}
-		}
-		showStats();
-	})
-
-	console.log(overallVals + " overall summary for session " + thisSession)
+		]
+	)
 }
 
 var tempData = [];
 var multiData = [];
 function getMulti(session)
 {
-	dataaccess.getMultimedias(session, function(json){
+	return dataaccess.getMultimedias(session).done(function(json){
 		tempData.push(json);
 		multiData.push(tempData[0]);
 		parsePhotos(multiData); //online
@@ -393,7 +456,7 @@ function getMulti(session)
 
 var phaseData;
 function getPhases(session) {
-	dataaccess.getPhases(session, function(phasesJSON){
+	return dataaccess.getPhases(session).done(function(phasesJSON){
 		phaseData = phasesJSON;
 		if(phasesJSON[0].phase=="setup"&&phasesJSON.length==1){
 			startTime = startFirst;
@@ -479,7 +542,8 @@ var button2 = [];
 var btnImg1 = [];
 var btnImg2 = [];
 //these were switched from b1 to b2
-function parseButton(session,incomingData){
+function parseButton(session,incomingData)
+{
 	particleOnly = incomingData.filter(function(n){
 		return n.type == "particle" || n.type == "button";
 	});
@@ -493,29 +557,44 @@ function parseButton(session,incomingData){
 	});
 	console.log(button2.length + "button 2")
 
-	for(i=0; i<button1.length; i++){
-		// $.getJSON("data/button1.json", function(json){
-			dataaccess.getSnapshot(session,(button1[i].time/1000000000000)+"E12", function(json){
-				console.log("PUSHING Snapshot "+json)
-				btnImg1.push(json);
-			})
-		}
+	var q = []
+	for(i=0; i<button1.length; i++)
+	{
+		q.push(function () {
+			console.log("Request Snapshot button1 " + i)
+			return dataaccess.getSnapshot(session,(button1[i].time/1000000000000)+"E12").done(
+					function(json)	{
+						console.log("PUSHING Snapshot button " + i)
+						btnImg1.push(json);
+					}
+				)
+			}
+		)
+	}
+	for(i=0; i<button2.length; i++)
+	{
+		q.push(function () {
+			console.log("Request Snapshot button2 " + i)
+			return dataaccess.getSnapshot(session,(button2[i].time/1000000000000)+"E12").done(
+					function(json){
+						console.log("PUSHING Snapshot button2 " + i)
+						btnImg2.push(json);
+					}
+				)
+			}
+		)
+	}
 
-		for(i=0; i<button2.length; i++){
-		// $.getJSON("data/button2.json", function(json){
-			dataaccess.getSnapshot(session,(button2[i].time/1000000000000)+"E12", function(json){
-				console.log("PUSHING Snapshot "  + json)
-				btnImg2.push(json);
-			})
-		}
+	$.runSequential(q)
 
-	var getImage = setInterval(function(){  //returns the session
+	var getImage = setInterval(function() {  //returns the session
 		if(btnImg1.length>0 || btnImg2.length>0){
 			console.log(btnImg1.length+"btn/img1 length")
 			drawButton(button1, button2, btnImg1, btnImg2);
 			clearInterval(getImage);
 		}
 	}, 1000);
+
 }
 
 var thunderSpace = .5;
@@ -832,7 +911,7 @@ overview
 		.attr("height", timelineImgHeight)
 		.attr("xlink:href", function(d, i) {
 			// return "images/frustration.png";
-			return d.data;
+			return d.data+"?token="+pelarstoken;
 		})
 		.on("click", function(d,i){
 			d3.select(this)
@@ -2042,18 +2121,27 @@ function hideHands(){
   	$("text.graphTitle").show()
   	$("line.graphLine").show()
 
-  	pathActive1 //.datum(softS1).
-  	.transition().duration(durTrans)
-  	.attr("stroke",darkColor)
-  	.attr("d", lineActive1);
-  	pathActive2
-  	.datum(softS2).transition().duration(durTrans)
-  	.attr("stroke",darkColor)
-  	.attr("d", lineActive2);
-  	pathActive3
-  	.datum(softS3).transition().duration(durTrans)
-  	.attr("stroke",darkColor)
-  	.attr("d", lineActive3);
+	if(pathActive1)
+	{
+	  	pathActive1 //.datum(softS1).
+	  	.transition().duration(durTrans)
+	  	.attr("stroke",darkColor)
+	  	.attr("d", lineActive1);
+	}
+	if(pathActive2)
+	{
+	  	pathActive2
+	  	.datum(softS2).transition().duration(durTrans)
+	  	.attr("stroke",darkColor)
+	  	.attr("d", lineActive2);
+	}
+	if(pathActive3)
+	{
+	  	pathActive3
+	  	.datum(softS3).transition().duration(durTrans)
+	  	.attr("stroke",darkColor)
+	  	.attr("d", lineActive3);
+	 }
   }
   function showingPhotos(){
   	timeX
