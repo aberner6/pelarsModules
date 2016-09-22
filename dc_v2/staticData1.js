@@ -176,7 +176,7 @@ var butLineY2 = yBottom+(iconW/2)+3; //butLineY2+iconW+3)
 var butY = butLineY2-iconW/2;
 
 $(document).ready(function() {
-	getToken(); //returns the token
+	// getToken(); //returns the token
 	getData(thisSession, token);
 
 	var getNext = setInterval(function(){
@@ -548,8 +548,8 @@ function drawButton(button1, button2, img1, img2){
                 	// if(d.time>=thisTime && d.time<=thisTime+timeMargin){
 	                	if(d.view=="workspace"){
 	                		console.log(d.view)
-	                		return d.data;
-	                		// return "images/frustration.png"	
+	                		// return d.data;
+	                		return "images/frustration.png"	
 	                	} else {
 	                		// return (btnNest1[lIndex].values[0][0].data) 
 	                	}
@@ -621,8 +621,8 @@ function drawButton(button1, button2, img1, img2){
                 .attr("xlink:href", function(d, i) {
 	                	if(d.view=="workspace"){
 	                		console.log(d.view)
-	                		// return "images/frustration.png"
-	                		return d.data;
+	                		return "images/frustration.png"
+	                		// return d.data;
 	                	} else {
 	                		// return btnNest2[tIndex].values[0][0].data//btnImg2[tIndex][0].data; 
 	                	}
@@ -664,54 +664,6 @@ var docuNote = [];
 var researcherCaptions = [];
 var studentCaptions = [];
 var researcherNote = [];
-function parsePhotos(multiData){
-	imgData = multiData;
-	var captionsText = [];
-	console.log(multiData.length+"multiData length - photos");
-		for(i=0; i<imgData[0].length; i++){
-			if(imgData[0][i].creator=="client" && imgData[0][i].type=="image" && imgData[0][i].view=="workspace"){
-				autoImg.push(imgData[0][i]);
-			}
-			// if(imgData[0][i].creator=="observer" && imgData[0][i].type=="text"){
-			// 	researcherNote.push(imgData[0][i]);
-			// }
-			if(imgData[0][i].creator=="student" && imgData[0][i].type=="text"){
-				docuNote.push(imgData[0][i])
-			}
-			if(imgData[0][i].creator=="student" && imgData[0][i].type=="image"){
-				docuImg.push(imgData[0][i]);
-			}
-		}
-	function processURL(){
-		// for(i=0; i<researcherNote.length; i++){
-		// 	var url1 = researcherNote[i].data+"?token="+token;
-		// 	$.get(url1, function(caption){
-		// 		researcherCaptions.push(caption)
-		// 	})
-		// }
-		for(i=0; i<docuNote.length; i++){
-			var url1 = docuNote[i].data+"?token="+token;
-			$.get(url1, function(caption){
-				studentCaptions.push(caption)
-			})
-		}
-	}
-	var urlProcessing = setInterval(function(){  //returns the session		
-		if(autoImg.length>0 && docuImg.length>0 && docuNote.length>0){ //&& researcherNote.length>0
-			console.log(docuImg.length+"docuImg length")
-			processURL();
-			clearInterval(urlProcessing);	
-		}
-	}, 1000);
-	var imageProcessing = setInterval(function(){  //returns the session		
-		if(studentCaptions.length>0){ //researcherCaptions.length>0 && 
-			console.log(studentCaptions.length+"studentCaptions length")
-			showPhotos();
-			showStudDoc();
-			clearInterval(imageProcessing);	
-		}
-	}, 3000);	
-}
 // function parsePhotos(multiData){
 // 	imgData = multiData;
 // 	var captionsText = [];
@@ -730,8 +682,13 @@ function parsePhotos(multiData){
 // 				docuImg.push(imgData[0][i]);
 // 			}
 // 		}
-// ////online version
 // 	function processURL(){
+// 		// for(i=0; i<researcherNote.length; i++){
+// 		// 	var url1 = researcherNote[i].data+"?token="+token;
+// 		// 	$.get(url1, function(caption){
+// 		// 		researcherCaptions.push(caption)
+// 		// 	})
+// 		// }
 // 		for(i=0; i<docuNote.length; i++){
 // 			var url1 = docuNote[i].data+"?token="+token;
 // 			$.get(url1, function(caption){
@@ -753,17 +710,60 @@ function parsePhotos(multiData){
 // 			showStudDoc();
 // 			clearInterval(imageProcessing);	
 // 		}
-// 	}, 3000);
-// //	//online version	
-// 	// var imageProcessing = setInterval(function(){  //returns the session		
-// 	// 	if(autoImg.length>0){ //researcherCaptions.length>0 && 
-// 	// 		// console.log(studentCaptions.length+"studentCaptions length")
-// 	// 		showPhotos();
-// 	// 		showStudDoc();
-// 	// 		clearInterval(imageProcessing);	
-// 	// 	}
-// 	// }, 3000);	
+// 	}, 3000);	
 // }
+function parsePhotos(multiData){
+	imgData = multiData;
+	var captionsText = [];
+	console.log(multiData.length+"multiData length - photos");
+		for(i=0; i<imgData[0].length; i++){
+			if(imgData[0][i].creator=="client" && imgData[0][i].type=="image" && imgData[0][i].view=="workspace"){
+				autoImg.push(imgData[0][i]);
+			}
+			// if(imgData[0][i].creator=="observer" && imgData[0][i].type=="text"){
+			// 	researcherNote.push(imgData[0][i]);
+			// }
+			if(imgData[0][i].creator=="student" && imgData[0][i].type=="text"){
+				docuNote.push(imgData[0][i])
+			}
+			if(imgData[0][i].creator=="student" && imgData[0][i].type=="image"){
+				docuImg.push(imgData[0][i]);
+			}
+		}
+////online version
+	// function processURL(){
+	// 	for(i=0; i<docuNote.length; i++){
+	// 		var url1 = docuNote[i].data+"?token="+token;
+	// 		$.get(url1, function(caption){
+	// 			studentCaptions.push(caption)
+	// 		})
+	// 	}
+	// }
+	// var urlProcessing = setInterval(function(){  //returns the session		
+	// 	if(autoImg.length>0 && docuImg.length>0 && docuNote.length>0){ //&& researcherNote.length>0
+	// 		console.log(docuImg.length+"docuImg length")
+	// 		processURL();
+	// 		clearInterval(urlProcessing);	
+	// 	}
+	// }, 1000);
+	// var imageProcessing = setInterval(function(){  //returns the session		
+	// 	if(studentCaptions.length>0){ //researcherCaptions.length>0 && 
+	// 		console.log(studentCaptions.length+"studentCaptions length")
+	// 		showPhotos();
+	// 		showStudDoc();
+	// 		clearInterval(imageProcessing);	
+	// 	}
+	// }, 3000);
+//	//online version	
+	var imageProcessing = setInterval(function(){  //returns the session		
+		if(autoImg.length>0){ //researcherCaptions.length>0 && 
+			// console.log(studentCaptions.length+"studentCaptions length")
+			showPhotos();
+			showStudDoc();
+			clearInterval(imageProcessing);	
+		}
+	}, 3000);	
+}
 
 //then make it so you can click right and x out?
 function showPhotos(){
@@ -790,8 +790,8 @@ function showPhotos(){
 		.attr("width", timelineImgWidth)
 		.attr("height", timelineImgHeight)
 	    .attr("xlink:href", function(d, i) {
-			// return "images/frustration.png";
-			return d.data;                    	                       		
+			return "images/frustration.png";
+			// return d.data;                    	                       		
 	    })
 	    .on("click", function(d,i){
 	    	d3.select(this)
@@ -1263,7 +1263,7 @@ function goIDE(ideData){
 				}
 			}
 		}
-	console.log(links)
+	// console.log(links)
 
 	var circle, path, text;
 	var force;

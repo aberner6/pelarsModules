@@ -22,7 +22,7 @@ var forceheight = h/3.5;
 //small height
 var timeSVGH = h/2;
 
-var howManyDataStreams = 8;
+var howManyDataStreams = 6;
 var pressW = 70;
 // var pressH = 30;
 var center =  w/2 - pressW/2;
@@ -36,13 +36,28 @@ var bottomHalf = h/2+rectHeight/2; //pressW;
 var leftThird = rectWidth;//center-(rectWidth/2);
 var rightThird = w-rectWidth*2; //center+(rectWidth/2);
 
-// var rightThirdz = w-rectWidth; //center+(rectWidth/2);
+// var xaRectScale = d3.scale.linear()
+// 	.domain([0,5])
+// 	.range([leftThird+rectWidth, rightThird-rectWidth-iconW*2])
+// var xbRectScale = d3.scale.linear()
+// 	.domain([2,9])
+// 	.range([leftThird+rectWidth/2, rightThird-rectWidth])
+var specialHeight = (h/howManyDataStreams)-10;
+var smallY =  specialHeight/2; //-10;
+
+var smallWidth = rectWidth/3;
+var smallHeight = specialHeight/2;
+
+
+topIcons = smallY/2;
+bottomIcons = topIcons+smallHeight;
+belowIcons = bottomIcons+smallHeight*2;
 var xaRectScale = d3.scale.linear()
-	.domain([0,5])
-	.range([leftThird+rectWidth, rightThird-rectWidth-iconW*2])
+	.domain([0,howManyDataStreams+1])
+	.range([center-rectWidth*2+smallWidth, center+rectWidth-10])
 var xbRectScale = d3.scale.linear()
-	.domain([2,9])
-	.range([leftThird+rectWidth/2, rightThird-rectWidth])
+	.domain([0,howManyDataStreams+1])
+	.range([center-rectWidth*2+smallWidth, center+rectWidth-10])
 
 
 var xRectScale = d3.scale.linear()
@@ -53,7 +68,7 @@ var x2RectScale = d3.scale.linear()
 	.range([rectWidth, w-rectWidth*2])
 var x3RectScale = d3.scale.linear()
 	.domain([0, howManyDataStreams])
-	.range([leftThird+rectWidth, rightThird-rectWidth/2])
+	.range([leftThird+rectWidth/2, rightThird-rectWidth/4])
 
 	// .range([rectWidth*2.4, w-rectWidth*2.4])
 //colors
@@ -93,16 +108,7 @@ function setSVG(){
 }
 var prevName = [];
 var index = 0;
-var specialHeight = (h/howManyDataStreams)-10;
-var smallY =  specialHeight/2; //-10;
 
-var smallWidth = rectWidth/3;
-var smallHeight = specialHeight/2;
-
-
-topIcons = smallY/2;
-bottomIcons = topIcons+smallHeight;
-belowIcons = bottomIcons+smallHeight*2;
 // var medWidth = rectWidth/2;
 // var medHeight = specialHeight
 var backData;
@@ -151,25 +157,47 @@ var marginal = 1.2;
 		.attr("class", "backRects")
       	.attr("transform", function(d, i) { 
       		var x,y;
+   //    		if(d.type==1){
+			// 	y = topHalf*marginal //-topMargin;
+			// 	x = leftThird+rectWidth-iconW*2; 
+   //    			return "translate(" + x + "," + y + ")";       			
+   //    		}
+   //    		if(d.type==4){
+			// 	y = topHalf*marginal //-topMargin;
+			// 	x = rightThird-rectWidth+iconW*2; 
+   //    			return "translate(" + x + "," + y + ")";     			
+   //    		}
+   //    		if(d.type==2){
+   //    			console.log(i);
+			// 	y = topHalf*marginal+topMargin*iconW;
+			// 	x = xaRectScale(i); //-leftMargin; //-rectWidth/2
+   //    			return "translate(" + x + "," + y + ")"; 
+			// } 
+			// if(d.type==3){
+			// 	console.log(i);
+			// 	y = topHalf*marginal+topMargin*iconW*1.5;
+			// 	x = xbRectScale(i); //-leftMargin; //-rectWidth/2
+	  //     		return "translate(" + x + "," + y + ")"; 
+   //    		}	
       		if(d.type==1){
 				y = topHalf*marginal //-topMargin;
-				x = leftThird+rectWidth-iconW*2; 
+				x = center-rectWidth; 
       			return "translate(" + x + "," + y + ")";       			
       		}
       		if(d.type==4){
 				y = topHalf*marginal //-topMargin;
-				x = rightThird-rectWidth+iconW*2; 
+				x = center; 
       			return "translate(" + x + "," + y + ")";     			
       		}
       		if(d.type==2){
       			console.log(i);
-				y = topHalf*marginal+topMargin*iconW;
+				y = topHalf*marginal + rectHeight;
 				x = xaRectScale(i); //-leftMargin; //-rectWidth/2
       			return "translate(" + x + "," + y + ")"; 
 			} 
 			if(d.type==3){
 				console.log(i);
-				y = topHalf*marginal+topMargin*iconW*1.5;
+				y = topHalf*marginal + rectHeight;
 				x = xbRectScale(i); //-leftMargin; //-rectWidth/2
 	      		return "translate(" + x + "," + y + ")"; 
       		}	
@@ -192,23 +220,24 @@ var marginal = 1.2;
 			if(d.name=="Timeline" || d.name=="Summary"){
 				return rectHeight;
 			}else{
-				return 0;
+				return smallHeight;
 			}
 		})
 		.attr("fill","white")
 		.attr("stroke",function(d,i){
-				if(d.side==3){
-					return "lightblue"
-				} else{
+				// if(d.side==3){
+				// 	return "lightblue"
+				// } else{
 					return "lightgray"
-				}
+				// }
 			})
 		.attr("stroke-width",1)
 		.attr("opacity",function(d,i){
-      		if(d.name=="Timeline" || d.name=="Summary"){
+      		// if(d.name=="Timeline" || d.name=="Summary"){
 				return 1;
-			} else{
-			}			
+			// } else{
+				// return 
+			// }			
 		})
 
 	var textName = backR.append("text")
@@ -253,7 +282,7 @@ var marginal = 1.2;
 		})
 		.attr("y", function(d){
 			if(d.name=="Timeline" || d.name=="Summary"){
-				return rectHeight/2-pressW/2;
+				return rectHeight/4; //-pressW/4;
 			}else{
 				return specialHeight/4-pressW/4;
 			}
@@ -367,25 +396,25 @@ var marginal = 1.2;
     	textIcon
 	        .on("mouseover", function(d,i){
 	        	if(unClicked ==0 && (d.name=="Timeline" || d.name=="Summary")){
-		        	d3.select("text.capt"+i)
-		        		.attr("opacity",1);
-		        	d3.select("image.capt"+i)
-		        		.attr("opacity",0);
+		        	// d3.select("text.capt"+i)
+		        	// 	.attr("opacity",1);
+		        	// d3.select("image.capt"+i)
+		        	// 	.attr("opacity",0);
 	        	}else{
-					d3.selectAll("#name").attr("opacity",0)
-				    d3.selectAll("#textDescrip").attr("opacity",0)		        		
+					// d3.selectAll("#name").attr("opacity",0)
+				    // d3.selectAll("#textDescrip").attr("opacity",0)		        		
 		        }
 	        })
 	        .on("mouseout", function(d,i){
 	        	if(unClicked==0){
-		        	d3.select("text.capt"+i)
-		        		.attr("opacity",0);
-		        	d3.select("image.capt"+i)
-		        		.attr("opacity",1);
+		        	// d3.select("text.capt"+i)
+		        	// 	.attr("opacity",0);
+		        	// d3.select("image.capt"+i)
+		        	// 	.attr("opacity",1);
 	        	}
 	        	else{
-					d3.selectAll("#name").attr("opacity",0)
-				    d3.selectAll("#textDescrip").attr("opacity",0)		        			        		
+					// d3.selectAll("#name").attr("opacity",0)
+				    // d3.selectAll("#textDescrip").attr("opacity",0)		        			        		
 	        	}
 	        });
 	var textDescrip = backR.append("text")
@@ -394,16 +423,47 @@ var marginal = 1.2;
 			return "capt"+i;
 		});
 		textDescrip
-	      .attr("x", rectWidth/4)
-	      .attr("y", rectHeight/2-pressW/2)
-	      .attr("dy", ".35em")
-	      .attr("opacity",0)
+	      .attr("x", function(d,i){
+			if (d.name=="Timeline" || d.name=="Summary"){
+		      		console.log("hey")
+					return 20//rectWidth/4;
+				}
+				else{
+					// return smallWidth/4;
+				}
+			})
+	      .attr("y", function(d,i){
+			if (d.name=="Timeline" || d.name=="Summary"){
+		      		console.log("hey")
+					return rectHeight/2+pressW/2;
+				}
+				else{
+					// return smallHeight/2-iconW/2;
+				}
+			})
+
+	      .attr("dy", "0em")
+	      .attr("opacity",1)
 	      .text(function(d,i) {    
 		      	if (d.name=="Timeline" || d.name=="Summary"){
 					return d.descrip;
 				} else{}
 			})
-          .call(wrap, rectWidth-20);
+          .call(wrap, rectWidth-20)
+   //        function(d,i) {    
+		 //      	if (d.name=="Timeline" || d.name=="Summary"){
+		 //      		console.log("hey")
+			// 		return rectWidth-20;
+			// 	} else{
+			// 		// return smallWidth-20;
+			// 	}
+			// })
+		// .call(wrap3, function(d,i){
+	 //      	if (d.name!="Timeline" || d.name!="Summary"){
+	 //      		console.log("hey")
+		// 		return 2//smallWidth-20;
+		// 	}
+		// }) 
 
 
     theseRects
@@ -485,25 +545,25 @@ var marginal = 1.2;
     	theseRects
 	        .on("mouseover", function(d,i){
 	        	if(unClicked ==0 && (d.name=="Timeline" || d.name=="Summary")){
-		        	d3.select("text.capt"+i)
-		        		.attr("opacity",1);
-		        	d3.select("image.capt"+i)
-		        		.attr("opacity",0);
+		        	// d3.select("text.capt"+i)
+		        	// 	.attr("opacity",1);
+		        	// d3.select("image.capt"+i)
+		        	// 	.attr("opacity",0);
 	        	}else{
-					d3.selectAll("#name").attr("opacity",0)
-				    d3.selectAll("#textDescrip").attr("opacity",0)		        		
+					// d3.selectAll("#name").attr("opacity",0)
+				    // d3.selectAll("#textDescrip").attr("opacity",0)		        		
 		        }
 	        })
 	        .on("mouseout", function(d,i){
 	        	if(unClicked==0){
-		        	d3.select("text.capt"+i)
-		        		.attr("opacity",0);
-		        	d3.select("image.capt"+i)
-		        		.attr("opacity",1);
+		        	// d3.select("text.capt"+i)
+		        	// 	.attr("opacity",0);
+		        	// d3.select("image.capt"+i)
+		        	// 	.attr("opacity",1);
 	        	}
 	        	else{
-					d3.selectAll("#name").attr("opacity",0)
-				    d3.selectAll("#textDescrip").attr("opacity",0)		        			        		
+					// d3.selectAll("#name").attr("opacity",0)
+				    // d3.selectAll("#textDescrip").attr("opacity",0)		        			        		
 	        	}
 	        });
 	$('image#capt').tipsy({ 
@@ -522,7 +582,11 @@ var marginal = 1.2;
 				// 		captionDoc = capt;
 				// 	})
 				// }
-					return dis.name;
+				if(dis.name=="Timeline" || dis.name=="Summary"){
+					return "Click to view "+dis.name;					
+				}else{
+					return dis.descrip;
+				}
 			}
 	});
 
@@ -533,7 +597,7 @@ var marginal = 1.2;
 	        word,
 	        line = [],
 	        lineNumber = 0,
-	        lineHeight = 1.1, // ems
+	        lineHeight = 1, // ems
 	        y = text.attr("y"),
 	        dy = parseFloat(text.attr("dy")),
 	        tspan = text.text(null).append("tspan").attr("x", 10).attr("y", y).attr("dy", dy + "em");
@@ -549,7 +613,6 @@ var marginal = 1.2;
 	    }
 	  });
 	}
-
 
 
 	// $.getScript('staticData.js');
