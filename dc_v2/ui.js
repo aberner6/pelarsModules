@@ -71,7 +71,6 @@ var typeScale = d3.scale.ordinal()
 
 var leftMargin = 100;
 var topMargin = 5;
-setSVG();
 var dataIs = [];
 var theseRects;
 var unClicked = 0;
@@ -83,12 +82,13 @@ var topIcons;
 var bottomIcons;
 var belowIcons;
 
-function setSVG(){
+function setSVG(next){
 	d3.tsv("data/descrips.tsv", function(error, dataS) {
 	  // x.domain([0, d3.max(data, function(d) { return d.value; })]);
 	  dataIs.push(dataS);
 	  // console.log(data);
 	  makeThings(dataIs);
+	  next()
 	})
 }
 var prevName = [];
