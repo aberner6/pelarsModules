@@ -203,11 +203,12 @@ function dataStart() {
 // var overallVals;
 // IF START TIME OF overall session IS DIFFERENT THAN START TIME OF phase data...
 function getData(thisSession, pelarstoken){
-	console.log("getData ",thisSession,pelarstoken)
-	getOverallValues();
-
-	// $.getJSON("http://pelars.sssup.it:8080/pelars/data/"+thisSession+"?pelarstoken="+pelarstoken,function(json){
-	dataaccess.getData(thisSession, function(json){
+	
+// $.getJSON("http://pelars.sssup.it:8080/pelars/data/"+thisSession+"?pelarstoken="+pelarstoken,function(json){
+	var next = function ()
+	{
+		dataaccess.getData(thisSession, function(json){
+		console.log("getData DONE")
 		startFirst = json[0].time; //for all of the data, this is the supposed start
 		endFirst = json[json.length-1].time; //for all of the data, this is the supposed end
 		firstData = json; //this is the overall set of data
@@ -252,6 +253,12 @@ function getData(thisSession, pelarstoken){
 		.key(function(d) { return d.type; })
 		.entries(data);
 	})
+
+	}
+	console.log("getData ",thisSession,pelarstoken)
+	getOverallValues(next);
+
+
 }
 var overallVals;
 var sessionHandSpeed, sessionHandProx, sessionFaceProx, sessionPresence, sessionScreen;
@@ -261,10 +268,11 @@ var seshSpeedMean = sessionHandSpeed;
 var allSpeedMax, allSpeedMean, allProxMean;		
 var allFaceProx, allPresence, allScreen;
 var allSpeedMin, allProxMin, allFaceMin, allPresenceMin, allPresenceMax, allScreenMax, allScreenMin;
-function getOverallValues(){
+function getOverallValues(next){
 //NEEDS TO BE SYNCED WITH SERVER
 //not online
 	dataaccess.getContextContent(thisSession, function(json){
+		console.log("	dataaccess.getContextContent DONE")
 		overallVals = json;
 		allSpeedMax = overallVals.hand_speed.max;
 		allSpeedMean = overallVals.hand_speed.mean;
@@ -289,34 +297,35 @@ function getOverallValues(){
 		allScreenMax = overallVals.time_looking.max;
 		allScreenMin = overallVals.time_looking.min;
 
-	})
-	// $.getJSON("http://pelars.sssup.it:8080/pelars/content/"+thisSession+"?pelarstoken="+pelarstoken,function(json){
-	// http://pelars.sssup.it/pelars/content/1542	
-	dataaccess.getContent(thisSession,function(json){
-		console.log(json);
-		sessionVals = json;
-		for (i=0; i<json.length; i++){
-			if(json[i].name=="aftersession_hand_speed"){
-				sessionHandSpeed = json[i].result[(json[i].result.length)-1].overall;		
-			}			
-			if(json[i].name=="aftersession_hand_proximity"){
-				sessionHandProx = json[i].result.mean;		
-			}
+		// $.getJSON("http://pelars.sssup.it:8080/pelars/content/"+thisSession+"?pelarstoken="+pelarstoken,function(json){
+		// http://pelars.sssup.it/pelars/content/1542	
+		dataaccess.getContent(thisSession,function(json) {
+			console.log("dataaccess.getContent DONE");
+			sessionVals = json;
+			for (i=0; i<json.length; i++){
+				if(json[i].name=="aftersession_hand_speed"){
+					sessionHandSpeed = json[i].result[(json[i].result.length)-1].overall;		
+				}			
+				if(json[i].name=="aftersession_hand_proximity"){
+					sessionHandProx = json[i].result.mean;		
+				}
 
-			if(json[i].name=="aftersession_face_proximity"){
-				sessionFaceProx = json[i].result.mean;		
+				if(json[i].name=="aftersession_face_proximity"){
+					sessionFaceProx = json[i].result.mean;		
+				}
+				
+				if(json[i].name=="aftersession_presence"){
+					sessionPresence = json[i].result.total_presence;		
+				}			
+				if(json[i].name=="aftersession_time_looking"){
+					sessionScreen = json[i].result.active_time;		
+				}		
 			}
-			
-			if(json[i].name=="aftersession_presence"){
-				sessionPresence = json[i].result.total_presence;		
-			}			
-			if(json[i].name=="aftersession_time_looking"){
-				sessionScreen = json[i].result.active_time;		
-			}		
-		}
-		showStats();
-	})
+			showStats();
+			next()
+		})
 
+	})
 	console.log(overallVals+"overall summary")	
 }
 
@@ -326,6 +335,7 @@ function getMulti(thisSession,pelarstoken){
 	// $.getJSON("http://pelars.sssup.it:8080/pelars/multimedia/"+thisSession+"?pelarstoken="+pelarstoken,function(multiJSON){
 
 	dataaccess.getMultimedias(thisSession,function(multiJSON){
+		console.log("getMultimedias DONE")
 		tempData.push(multiJSON); 
 		multiData.push(tempData[0]);
 		parsePhotos(multiData); //online
@@ -343,6 +353,7 @@ var phaseData;
 function getPhases(thisSession,pelarstoken){
 	// $.getJSON("http://pelars.sssup.it:8080/pelars/phase/"+thisSession+"?pelarstoken="+pelarstoken,function(phasesJSON){
 	dataaccess.getPhases(thisSession, function(phasesJSON){
+		console.log("getPhases DONE")
 		phaseData = phasesJSON;
 		if(phasesJSON[0].phase=="setup"&&phasesJSON.length==1){
 			startTime = startFirst;

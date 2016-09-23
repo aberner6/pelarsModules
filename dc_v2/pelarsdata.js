@@ -21,7 +21,7 @@ params = params.split("&");
 return sval;
 }
 
-function pelars_authenticate()
+function pelars_authenticate(fx)
 {
 	console.log("pelars_authenticate")
 	var q = getLocationParam("source")
@@ -55,50 +55,50 @@ function pelars_authenticate()
 	)
 }
 
-function pelars_getSnapshot(session,time)
+function pelars_getSnapshot(session,time,fx)
 {
-	return $.getJSON(pelarsprefix + "/snapshot/"+session+"/"+time+"?token="+pelarstoken)
+	return $.getJSONSync(pelarsprefix + "/snapshot/"+session+"/"+time+"?token="+pelarstoken,fx)
 }
 
-function pelars_getMultimedia(session,media)
+function pelars_getMultimedia(session,media,fx)
 {
 	console.log("pelars_getMultimedia " + media + " " + pelarstoken)
-	return $.getJSON(pelarsprefix + "/multimedia/"+session+"/"+media+"?token="+pelarstoken)
+	return $.getJSONSync(pelarsprefix + "/multimedia/"+session+"/"+media+"?token="+pelarstoken,fx)
 }
 
 function pelars_getMultimedias(session,fx)
 {
-	return $.getJSON(pelarsprefix + "/multimedia/"+session+"?token="+pelarstoken)
+	return $.getJSONSync(pelarsprefix + "/multimedia/"+session+"?token="+pelarstoken,fx)
 }
 
-function pelars_getContent(session)
+function pelars_getContent(session,fx)
 {
-	return $.getJSON(pelarsprefix + "/content/"+session+"?token="+pelarstoken)
+	return $.getJSONSync(pelarsprefix + "/content/"+session+"?token="+pelarstoken,fx)
 }
 
-function pelars_getPost(session)
+function pelars_getPost(session,fx)
 {
-	return $.getJSON(pelarsprefix + "/content/"+session+"?token="+pelarstoken)
+	return $.getJSONSync(pelarsprefix + "/content/"+session+"?token="+pelarstoken,fx)
 }
 
-function pelars_getPhases(session)
+function pelars_getPhases(session,fx)
 {
-	return $.getJSON(pelarsprefix + "/phase/"+session+"?token="+pelarstoken)
+	return $.getJSONSync(pelarsprefix + "/phase/"+session+"?token="+pelarstoken,fx)
 }
 
-function pelars_getData(session)
+function pelars_getData(session,fx)
 {
-	return $.getJSON(pelarsprefix + "/data/"+session+"?token="+pelarstoken)
+	return $.getJSONSync(pelarsprefix + "/data/"+session+"?token="+pelarstoken,fx)
 }
 
-function pelars_getToken()
+function pelars_getToken(fx)
 {
-	return pelars_authenticate();
+	return pelars_authenticate(fx);
 }
 
-function pelars_getLastSession(next)
+function pelars_getLastSession(next,fx)
 {
-	return $.getJSON(pelarsprefix + "/session?token="+pelarstoken)
+	return $.getJSONSync(pelarsprefix + "/session?token="+pelarstoken,fx)
 		.done(function(json1) {
 			return parseInt(json1[json1.length-1].session);
 		}
@@ -107,9 +107,6 @@ function pelars_getLastSession(next)
 
 function pelars_init()
 {
-	pelars_authenticate()
-	thisSession = getLocationParam("session") || "offline";
-
 
 	/// this is bad, use with care instead of the async get
 	$.getJSONSync = function (url,fx)
@@ -126,6 +123,11 @@ function pelars_init()
 			}
 		});		
 	}
+
+	pelars_authenticate()
+	thisSession = getLocationParam("session") || "offline";
+
+
 
 	// TODO here the offline mode from session
 	if(thisSession == "offline")
