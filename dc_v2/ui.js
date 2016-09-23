@@ -662,6 +662,13 @@ function makeShow(whichName){
 		$("g.axis").show();
 		revealDoc();
 		revealPhotos();
+		if(numClicked>2){
+	// yBottom = belowIcons*2;
+	// yTop = lineHY+100;
+	// yTop = lineHY+61;
+			overview.transition().attr("opacity",1).attr("y",lineHY+61)
+// d3.selectAll("g.axis").transition().attr('transform', 'translate(0, ' + (yTop) + ')');
+		}
 		// overview.transition().attr("height",timelineImgHeight)
 		// showingPhotos();
 	}
@@ -720,7 +727,10 @@ function miniOne(){
 // #1
 //to transition the hand paths
 	yBottom = belowIcons*2;
-	yTop = lineHY;
+	yTop = lineHY+100;
+d3.selectAll("g.axis").transition().attr('transform', 'translate(0, ' + (yTop) + ')');
+
+	overview.transition().attr("y",lineHY+61)
 
  	yActivePath 
 		.range([yBottom, yTop]); 
@@ -748,7 +758,7 @@ function miniOne(){
 	
 	d3.selectAll("circle.graphImage").transition().attr("cy",yBottom);
 	d3.selectAll("line.graphImage").transition().attr("y1",yBottom);
-	d3.selectAll("#hands.graphImage").transition().attr("y",yBottom);
+	d3.selectAll("#hands.graphImage").transition().attr("y",yBottom+25);
 	d3.selectAll(".graphImage").transition().attr("opacity",1);
 	revealFaces();
 	showingHands();
@@ -759,6 +769,7 @@ function unshowBody(){
 	hideHands(); //hide
 	expandKit();
 }
+
 
 function hideFaces(){
 	timeX.range([leftMargin, leftMargin]);
@@ -783,9 +794,17 @@ function hideFaces(){
 		.attr("x", function(d){
 			return timeX(d.time);
 		})
+	d3.selectAll("circle.facerect")	
+		.transition()
+		.attr("fill", "none")
+		// .attr("x", function(d){
+		// 	return timeX(d.time);
+		// })
 }
 
 function miniTwo(){
+	d3.selectAll("#hands.graphImage").transition().attr("y",yBottom+25);
+
 // #2
 //TO TRANSITION THE FACES
 // faceY=yTop+2*maxTotal*faceRadius;
@@ -794,6 +813,13 @@ function miniTwo(){
 		.transition()
 	    .attr("y", function(d,i){
 	    	return faceY-(d.num*faceRadius);
+	    })
+	faceY=yBottom-2*maxTotal*faceRadius;
+	d3.selectAll("circle.facerect")	
+		.transition()
+	    .attr("cy", function(d,i){
+	    	return faceY-(d.num*faceRadius/4); //			return faceY-(d.num*faceRadius/4);
+
 	    })
 	d3.selectAll("#face.graphImage").transition().attr("y",faceY-iconW);
 
@@ -956,8 +982,10 @@ function miniFour(){
 // #4?
 //to transition the logs
 	// var lineHY = h/4;
+	var topMarg = 140;
+	var bottomHere = lineHY/1.5;
 	yOther
-	    .rangePoints([topMarg, lineHY/2]);
+	    .rangePoints([topMarg, bottomHere]);
 
 	d3.selectAll(".iconsHS").transition().attr("y", function(d, i) {
 		return yOther(d)-7
@@ -972,7 +1000,7 @@ function miniFour(){
     })
 	d3.selectAll(".logCC").transition()
 			.attr("y1", topMarg) 
-		    .attr("y2", lineHY/2) 	
+		    .attr("y2", bottomHere) 	
 }
 
 var moveToFront = function() { 

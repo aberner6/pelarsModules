@@ -445,11 +445,11 @@ function parseButton(incomingData){
 	}); 
 	console.log(particleOnly.length + "button press data")
 	button1 = particleOnly.filter(function(n){ 
-		return n.data == "b2" && n.data!=undefined;
+		return n.data == "b1" && n.data!=undefined;
 	}); 
 	console.log(button1.length + "button 1")
 	button2 = particleOnly.filter(function(n){ 
-		return n.data == "b1" && n.data!=undefined;
+		return n.data == "b2" && n.data!=undefined;
 	}); 
 	console.log(button2.length + "button 2")
 
@@ -549,8 +549,8 @@ function drawButton(button1, button2, img1, img2){
                 	// if(d.time>=thisTime && d.time<=thisTime+timeMargin){
 	                	if(d.view=="workspace"){
 	                		console.log(d.view)
-	                		// return d.data;
-	                		return "images/frustration.png"	
+	                		return d.data;
+	                		// return "images/frustration.png"	
 	                	} else {
 	                		// return (btnNest1[lIndex].values[0][0].data) 
 	                	}
@@ -622,8 +622,8 @@ function drawButton(button1, button2, img1, img2){
                 .attr("xlink:href", function(d, i) {
 	                	if(d.view=="workspace"){
 	                		console.log(d.view)
-	                		return "images/frustration.png"
-	                		// return d.data;
+	                		// return "images/frustration.png"
+	                		return d.data;
 	                	} else {
 	                		// return btnNest2[tIndex].values[0][0].data//btnImg2[tIndex][0].data; 
 	                	}
@@ -713,6 +713,7 @@ var researcherNote = [];
 // 		}
 // 	}, 3000);	
 // }
+var theVideo;
 function parsePhotos(multiData){
 	imgData = multiData;
 	var captionsText = [];
@@ -729,6 +730,9 @@ function parsePhotos(multiData){
 			}
 			if(imgData[0][i].creator=="student" && imgData[0][i].type=="image"){
 				docuImg.push(imgData[0][i]);
+			}
+			if(imgData[0][i].creator=="student" && imgData[0][i].type=="video"){
+				theVideo = imgData[0][i].data;
 			}
 		}
 ////online version
@@ -791,8 +795,8 @@ function showPhotos(){
 		.attr("width", timelineImgWidth)
 		.attr("height", timelineImgHeight)
 	    .attr("xlink:href", function(d, i) {
-			return "images/frustration.png";
-			// return d.data;                    	                       		
+			// return "images/frustration.png";
+			return d.data;                    	                       		
 	    })
 	    .on("click", function(d,i){
 	    	d3.select(this)
@@ -977,9 +981,10 @@ function showStudDoc(){
 
 
     var x = document.createElement("VIDEO");
-
+// theVideo;
     if (x.canPlayType("video/mp4")) {
-        x.setAttribute("src","assets/vid/15350.mp4");
+        x.setAttribute("src",theVideo);
+        // x.setAttribute("src","assets/vid/15350.mp4");
     } else {
     }
     x.setAttribute("width", w/2); //"800");
@@ -1153,6 +1158,39 @@ function goFace(faceData){
 	    .attr("fill", lightColor)
 	    .attr("opacity",.6)
 		.attr("stroke","none")
+	var circFace = timeSVG.append("g").attr("class","facerect").selectAll(".facerect")
+	    .data(faceData.values)
+	  	.enter().append("circle")
+	    .attr("class", "facerect")
+	    .attr("cx", function(d){
+	    	// faceNum.push(d.num);
+	    	return timeX(d.time)
+	    })
+	    .attr("cy", function(d,i){
+	    	if(d.num>2){
+			return faceY-(d.num*faceRadius/4);
+	    		// return faceY+(d.num*faceRadius)*2;
+	    	} else{ return 0 }
+	    })
+	    .attr("r", function(d,i){
+	    	if(d.num>2){
+		    	return (d.num*faceRadius)*1.5;
+	    	} else{ return 0 }
+	    })
+	    // .attr("width",2)
+	    .attr("fill", lightColor)
+	    .attr("opacity",.2)
+		.attr("stroke","none");
+
+
+	$("circle.facerect").tipsy({ 
+			gravity: 'nw', 
+			html: true, 
+			title: function() {
+				return "3 People Looking"
+			}
+	});
+
 	maxFaces = d3.max(faceNum);
 
 	timeSVG.append("g").append("image")
@@ -1164,6 +1202,17 @@ function goFace(faceData){
 		.attr("height", iconW*3-10)
 		.attr("xlink:href","assets/icons0/Faces.png")
 		.attr("opacity",0)
+
+	$("#face.graphImage").tipsy({ 
+			gravity: 'nw', 
+			html: true, 
+			title: function() {
+				return "Looking at the Screen"
+			}
+	});
+
+	
+	// d3.selectAll("#hands.graphImage").transition().attr("y",yBottom);
 	// timeSVG.append("g").append("text")
 	// 	.attr("class", "faceTitle")
 	// 	.attr("x", leftMargin-3)
@@ -1194,6 +1243,12 @@ function revealFaces(){
 		.transition()
 		.attr("fill", faceColor)
 		.attr("x", function(d){
+			return timeX(d.time);
+		})
+	d3.selectAll("circle.facerect")	
+		.transition()
+		.attr("fill", faceColor)
+		.attr("cx", function(d){
 			return timeX(d.time);
 		})
 }
@@ -1689,15 +1744,15 @@ function makeEdge(linkData, linkNodes, linkLinks){
 function showSummary(){
 	var moreOrLessHands;
 	if(sessionHandProx> allProxMax){
-		moreOrLessHands = "MORE";
+		moreOrLessHands = "more";
 	} else{
-		moreOrLessHands = "LESS";
+		moreOrLessHands = "less";
 	}
 	var moreOrLessFace;
 	if(sessionFaceProx> allFaceProx){
-		moreOrLessFace= "MORE";
+		moreOrLessFace= "more";
 	} else{
-		moreOrLessFace = "LESS";
+		moreOrLessFace = "less";
 	}
 	var descriptionCaption = descripSVG.append("text")
 		.attr("id","description")
@@ -2002,6 +2057,13 @@ function goHands(handData, summaryHands){
 		.attr("height", iconW*2)
 		.attr("xlink:href","assets/icons0/Hands.png")
 		.attr("opacity",0);
+	$("#hands.graphImage").tipsy({ 
+			gravity: 'nw', 
+			html: true, 
+			title: function() {
+				return "How Quickly Your Hands Move"
+			}
+	});
 	// timeSVG.append("g").append("text")
 	// 	.attr("class", "graphTitle")
 	// 	.attr("x", leftMargin-3)
@@ -2744,7 +2806,7 @@ function showPhases(phasesJSON){
 	    .attr("fill", function(d, i) { return color[i]; })
 
 	obs = cleanArray(obs)
-
+	var bottomHere = lineHY/1.5;
 	console.log(obs);
 	//draw a rectangle for each key
 	var rectPhase = timeSVG.selectAll(".phase")
@@ -2759,7 +2821,7 @@ function showPhases(phasesJSON){
 		.attr("width",function(d,i){
 			return timeX(d.end)-timeX(d.start);
 		})
-		.attr("height",timeSVGH)//-2*cmargin)
+		.attr("height",bottomHere)//-2*cmargin)
 		.attr("fill",function(d,i){
 			if(d.num%2==0){
 				return "none"
