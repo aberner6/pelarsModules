@@ -104,7 +104,8 @@ function setSVG(next){
 	  dataIs.push(dataS);
 	  // console.log(data);
 	  makeThings(dataIs);
-	  next()
+	  if(next)
+	  	next()
 	})
 }
 var prevName = [];
