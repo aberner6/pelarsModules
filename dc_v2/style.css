@@ -162,10 +162,10 @@ image#clip-circ {
   -webkit-clip-path: circle(20% at 50% 50%);
     /*transform: translate(0px,0px);*/
 }
-image#clip-circ:hover {    
-    -webkit-clip-path: inset(0% 0% 0% 0%);
+/*image#clip-circ:hover {    */
+    /*-webkit-clip-path: inset(0% 0% 0% 0%);*/
     /*transform: translate(0px,10px);*/
-}
+/*}*/
 
 #capt:hover{
   cursor:pointer;
@@ -173,16 +173,18 @@ image#clip-circ:hover {
 }
 
 
-
+image.button2{
+  cursor:pointer;
+}
 image.button1{
   cursor:pointer;
 }
 image.camIcon{
   cursor:pointer;
 }
-/*image.studCommentIcon{
+image.studCommentIcon{
   cursor:pointer;
-}*/
+}
 image.vidIcon{
   cursor:pointer;
 }

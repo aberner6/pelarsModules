@@ -160,7 +160,7 @@ var yAxisBottom = h-200;
 		// yTop = h/2;
 	// }
 // var activateHoverbox;
-var lineHY = h/2; //h/2
+var lineHY = h/1.7; //h/2
 var durTrans = 1500;
 var yBottom = belowIcons;
 var yTop = lineHY;
@@ -445,11 +445,11 @@ function parseButton(incomingData){
 	}); 
 	console.log(particleOnly.length + "button press data")
 	button1 = particleOnly.filter(function(n){ 
-		return n.data == "b1" && n.data!=undefined;
+		return n.data == "b2" && n.data!=undefined;
 	}); 
 	console.log(button1.length + "button 1")
 	button2 = particleOnly.filter(function(n){ 
-		return n.data == "b2" && n.data!=undefined;
+		return n.data == "b1" && n.data!=undefined;
 	}); 
 	console.log(button2.length + "button 2")
 
@@ -541,7 +541,7 @@ function drawButton(button1, button2, img1, img2){
                 .attr("class", "clip-circ"+lIndex+"l")
                 .attr("id","clip-circ")
                 .attr("x", timeXTrue(thisTime)-btnImgW/2)
-				.attr("y", butY+20)
+				.attr("y",  butY-30)
         		.attr("width", btnImgW)
         		.attr("height", btnImgH)
                 .attr("xlink:href", function(d, i) {
@@ -855,7 +855,57 @@ function showStudDoc(){
 		.attr("y", butLineY1)
 		.attr("width",iconW)
 		.attr("height",iconW)
-		.attr("opacity",0);	
+		.attr("opacity",0)
+		.on("click", function(d,i){
+			var thisData = d3.select(this);
+			var thisTime = thisData[0][0].__data__.time;
+			console.log(thisTime+"docuNote time")
+			var lIndex = i;
+			console.log(docuNote[lIndex]);
+// var thisText = svgMain
+//                 .append("text").attr("class","new")
+//                 .attr("x", 100)
+// 				.attr("y", 500)
+// 				.attr("fill","red")
+//                 .text("BALHABLAHALHAHL")
+//         		.attr("opacity",1);
+		    // var docCom = svgMain
+		    // .selectAll(".SC"+lIndex)
+                // .data(docuNote) 
+                // .attr("x", timeXTrue(thisTime)-iconW/2)
+            docCom = svgMain
+                .append("text")
+                .attr("class", "SC"+lIndex)
+                .attr("x", timeXTrue(thisTime)-iconW/2)
+				.attr("y", butY+20)
+		      .attr("font-size",10)
+		      .attr("dy", "1.5em")
+				.attr("fill",darkColor)
+                .text(function() {
+					d3.text(docuNote[lIndex].data+ "?token="+pelarstoken, function(textData){ 
+						console.log(textData);
+						return textData;
+				  })
+                })
+		        .call(wrap2, iconW)
+        		.attr("opacity",1);
+
+			// d3.selectAll(".SC"+lIndex)
+			// 	.transition()
+			// 	.duration(2000)
+			// 	.attr("opacity",1)
+			// moveAllToFront();
+		})
+		.on("mouseout", function(d,i){
+			var thisData = d3.select(this);
+			var lIndex = i;
+			var thisTime = thisData[0][0].__data__.time;
+			d3.selectAll(".SC"+lIndex)
+				.transition()
+				// .duration(2000)
+				.attr("opacity",0)
+		});
+
 
 	var studImgDoc;
 	studImgDoc = timeSVG.selectAll(".camIcon")
@@ -871,7 +921,7 @@ function showStudDoc(){
 		.attr("width",docIcon)
 		.attr("height",docIcon)
 		.attr("opacity",0)
-		.on("mouseover", function(d,i){
+		.on("click", function(d,i){
 			var thisData = d3.select(this);
 			var thisTime = thisData[0][0].__data__.time;
 			console.log(thisTime+"docuImg time")
@@ -890,7 +940,7 @@ function showStudDoc(){
                 // .attr("class", "clip-circ"+lIndex+"SD")
                 // .attr("id","clip-circ")
                 .attr("x", timeXTrue(thisTime)-btnImgW/2)
-				.attr("y", butY+20)
+				.attr("y", butY-30)
 				// .attr("y", butLineY2+btnImgH)
         		.attr("width", btnImgW)
         		.attr("height", btnImgH)
@@ -920,7 +970,7 @@ function showStudDoc(){
 				.attr("width", btnImgW)
 				.attr("height", btnImgH)
                 .attr("x", timeXTrue(thisTime)-btnImgW/2)
-				.attr("y", butY+20)
+				.attr("y",  butY-30)
 				// .attr("y", butLineY2-btnImgH)
 		});
 		// .on("click", function(d,i){
@@ -1764,7 +1814,8 @@ function showSummary(){
 	      .attr("dy", "4.5em")
 	      .attr("opacity",1)
 	      .text("In this session, the PELARS system observed that you used the following hardware elements: "+uniqueHards+" and the following software elements: "+uniqueSofts+" . The difference in usage of these elements - that is, the items you used in only software, were "+diffSoftHard+ ". You pressed the lightbulb button a total of "+button1.length+" times"+" and pressed the stormcloud a total of "+button2.length+" times. In the system's observation of your hand movements, we noticed that your group's hands were "+moreOrLessHands+" usual proximity to one another. Your group's faces were "+moreOrLessFace+" close to one another. See below for further statistics on these averages.")
-          .call(wrap2, forcewidth-20);
+          .call(wrap2, forcewidth-40);
+}
 
 	function wrap2(text, width) {
 	  text.each(function() {
@@ -1789,7 +1840,6 @@ function showSummary(){
 	    }
 	  });
 	}
-}
 var maxActiveOverall;
 var maxActive1, maxActive2, maxActive3;
 var pathActive1, lineActive1, pathActive2, lineActive2, pathActive3, lineActive3, pathActive0, lineActive0;
