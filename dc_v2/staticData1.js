@@ -1532,12 +1532,15 @@ function makeEdge(linkData, linkNodes, linkLinks){
 		.attr("width",forcewidth)
 		.attr("height",forceheight)  
 		.style("border","1px solid white") 
-		.attr("transform", "translate(" + (forcewidth) + "," + (timeSVGH+topMargin-250) + ")")
+		.attr("transform", "translate(" + (forcewidth) + "," + (0) + ")") //timeSVGH+topMargin-250
+
+		// .attr("transform", "translate(" + (forcewidth) + "," + (timeSVGH+topMargin-250) + ")")
 
 	d3.select(".buttonSVG").append("text")
 		.attr("class","buttonCaption")
 		.attr("x",0)
-		.attr("y",0)
+		.attr("y",15)
+		// .attr("y",0) 
 		.attr("text-anchor","middle")
 		 .attr("transform", "translate(" + (w/2-12) + ", " + ((h/2)-radius-40) + ")")	
 	 	.text("Links You Made in Your Program")

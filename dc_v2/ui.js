@@ -120,7 +120,57 @@ var svgT;
 var descripSVG;
 var thisH = timeSVGH+topMargin-250;
 
+loader();
+var load;
+function loader(){
+	load= d3.select("#container").append("svg")
+		.attr("class", "loadSVG")
+		.attr("width",w).attr("height",h)
+		.attr("transform", "translate(" + 0 + "," + 0 + ")")
+	d3.select(".loadSVG").append("svg:circle").attr("class","loader")
+		.attr("cx",w/2).attr("cy",h/2)
+		.attr("fill","none").attr("r",h/20)
+		.attr("stroke-width",10).attr("stroke","pink").attr("stroke-opacity",.3).attr("stroke-dasharray",3)
+	
+	for (i=0; i<10; i++){
+		d3.select(".loader")
+			.transition().duration(2000+i*100).attr("r",h/2).attr("stroke-width",i*10).attr("stroke-dasharray",1)
+			.each("end", function(){ 
+				d3.select(this).transition().duration(1000+i*100).attr("r",h/8).attr("stroke-width",i*10).attr("stroke-dasharray",i)
+				.each("end", function(){ 
+					d3.select(this).transition().duration(2000+i*100).attr("r",h/2).attr("stroke-width",i*10).attr("stroke-dasharray",i)
+						.each("end", function(){ 
+							d3.select(this).transition().duration(1000+i*100).attr("r",h/4).attr("stroke-width",i*10).attr("stroke-dasharray",i)
+								.each("end", function(){ 
+									d3.select(this).transition().duration(2000+i*100).attr("r",h).attr("stroke-width",i*10).attr("stroke-dasharray",i)
+										.each("end", function(){
+											d3.select(this).transition().ease("bounce").duration(1000+i*100).attr("r",h/4).attr("stroke-width",i*10).attr("stroke-dasharray",i)
+												.each("end", function(){
+													d3.select(this).transition().duration(1000+i*100).attr("r",h/2).attr("stroke-width",i*10).attr("stroke-dasharray",i)
+														.each("end", function(){
+															d3.select(this).transition().duration(1000+i*100).attr("r",h/8).attr("stroke-width",i*10).attr("stroke-dasharray",i)
+																.each("end", function(){
+																	d3.select(this).transition().duration(2000)
+																		.attr("cy",h/2 - 20).attr("stroke-width",i*10).attr("stroke-dasharray",i)
+																		.each("end", function(){
+																			d3.select(this)
+																				.transition().duration(2000)
+																				.ease("bounce")
+																				.attr("cy",h).attr("stroke-width",i*10).attr("stroke-dasharray",i)
+																		})
+																})
+														})
+												})
+										})
+								}) 
+							})
+					})
+			})
+	}
+}
+
 function makeThings(data){
+	console.log("in here")
 	svgBack= d3.select("#container").append("svg")
 		.attr("class", "backSVG")
 		.attr("width",w).attr("height",h)
@@ -629,6 +679,11 @@ var marginal = 1.2;
 	// $.getScript('staticData.js');
 	// setUpHoverbox();
 }
+
+$("#howto").click(function(){
+	$("#allAbout").toggle();
+})
+
 
 var handsShow = false;
 var buttonShow = false;
