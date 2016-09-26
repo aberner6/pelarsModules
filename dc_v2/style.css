@@ -17,7 +17,7 @@ body{
 .svgTwo{
   display:none;
   position: absolute;
-  top: 0px;
+  top: 79px;
   left: 0px;
 }
 .clickThis{
@@ -26,6 +26,7 @@ body{
 .clickThis:hover{
   opacity:.3;
 }
+
 .video{
     right: 25.6%;
     top: 26%;

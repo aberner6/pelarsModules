@@ -824,7 +824,13 @@ function showPhotos(){
 	    			// console.log(d+"image clicked")
 	    			return timeX(d.time)-timelineImgWidth/4;
 	    		})
-				.attr("y", lineHY-timelineImgHeight/2)  //622
+				.attr("y", function(d){
+					if(numClicked>2){
+						return (lineHY+61) 
+					}else{
+						return (lineHY+100-timelineImgHeight/2) 
+					}
+				})
 	    		.attr("width", timelineImgWidth)
 	    		.attr("height", timelineImgHeight)   
 			d3.select(this).each(moveToFront);
@@ -887,14 +893,14 @@ function showStudDoc(){
 						return textData;
 				  })
                 })
-		        .call(wrap2, iconW)
+		        // .call(wrap2, iconW)
         		.attr("opacity",1);
 
-			// d3.selectAll(".SC"+lIndex)
-			// 	.transition()
-			// 	.duration(2000)
-			// 	.attr("opacity",1)
-			// moveAllToFront();
+			d3.selectAll(".SC"+lIndex)
+				.transition()
+				.duration(2000)
+				.attr("opacity",1)
+			moveAllToFront();
 		})
 		.on("mouseout", function(d,i){
 			var thisData = d3.select(this);
@@ -940,7 +946,7 @@ function showStudDoc(){
                 // .attr("class", "clip-circ"+lIndex+"SD")
                 // .attr("id","clip-circ")
                 .attr("x", timeXTrue(thisTime)-btnImgW/2)
-				.attr("y", butY-30)
+				.attr("y", butY)
 				// .attr("y", butLineY2+btnImgH)
         		.attr("width", btnImgW)
         		.attr("height", btnImgH)
@@ -952,7 +958,7 @@ function showStudDoc(){
 			d3.selectAll(".SD"+lIndex)
 			// .selectAll(".clip-circ"+lIndex+"SD")
 				.transition()
-				.duration(2000)
+				// .duration(2000)
 				.attr("opacity",1)
 			// docImg.exit();
 			moveAllToFront();
@@ -967,10 +973,10 @@ function showStudDoc(){
 				.transition()
 				.duration(2000)
 				.attr("opacity",0)
-				.attr("width", btnImgW)
-				.attr("height", btnImgH)
-                .attr("x", timeXTrue(thisTime)-btnImgW/2)
-				.attr("y",  butY-30)
+				// .attr("width", btnImgW)
+				// .attr("height", btnImgH)
+                // .attr("x", timeXTrue(thisTime)-btnImgW/2)
+				// .attr("y",  butY-30)
 				// .attr("y", butLineY2-btnImgH)
 		});
 		// .on("click", function(d,i){

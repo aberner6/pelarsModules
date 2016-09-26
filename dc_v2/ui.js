@@ -133,14 +133,15 @@ function makeThings(data){
 		.attr("width", w)
 		.attr("height", timeSVGH)  
 		.style("margin-top","1px");
+		chooseData();
 
 	svgT = d3.select("#container").append("svg")
 		.attr("class", "svgTwo")
 		.attr("width",w).attr("height",h)
-		.attr("transform", "translate(" + 0 + "," + 0 + ")")
+		.attr("transform", "translate(" + 0 + "," + (belowIcons-50) + ")")
 	behindSVG = d3.select(".svgTwo").append("svg:rect").attr("class","behindRect")
-		.attr("x",10).attr("y",belowIcons-50)
-		.attr("fill","white").attr("width",w-30).attr("height",h)
+		.attr("x",20).attr("y",0)//belowIcons-50)
+		.attr("fill","white").attr("width",w-40).attr("height",h).attr("stroke","lightgray").attr("stroke-width",4)
 
 	descripSVG = svgT
 		.append("g")
@@ -631,15 +632,41 @@ var marginal = 1.2;
 
 var handsShow = false;
 var buttonShow = false;
+function chooseData(){
+	var clickRect = svgMain.append("rect")
+	.attr("class","clickThis1")
+	.attr("width",forcewidth)
+	.attr("height",forceheight/4)
+	.attr("x",w/2-forcewidth/2)
+	.attr("y",forceheight-forceheight/4)
+	.attr("fill","lightgray");
 
+	var clickText = svgMain.append("text")
+		.attr("class","clickThis1")
+		.attr("x",w/2).attr("font-size",14)
+		.attr("y",forceheight-forceheight/8)
+		.attr("fill","white")
+		.attr("text-anchor","middle")
+		.text("CHOOSE A DATA STREAM ABOVE");
+	$(".clickThis1").hide();
+}
 function makeShow(whichName){
 	var hoverData = whichName;
 	console.log(hoverData+"hover data")	
 	if(hoverData == "Timeline"){
 		$("g.axis").show();
+		$(".clickThis1").show();
+		if(numClicked>2){
+			$(".clickThis1").hide();
+		}
+		// $("g.axis").hide();
+		$("g.statsRects").hide()
+		$(".svgTwo").hide();
+
 	}
 	if(hoverData=="Body"){
 		$("g.axis").show();
+		$(".clickThis1").hide();
 
 		numClicked+=2;
 		d3.selectAll(".graphImage").transition().attr("opacity",1);
@@ -653,13 +680,20 @@ function makeShow(whichName){
 	if(hoverData=="Phases"){
 		$("g.axis").show();
 		revealPhases();
+		$(".clickThis1").hide();
+
 	}
 	if(hoverData=="Button"){
 		$("g.axis").show();
+		$(".clickThis1").hide();
 		revealButton();
+
+
 	}
 	if(hoverData=="Documentation"){
 		$("g.axis").show();
+		$(".clickThis1").hide();
+
 		revealDoc();
 		revealPhotos();
 		if(numClicked>2){
@@ -674,6 +708,8 @@ function makeShow(whichName){
 	}
 	if(hoverData=="Kit"){
 		$("g.axis").show();
+		$(".clickThis1").hide();
+
 		numClicked+=2;
 		d3.selectAll(".kitlabels").transition().attr("opacity",1)
 		$("g#arduinoPath").show();
@@ -684,6 +720,8 @@ function makeShow(whichName){
 		console.log(numClicked+"numClicked")
 	}
 	if(hoverData == "Summary"){
+		$(".clickThis1").hide();
+
 		$("g.axis").hide();
 		$("g.statsRects").show()
 		$(".svgTwo").show();
@@ -756,8 +794,11 @@ d3.selectAll("g.axis").transition().attr('transform', 'translate(0, ' + (yTop) +
   		.transition().duration(durTrans)  
   		.attr("d", lineActive3);
 	
+
 	d3.selectAll("circle.graphImage").transition().attr("cy",yBottom);
-	d3.selectAll("line.graphImage").transition().attr("y1",yBottom);
+
+	d3.selectAll("line.graphImage").transition().attr("y1",yTop).attr("y2",yBottom)
+
 	d3.selectAll("#hands.graphImage").transition().attr("y",yBottom+25);
 	d3.selectAll(".graphImage").transition().attr("opacity",1);
 	revealFaces();
