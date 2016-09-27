@@ -153,7 +153,7 @@ function makeThings(data){
 		.attr("class","descripSVG")
 		.attr("width",forcewidth)
 		.attr("height",forceheight)  
-		.attr("transform", "translate(" + (forcewidth) + "," + (thisH*2) + ")")
+		.attr("transform", "translate(" + (forcewidth) + "," + ((thisH*2) - (110)) + ")")
 		// .attr("opacity",0)
 // d3.selectAll(".behind").transition().attr("width",w-30)
 	// sumSVG= timeSVG.append("svg")
@@ -345,17 +345,6 @@ var marginal = 1.2;
 						y = bottomIcons; //smallY // specialHeight-10	 
 			      		return "translate(" + x + "," + (y) + ")";			      		
 			      	}		      			
-		   //    			x=center-smallWidth/2-origStroke;
-		   //    			return "translate(" + x + "," + y + ")"; 
-		   //    		}
-		   //    		if(d.name=="Summary"){
-		   //    			x=center+smallWidth/2-origStroke;;
-		   //    			return "translate(" + x + "," + y + ")"; 
-		   //    		}else{
-			   //    		x = x3RectScale(i);
-						// y = smallY; //smallY // specialHeight-10	
-			   //    		return "translate(" + x + "," + (y) + ")"; 		      			
-		      		// }
 		      	})
 
         	d3.selectAll("#capt")
@@ -368,7 +357,7 @@ var marginal = 1.2;
         	clicked = true;
         	if(clicked){
 		    	d3.selectAll("#name").transition().attr("opacity",0);
-		    	d3.selectAll("#textDescrip").attr("opacity",0);
+		    	d3.selectAll("#textDescrip").remove();
         	}
 
         	var whichName;
@@ -527,7 +516,7 @@ var marginal = 1.2;
         		.attr("height", pressW/2)
         		.attr("opacity",1);
 	    	d3.selectAll("#name").attr("opacity",0);
-	    	d3.selectAll("#textDescrip").attr("opacity",0);
+	    	d3.selectAll("#textDescrip").remove(); //attr("opacity",0);
 
         	var whichName, whichSide;
 	    	d3.select(this)
@@ -643,19 +632,19 @@ $("#howto").click(function(){
 var handsShow = false;
 var buttonShow = false;
 function chooseData(){
-	var clickRect = svgMain.append("rect")
-	.attr("class","clickThis1")
-	.attr("width",forcewidth)
-	.attr("height",forceheight/4)
-	.attr("x",w/2-forcewidth/2)
-	.attr("y",forceheight-forceheight/4)
-	.attr("fill","lightgray");
+	// var clickRect = svgMain.append("rect")
+	// .attr("class","clickThis1")
+	// .attr("width",forcewidth)
+	// .attr("height",forceheight/4)
+	// .attr("x",w/2-forcewidth/2)
+	// .attr("y",forceheight-forceheight/4)
+	// .attr("fill","lightgray");
 
 	var clickText = svgMain.append("text")
 		.attr("class","clickThis1")
 		.attr("x",w/2).attr("font-size",14)
 		.attr("y",forceheight-forceheight/8)
-		.attr("fill","white")
+		.attr("fill",darkColor)
 		.attr("text-anchor","middle")
 		.text("CHOOSE A DATA STREAM ABOVE");
 	$(".clickThis1").hide();

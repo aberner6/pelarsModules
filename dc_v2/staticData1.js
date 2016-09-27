@@ -506,10 +506,68 @@ function drawButton(button1, button2, img1, img2){
 		})
 		.sortKeys(d3.ascending)
 		.entries(button2); //not btnImg2
-// for (i=0; i<button1.length; i++){
-// 	button1Images.push(btnNest1[i].values[0][0].data)
-// }
+	bigImgWidth = bigImgWidth*2;
+	bigImgHeight = bigImgHeight*2;
+	// var iconBut1 = timeSVG.selectAll(".button1")	
+	// 	.data(button1)
+	// 	iconBut1.enter()
+	// 	.append("image")
+	// 	.attr("class","button1")
+	// 	.attr("xlink:href", "assets/icons/idea.png")//"assets/icons0/Button.png")
+	// 	.attr("x", function(d){
+	// 		return timeXTrue(d.time);
+	// 	})
+	// 	.attr("y", butLineY1)
+	// 	.attr("width",iconW)
+	// 	.attr("height",iconW)
+	// 	.attr("opacity",0)
+	// 	.on("click", function(d,i){
+	// 		var thisData = d3.select(this);
+	// 		var thisTime = thisData[0][0].__data__.time;
+	// 		console.log(thisTime+"thisTIME")
+	// 		var lIndex = i;
+	// 		// var thisIndex = i;
+	// 		console.log(btnNest1[lIndex].values[0]);
+	// 		console.log(lIndex)
+	// 	    lightbulb = timeSVG.selectAll(".clip-circ"+lIndex+"l")
+ //                .data(btnImg1[lIndex]) //btnImg2[thisIndex].data or take off data 
+ //                .attr("id","clip-circ")
+ //                .attr("x", timeXTrue(thisTime)-btnImgW/2)
+ //            lightbulb
+ //                .enter()
+ //                .append("image")
+ //                .attr("class", "clip-circ"+lIndex+"l")
+ //                .attr("id","clip-circ")
+ //                .attr("x", timeXTrue(thisTime)-btnImgW/2)
+	// 			.attr("y",  butY-30)
+ //        		.attr("width", btnImgW)
+ //        		.attr("height", btnImgH)
+ //                .attr("xlink:href", function(d, i) {
+ //                	console.log(d.view);
+ //                	// if(d.time>=thisTime && d.time<=thisTime+timeMargin){
+	//                 	if(d.view=="workspace"){
+	//                 		console.log(d.view)
+	//                 		return d.data;
+	//                 		// return "images/frustration.png"	
+	//                 	} else {
+	//                 		// return (btnNest1[lIndex].values[0][0].data) 
+	//                 	}
+ //                })
+ //        		.attr("opacity",1);
+	// 		d3.selectAll("image#clip-circ.clip-circ"+lIndex+"l").transition().attr("opacity",1);
+	// 		// lightbulb.exit();
+	// 		moveAllToFront();
+	// 	})
+	// 	.on("mouseout", function(d,i){
+	// 		var lIndex = i;
+	// 		d3.selectAll(".clip-circ"+lIndex+"l")
+	// 			.transition()
+	// 			.duration(2000)
+	// 			.attr("opacity",0)
+	// 	});
+//correct above
 
+//working ok
 	var iconBut1 = timeSVG.selectAll(".button1")	
 		.data(button1)
 		iconBut1.enter()
@@ -528,36 +586,47 @@ function drawButton(button1, button2, img1, img2){
 			var thisTime = thisData[0][0].__data__.time;
 			console.log(thisTime+"thisTIME")
 			var lIndex = i;
-			// var thisIndex = i;
+
 			console.log(btnNest1[lIndex].values[0]);
 			console.log(lIndex)
 		    lightbulb = timeSVG.selectAll(".clip-circ"+lIndex+"l")
                 .data(btnImg1[lIndex]) //btnImg2[thisIndex].data or take off data 
                 .attr("id","clip-circ")
-                .attr("x", timeXTrue(thisTime)-btnImgW/2)
+                // .attr("x", timeXTrue(thisTime)-btnImgW/2)
             lightbulb
                 .enter()
                 .append("image")
                 .attr("class", "clip-circ"+lIndex+"l")
                 .attr("id","clip-circ")
-                .attr("x", timeXTrue(thisTime)-btnImgW/2)
-				.attr("y",  butY-30)
-        		.attr("width", btnImgW)
-        		.attr("height", btnImgH)
+	    		.attr("x", function(d,i){
+	    			if(timeXTrue(thisTime)-bigImgWidth/2<leftMargin){
+	    				console.log("under left edge")
+	    				return leftMargin;
+	    			}
+	    			else if(timeXTrue(thisTime)-bigImgWidth/2>(w-rightMargin-bigImgWidth)){
+	    				console.log("over right edge")
+	    				return w-rightMargin-bigImgWidth;
+	    			}
+	    			else{
+	    				return timeXTrue(thisTime)-bigImgWidth/2;
+	    			}
+	    		})
+	    		.attr("y", butY/4)
+	    		.attr("width",bigImgWidth)
+	    		.attr("height",bigImgHeight)
                 .attr("xlink:href", function(d, i) {
                 	console.log(d.view);
-                	// if(d.time>=thisTime && d.time<=thisTime+timeMargin){
 	                	if(d.view=="workspace"){
 	                		console.log(d.view)
 	                		return d.data;
-	                		// return "images/frustration.png"	
 	                	} else {
-	                		// return (btnNest1[lIndex].values[0][0].data) 
 	                	}
                 })
         		.attr("opacity",1);
-			d3.selectAll("image#clip-circ.clip-circ"+lIndex+"l").transition().attr("opacity",1);
-			// lightbulb.exit();
+			d3.selectAll("image#clip-circ.clip-circ"+lIndex+"l")
+				.transition().attr("opacity",1)
+	    		.attr("width",bigImgWidth)
+	    		.attr("height",bigImgHeight);
 			moveAllToFront();
 		})
 		.on("mouseout", function(d,i){
@@ -566,7 +635,171 @@ function drawButton(button1, button2, img1, img2){
 				.transition()
 				.duration(2000)
 				.attr("opacity",0)
+				.attr("width",0)
+	    		.attr("height",0)
 		});
+//working ok
+//messing below
+	// var iconBut1 = timeSVG.selectAll(".button1")	
+	// 	.data(button1)
+	// 	iconBut1.enter()
+	// 	.append("image")
+	// 	.attr("class","button1")
+	// 	.attr("xlink:href", "assets/icons/idea.png")//"assets/icons0/Button.png")
+	// 	.attr("x", function(d){
+	// 		return timeXTrue(d.time);
+	// 	})
+	// 	.attr("y", butLineY1)
+	// 	.attr("width",iconW)
+	// 	.attr("height",iconW)
+	// 	.attr("opacity",0)
+	// 	.on("click", function(d,i){
+	// 		var thisData = d3.select(this);
+	// 		var thisTime = thisData[0][0].__data__.time;
+	// 		console.log(thisTime+"thisTIME")
+	// 		var lIndex = i;
+
+	// 		console.log(btnNest1[lIndex].values[0]);
+	// 		console.log(lIndex)
+	// 	    lightbulb = timeSVG.selectAll(".clip-circ"+lIndex+"l")
+ //                .data(btnImg1[lIndex]) //btnImg2[thisIndex].data or take off data 
+ //                .attr("id","clip-circ")
+ //                .attr("x", timeXTrue(thisTime)-btnImgW/2)
+ //            lightbulb
+ //                .enter()
+ //                .append("image")
+ //                .attr("class", "clip-circ"+lIndex+"l")
+ //                .attr("id","clip-circ")
+	//     		.attr("x", function(d,i){
+	//     			if(timeXTrue(thisTime)-bigImgWidth/2<leftMargin){
+	//     				console.log("under left edge")
+	//     				return leftMargin;
+	//     			}
+	//     			else if(timeXTrue(thisTime)-bigImgWidth/2>(w-rightMargin-bigImgWidth)){
+	//     				console.log("over right edge")
+	//     				return w-rightMargin-bigImgWidth;
+	//     			}
+	//     			else{
+	//     				return timeXTrue(thisTime)-bigImgWidth/2;
+	//     			}
+	//     		})
+	//     		.attr("y", butY+btnImgH)
+	//     		.attr("width",bigImgWidth)
+	//     		.attr("height",bigImgHeight)
+ //                .attr("xlink:href", function(d, i) {
+ //                	console.log(d.view);
+	//                 	if(d.view=="workspace"){
+	//                 		console.log(d.view)
+	//                 		return d.data;
+	//                 	} else {
+	//                 	}
+ //                })
+ //        		.attr("opacity",1);
+	// 		d3.selectAll("image#clip-circ.clip-circ"+lIndex+"l").transition().attr("opacity",1);
+	// 		moveAllToFront();
+	// 	})
+	// 	.on("mouseout", function(d,i){
+	// 		var lIndex = i;
+	// 		d3.selectAll(".clip-circ"+lIndex+"l")
+	// 			.transition()
+	// 			.duration(2000)
+	// 			.attr("opacity",0)
+	// 			.attr("x", timeXTrue(thisTime)-btnImgW/2)
+	// 			.attr("y", butY-btnImgH)
+	//     		.attr("width",btnImgW)
+	//     		.attr("height",btnImgH)
+	// 	});
+
+
+
+
+
+
+//MESSING
+
+  //   lightbulb = timeSVG.selectAll(".clip-circl")
+  //       .data(btnImg1) //btnImg2[thisIndex].data or take off data 
+  //       .attr("id","clip-circ")
+  //       .attr("x", function(d, i) {
+  //       	console.log(d[1]);
+  //       	// return timeXTrue(d.time)-btnImgW/2
+  //       })
+  //   lightbulb
+  //       .enter()
+  //       .append("image")
+  //       // .data()
+  //       .attr("class", "clip-circl")
+  //       .attr("id","clip-circ")
+  //       .attr("x", function(d, i) {
+  //       	console.log(d);
+  //       	// return timeXTrue(d.time)-btnImgW/2
+  //       })
+		// .attr("y",  butY-30)
+		// .attr("width", btnImgW)
+		// .attr("height", btnImgH)
+  //       .attr("xlink:href", function(d, i) {
+  //       	console.log(d.view);
+  //       	// if(d.time>=thisTime && d.time<=thisTime+timeMargin){
+  //           	if(d.view=="workspace"){
+  //           		console.log(d.view)
+  //           		return d[i].data;
+  //           		// return "images/frustration.png"	
+  //           	} else {
+  //           		// return (btnNest1[lIndex].values[0][0].data) 
+  //           	}
+  //       })
+		// .attr("opacity",1)
+	 //    .on("click", function(d,i){
+	 //    	d3.select(this)
+	 //    		.transition()
+	 //    		.duration(500)
+	 //    		.attr("x", function(d,i){
+	 //    			if(timeX(d.time)-bigImgWidth/2<leftMargin){
+	 //    				console.log("under left edge")
+	 //    				return leftMargin;
+	 //    			}
+	 //    			else if(timeX(d.time)-bigImgWidth/2>(w-rightMargin-bigImgWidth)){
+	 //    				console.log("over right edge")
+	 //    				return w-rightMargin-bigImgWidth;
+	 //    			}
+	 //    			else{
+	 //    				return timeX(d.time)-bigImgWidth/2;
+	 //    			}
+	 //    		})
+	 //    		.attr("y", lineHY-bigImgHeight+bigImgHeight/4)
+	 //    		.attr("width",bigImgWidth)
+	 //    		.attr("height",bigImgHeight)
+	 //    		.transition()
+	 //    		.delay(3000)
+	 //    		.attr("x", function(d){
+	 //    			// console.log(d+"image clicked")
+	 //    			return timeX(d.time)-timelineImgWidth/4;
+	 //    		})
+		// 		.attr("y", function(d){
+		// 			if(numClicked>2){
+		// 				return (lineHY+61) 
+		// 			}else{
+		// 				return (lineHY+100-timelineImgHeight/2) 
+		// 			}
+		// 		})
+	 //    		.attr("width", timelineImgWidth)
+	 //    		.attr("height", timelineImgHeight)   
+		// 	d3.select(this).each(moveToFront);
+	 //    })
+	// d3.selectAll(overview).moveToFront;
+
+
+//messing
+
+
+
+
+
+
+
+
+
+
 
 
 	var iconLine1 = timeSVG.selectAll(".button1L")	
@@ -585,6 +818,69 @@ function drawButton(button1, button2, img1, img2){
 		.attr("stroke-width",.1)
 		.attr("stroke","grey");
 
+	// var iconBut2 = timeSVG.selectAll(".button2")	
+	// 	.data(button2)
+	// 	iconBut2.enter()
+	// 	.append("image")
+	// 	.attr("class","button2")
+	// 	.attr("xlink:href", "assets/icons/thunder.png") //just checking now put back to thunder
+	// 	.attr("x", function(d){
+	// 		return timeXTrue(d.time);
+	// 	})
+	// 	.attr("y", butLineY1)
+	// 	.attr("width",iconW)
+	// 	.attr("height",iconW)
+	// 	.attr("opacity",0)
+	// 	.on("click", function(d,i){
+	// 		var thisData = d3.select(this);
+	// 		var thisTime = thisData[0][0].__data__.time;
+	// 		console.log(thisTime+"thisTIME")
+	// 		var tIndex = i;
+
+	// 		console.log(tIndex)
+	// 	    thunder = timeSVG.selectAll(".clip-circ"+tIndex+"t")
+ //                .data(btnImg2[tIndex]) //btnImg2[thisIndex].data or take off data 
+ //                .attr("id","clip-circ")
+ //                .attr("x", timeXTrue(thisTime)-btnImgW/2)
+ //            thunder
+ //                .enter()
+ //                .append("image")
+ //                .attr("class", "clip-circ"+tIndex+"t")
+ //                .attr("id","clip-circ")
+ //                .attr("x", timeXTrue(thisTime)-btnImgW/2)
+	// 			.attr("y", butY+20)
+ //        		.attr("width", btnImgW)
+ //        		.attr("height", btnImgH)
+ //        		.attr("opacity",1)
+ //                .attr("xlink:href", function(d, i) {
+	//                 	if(d.view=="workspace"){
+	//                 		console.log(d.view)
+	//                 		// return "images/frustration.png"
+	//                 		return d.data;
+	//                 	} else {
+	//                 		// return btnNest2[tIndex].values[0][0].data//btnImg2[tIndex][0].data; 
+	//                 	}
+ //                })
+ //        		.attr("opacity",1);
+	// 		d3.selectAll("image#clip-circ.clip-circ"+tIndex+"t").transition().attr("opacity",1);
+	// 		moveAllToFront();
+	// 	})
+	// 	.on("mouseout", function(d,i){
+	// 		var tIndex = i;
+	// 		d3.selectAll(".clip-circ"+tIndex+"t")
+	// 			.transition()
+	// 			.duration(2000)
+	// 			.attr("opacity",0)
+	// 	});
+
+
+
+
+
+
+
+
+//messing
 	var iconBut2 = timeSVG.selectAll(".button2")	
 		.data(button2)
 		iconBut2.enter()
@@ -608,30 +904,41 @@ function drawButton(button1, button2, img1, img2){
 		    thunder = timeSVG.selectAll(".clip-circ"+tIndex+"t")
                 .data(btnImg2[tIndex]) //btnImg2[thisIndex].data or take off data 
                 .attr("id","clip-circ")
-                .attr("x", timeXTrue(thisTime)-btnImgW/2)
+                // .attr("x", timeXTrue(thisTime)-btnImgW/2)
             thunder
                 .enter()
                 .append("image")
                 .attr("class", "clip-circ"+tIndex+"t")
                 .attr("id","clip-circ")
-                .attr("x", timeXTrue(thisTime)-btnImgW/2)
-				.attr("y", butY+20)
-        		.attr("width", btnImgW)
-        		.attr("height", btnImgH)
-        		.attr("opacity",1)
+	    		.attr("x", function(d,i){
+	    			if(timeXTrue(thisTime)-bigImgWidth/2<leftMargin){
+	    				console.log("under left edge")
+	    				return leftMargin;
+	    			}
+	    			else if(timeXTrue(thisTime)-bigImgWidth/2>(w-rightMargin-bigImgWidth)){
+	    				console.log("over right edge")
+	    				return w-rightMargin-bigImgWidth;
+	    			}
+	    			else{
+	    				return timeXTrue(thisTime)-bigImgWidth/2;
+	    			}
+	    		})
+	    		.attr("y", butY/4)
+	    		.attr("width",bigImgWidth)
+	    		.attr("height",bigImgHeight)
                 .attr("xlink:href", function(d, i) {
+                	console.log(d.view);
 	                	if(d.view=="workspace"){
 	                		console.log(d.view)
-	                		// return "images/frustration.png"
 	                		return d.data;
 	                	} else {
-	                		// return btnNest2[tIndex].values[0][0].data//btnImg2[tIndex][0].data; 
 	                	}
                 })
-        		.attr("opacity",0)
-        		.transition()
         		.attr("opacity",1);
-			thunder.exit();
+			d3.selectAll("image#clip-circ.clip-circ"+tIndex+"t")
+				.transition().attr("opacity",1)
+	    		.attr("width",bigImgWidth)
+	    		.attr("height",bigImgHeight);
 			moveAllToFront();
 		})
 		.on("mouseout", function(d,i){
@@ -639,8 +946,22 @@ function drawButton(button1, button2, img1, img2){
 			d3.selectAll(".clip-circ"+tIndex+"t")
 				.transition()
 				.duration(2000)
-				.attr("opacity",0)
-		})
+				.attr("opacity",0).attr("width",0)
+	    		.attr("height",0)
+		});
+//messing
+
+
+
+
+
+
+
+
+
+
+
+
 	var iconLine2 = timeSVG.selectAll(".button2L")	
 		.data(button2)
 		iconLine2.enter()
@@ -819,7 +1140,7 @@ function showPhotos(){
 	    		.attr("width",bigImgWidth)
 	    		.attr("height",bigImgHeight)
 	    		.transition()
-	    		.delay(2000)
+	    		.delay(3000)
 	    		.attr("x", function(d){
 	    			// console.log(d+"image clicked")
 	    			return timeX(d.time)-timelineImgWidth/4;
@@ -1542,7 +1863,7 @@ function makeEdge(linkData, linkNodes, linkLinks){
 		.attr("y",15)
 		// .attr("y",0) 
 		.attr("text-anchor","middle")
-		 .attr("transform", "translate(" + (w/2-12) + ", " + ((h/2)-radius-40) + ")")	
+		 .attr("transform", "translate(" + (w/2-12) + ", " + ((h/2)-radius-40-14) + ")")	
 	 	.text("Links You Made in Your Program")
 		.attr("fill","#3d3d3c")
   // create plot area within svg image
@@ -2791,12 +3112,12 @@ function showPhases(phasesJSON){
 		.append("g")
 		.style("border","1px solid white") 
 		.style("margin-top","1px")
-		.attr("transform", "translate(" + (radius+margin) + "," + (timeSVGH+radius+topMargin-100) + ")")
+		.attr("transform", "translate(" + (radius+margin) + "," + (timeSVGH+radius+topMargin-100-147) + ")")
 		// .attr("transform", "translate(" + radius+margin + "," + (timeSVGH+radius+topMargin) + ")")
 	d3.select(".piePhase").append("text")
 		.attr("class","pieCaption")
 		.attr("x",0)
-		.attr("y",0).attr("transform", "translate(" + (w/6) + ", " + ((h/4+80)) + ")")	
+		.attr("y",0).attr("transform", "translate(" + (w/6) + ", " + ((h/4+80-149)) + ")")	
 		.attr("text-anchor","middle")
 	 	.text("How Long You Spent in Phases")
 		.attr("fill","#3d3d3c")
@@ -2998,7 +3319,7 @@ var rectW = smallWidth;
       	.attr("transform", function(d, i) { 
       		// console.log(d);
       		var x = stRectScale(d); //-leftMargin; //-rectWidth/2
-			var y = belowIcons;//yAxisBottom+70; //specialHeight+specialHeight/2+4; //-topMargin/2;
+			var y = belowIcons-100;//yAxisBottom+70; //specialHeight+specialHeight/2+4; //-topMargin/2;
       		return "translate(" + x + "," + y + ")"; 
       	});
 

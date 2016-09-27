@@ -24,7 +24,7 @@ body{
     padding: 5 10 10 10;
     width: 100px;
     position: absolute;
-    right: 3.2%;
+    right: 2.5%;
     top: 29px;
     background: pink;
 }
@@ -194,6 +194,9 @@ image#clip-circ {
 image.button2{
   cursor:pointer;
 }
+image.button2:hover{
+  cursor:pointer;
+}
 image.button1{
   cursor:pointer;
 }
@@ -226,6 +229,9 @@ image.camIcon{
 .backlabels{
     font-size:11;
 }
+/*#textDescrip{
+  display:none;
+}*/
 
 /*********************
 HEADER STYLES
@@ -315,34 +321,23 @@ letter-spacing: 0.5px;*/
 }
 #howto {
   padding: 5 10 0 10;
-  width: 40px;
-  height: 20px;
-  position: absolute;
-  right: 2.5%;
-  top: 29px;
-  background-repeat: no-repeat;
-  background-position: right;
-  transition: background-color 0.3s;
-  -webkit-transition: background-color 0.3s;
-
-/*    padding: 5 10 0 10;
     width: 40px;
     height: 20px;
-  position: absolute;
-  right:7.5%;
-  top: 10px;
-  background-repeat: no-repeat;
-  background-position: right;
-  transition: background-color 0.3s;
-  -webkit-transition: background-color 0.3s;*/
+    position: absolute;
+    right: 2.5%;
+    top: 29px;
+    /*border-bottom: 1px solid black;*/
+    /* background-repeat: no-repeat; */
+    /* background-position: right; */
 }
 #howto h3{
     margin-top: 0px;
 }
 #howto:hover{
-    cursor:pointer;
-  background-color: #3d3d3c;
-  color:white;
+    cursor: pointer;
+    /* background-color: #3d3d3c; */
+    color: gray;
+    border-bottom: 1px solid gray;
 }
 
 
