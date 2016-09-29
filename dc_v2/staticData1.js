@@ -1366,7 +1366,7 @@ function showStudDoc(){
     }
     x.setAttribute("width", w/2); //"800");
     x.setAttribute("class", "video");
-    x.setAttribute("height", lineHY*1.5) //"500");
+    x.setAttribute("height", lineHY) //"500");
     // x.setAttribute("width", "320");
     // x.setAttribute("class", "video");
     // x.setAttribute("height", "240");
@@ -1399,7 +1399,7 @@ function showStudDoc(){
 	var studVidRectX = timeSVG.append("rect")
 		.attr("class","vidX")
 		.attr("x", w/2+w/4)
-		.attr("y", 146-25)
+		.attr("y", 89)
 		.attr("width", 32)
 		.attr("height", 32)
 		.attr("fill","white")
@@ -1416,7 +1416,7 @@ function showStudDoc(){
 	var studVidX = timeSVG.append("text")
 		.attr("class","vidX")
 		.attr("x", w/2+w/4+4)
-		.attr("y", 148)
+		.attr("y", 117)
 		.attr("fill","red")
 		.text("X").attr("font-size", 32)
 		.on("mouseover", function(){
@@ -1864,7 +1864,7 @@ function makeEdge(linkData, linkNodes, linkLinks){
 		// .attr("y",0) 
 		.attr("text-anchor","middle")
 		 .attr("transform", "translate(" + (w/2-12) + ", " + ((h/2)-radius-40-14) + ")")	
-	 	.text("Links You Made in Your Program")
+	 	.text("Links You Programmed")
 		.attr("fill","#3d3d3c")
   // create plot area within svg image
     var plot = linksSVG.append("g")
@@ -2114,8 +2114,9 @@ function makeEdge(linkData, linkNodes, linkLinks){
 
 	$(".clickThis").on("click", function(){
 		showSummary();
-		// clickedSummary = true;
-		$(".clickThis").hide();
+		d3.selectAll(".clickThis").transition().attr("y2",0).remove()
+		d3.selectAll(".clickThis").transition().attr("y",0).attr("height",0).remove()
+		// $(".clickThis").hide();
 	});
 	// if(clickedSummary ==true){
 	// 	$(".clickThis").hide();
@@ -2370,7 +2371,7 @@ function goHands(handData, summaryHands){
 	    .attr("stroke-width",2);
   	pathActive1
   		.datum(softS1)
-  		.attr("d", lineActiveZip);
+  		.attr("d", lineActive1);
 	// draw the scatterplot
 	// timeSVG.selectAll("dot")									
 	// 	.data(softS1)											
@@ -2412,7 +2413,7 @@ function goHands(handData, summaryHands){
 		.attr("stroke-width",2);
   	pathActive2
   		.datum(softS2)
-  		.attr("d", lineActiveZip);
+  		.attr("d", lineActive2);
 
 	lineActive3 = d3.svg.line()
 		.x(function(d, i) { return xActivePath(activeThree[i].thisTime); })
@@ -2426,7 +2427,7 @@ function goHands(handData, summaryHands){
 	    .attr("stroke-width",2)
   	pathActive3
   		.datum(softS3)
-  		.attr("d", lineActiveZip);
+  		.attr("d", lineActive3);
 
 	timeSVG.append("g").append("image")
 		.attr("class", "graphImage")
@@ -2519,22 +2520,22 @@ function hideHands(){
 function showingHands(){
 	$("text.graphTitle").show()
 	$("line.graphLine").show()
-
+var durTrans = 100;
 	if(pathActive1)
   	pathActive1 //.datum(softS1).
-  		.transition().duration(durTrans)  
+  		// .transition().duration(durTrans)  
   		.attr("stroke",darkColor)		
-  		.attr("d", lineActive1);
+  		// .attr("d", lineActive1);
 	if(pathActive2)
   	pathActive2
-  		.datum(softS2).transition().duration(durTrans)  		
+  		// .datum(softS2).transition().duration(durTrans)  		
   		.attr("stroke",darkColor)		
-  		.attr("d", lineActive2);
+  		// .attr("d", lineActive2);
 	if(pathActive3)
   	pathActive3
-  		.datum(softS3).transition().duration(durTrans)  		
+  		// .datum(softS3).transition().duration(durTrans)  		
    		.attr("stroke",darkColor)		
-  		.attr("d", lineActive3);
+  		// .attr("d", lineActive3);
 }
 function showingPhotos(){
 	timeX
@@ -2573,7 +2574,7 @@ function showIDE(){
 
 	ardRectSVG = svgMain.append("g")
         .attr("id", "arduinoRect")
-        .attr("transform", "translate(" + (0) + ", " + (lineHY+20) + ")"); //yAxisBottom-forceheight+42
+        .attr("transform", "translate(" + (0) + ", " + (lineHY+3) + ")"); //yAxisBottom-forceheight+42
 
     console.log(startTime);
     console.log(endTime);
@@ -2730,11 +2731,11 @@ $("g#arduinoRect").hide();
 	    .attr("stroke-dasharray",2)
 	    .attr("opacity", function(d){
 	    	if(d.mod=="C"){
-				return .5			
+				return 1			
 			} else{ return 0 }	    	
 	    })
 	$('.logCC').tipsy({ 
-			gravity: 'nw', 
+			gravity: 'sw', 
 			html: true, 
 			title: function() {
 				return "Software Manipulation";

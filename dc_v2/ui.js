@@ -98,6 +98,7 @@ var topIcons;
 var bottomIcons;
 var belowIcons;
 
+// setSVG()
 function setSVG(next){
 	d3.tsv("data/descrips.tsv", function(error, dataS) {
 	  // x.domain([0, d3.max(data, function(d) { return d.value; })]);
@@ -154,48 +155,17 @@ function makeThings(data){
 		.attr("width",forcewidth)
 		.attr("height",forceheight)  
 		.attr("transform", "translate(" + (forcewidth) + "," + ((thisH*2) - (110)) + ")")
-		// .attr("opacity",0)
-// d3.selectAll(".behind").transition().attr("width",w-30)
-	// sumSVG= timeSVG.append("svg")
-	// 	.attr("class", "sumSVG")
-	// 	.style("position","absolute").style("left","0px")
-	// 	.style("display","none")
-	// 	.attr("width",w).attr("height",h-topMargin)
-	// 	.attr("transform", "translate(" + 0 + "," + h+topMargin + ")")
-// d3.select(".backSVG").append("svg:circle").attr("cx",w/2 - 5).attr("cy",h/4).attr("fill","pink").attr("r",10)
+
 	backData = data;
-console.log(data);
-var marginal = 1.2;
+	console.log(data);
+	var marginal = 1.2;
 	var backR = svgBack.selectAll("g")
-	// var backR = svgMain.selectAll("g")
 		.data(data[0])
 		.enter()
 		.append("g")
 		.attr("class", "backRects")
       	.attr("transform", function(d, i) { 
       		var x,y;
-   //    		if(d.type==1){
-			// 	y = topHalf*marginal //-topMargin;
-			// 	x = leftThird+rectWidth-iconW*2; 
-   //    			return "translate(" + x + "," + y + ")";       			
-   //    		}
-   //    		if(d.type==4){
-			// 	y = topHalf*marginal //-topMargin;
-			// 	x = rightThird-rectWidth+iconW*2; 
-   //    			return "translate(" + x + "," + y + ")";     			
-   //    		}
-   //    		if(d.type==2){
-   //    			console.log(i);
-			// 	y = topHalf*marginal+topMargin*iconW;
-			// 	x = xaRectScale(i); //-leftMargin; //-rectWidth/2
-   //    			return "translate(" + x + "," + y + ")"; 
-			// } 
-			// if(d.type==3){
-			// 	console.log(i);
-			// 	y = topHalf*marginal+topMargin*iconW*1.5;
-			// 	x = xbRectScale(i); //-leftMargin; //-rectWidth/2
-	  //     		return "translate(" + x + "," + y + ")"; 
-   //    		}	
       		if(d.type==1){
 				y = topHalf*marginal //-topMargin;
 				x = center-rectWidth; 
@@ -669,10 +639,12 @@ function makeShow(whichName){
 
 		numClicked+=2;
 		d3.selectAll(".graphImage").transition().attr("opacity",1);
-		revealFaces();
-		showingHands();
+
 		if(numClicked>2&&numClicked%2==0){
 			moveDown();
+		}else{
+			revealFaces();
+			showingHands();			
 		}
 		console.log(numClicked+"numClicked")
 	}
@@ -715,7 +687,10 @@ function makeShow(whichName){
 		$("g#arduinoRect").show();
 		if(numClicked>2&&numClicked%2==0){
 			moveDown();
+			revealFaces();
 		}
+// revealFaces();
+// undefined
 		console.log(numClicked+"numClicked")
 	}
 	if(hoverData == "Summary"){
@@ -753,19 +728,20 @@ function moveDown(){
 	callMinis();
 }
 function callMinis(){
+	miniZero();
 	miniOne();
 	miniTwo();
 	miniThree();
 	miniFour();	
+	revealFaces();
+	miniTwo();
 }
-
-function miniOne(){
-	var durTrans = 500;
-// #1
-//to transition the hand paths
+function miniZero(){
 	yBottom = belowIcons*2;
 	yTop = lineHY+100;
-d3.selectAll("g.axis").transition().attr('transform', 'translate(0, ' + (yTop) + ')');
+	var durTrans = 0;
+	
+	d3.selectAll("g.axis").transition().attr('transform', 'translate(0, ' + (yTop) + ')');
 
 	overview.transition().attr("y",lineHY+61)
 
@@ -791,18 +767,26 @@ d3.selectAll("g.axis").transition().attr('transform', 'translate(0, ' + (yTop) +
 		.interpolate("bundle")
   	pathActive3
   		.transition().duration(durTrans)  
-  		.attr("d", lineActive3);
-	
-
+  		.attr("d", lineActive3);	
+	miniOneHalf();
+}
+function miniOneHalf(){
+	console.log("miniOneHalf")
+	revealFaces();
+	showingHands();	
+	miniOne();
+}
+function miniOne(){
+	console.log("miniOne")
 	d3.selectAll("circle.graphImage").transition().attr("cy",yBottom);
 
 	d3.selectAll("line.graphImage").transition().attr("y1",yTop).attr("y2",yBottom)
 
 	d3.selectAll("#hands.graphImage").transition().attr("y",yBottom+25);
 	d3.selectAll(".graphImage").transition().attr("opacity",1);
-	revealFaces();
-	showingHands();
+	miniTwo();
 }
+
 function unshowBody(){
 	d3.selectAll(".graphImage").transition().attr("opacity",0);
 	hideFaces(); //dereveal
@@ -843,20 +827,40 @@ function hideFaces(){
 }
 
 function miniTwo(){
+	console.log("miniTwo")
 	d3.selectAll("#hands.graphImage").transition().attr("y",yBottom+25);
+
+	$(".faceTitle").show();
 
 // #2
 //TO TRANSITION THE FACES
 // faceY=yTop+2*maxTotal*faceRadius;
 	faceY=yBottom-2*maxTotal*faceRadius;
+
+	d3.selectAll(".pathLine")
+		.transition()
+	    .attr("x1", timeX(startTime))
+	    .attr("x2", timeX(endTime))
+	    .attr("opacity",1)
+	    .attr("y1", faceY)
+	    .attr("y2", faceY);
+
 	d3.selectAll(".facerect")	
 		.transition()
+		.attr("fill", faceColor)
+		.attr("x", function(d){
+			return timeX(d.time);
+		})
 	    .attr("y", function(d,i){
 	    	return faceY-(d.num*faceRadius);
 	    })
 	faceY=yBottom-2*maxTotal*faceRadius;
 	d3.selectAll("circle.facerect")	
 		.transition()
+		.attr("fill", faceColor)
+		.attr("cx", function(d){
+			return timeX(d.time);
+		})
 	    .attr("cy", function(d,i){
 	    	return faceY-(d.num*faceRadius/4); //			return faceY-(d.num*faceRadius/4);
 
@@ -866,6 +870,8 @@ function miniTwo(){
 	var faceHeight = 2*maxTotal*faceRadius;
 	d3.selectAll(".faceLine")
 		.transition()
+	    .attr("x1", timeX(startTime))
+	    .attr("x2", timeX(endTime))
 	    .attr("y1", yBottom-faceHeight)
 	    .attr("y2", yBottom-faceHeight);
 }
@@ -946,6 +952,7 @@ function expandKit(){
 	pathS
 		.transition().attr("class","timepathS")
 		.attr("d", lineS);	
+
 }
 var unshowKit;
 unshowKit = function(){
