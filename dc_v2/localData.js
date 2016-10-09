@@ -24,7 +24,6 @@ var iconLMarg = 27;
 var textL = 10;
 
 
-var canShowPhotos = false;
 //data tools
 var nested_data;
 var nest_again;
@@ -1085,7 +1084,7 @@ function parsePhotos(multiData){
 	var imageProcessing = setInterval(function(){  //returns the session		
 		if(autoImg.length>0){ //researcherCaptions.length>0 && 
 			// console.log(studentCaptions.length+"studentCaptions length")
-			canShowPhotos = true;
+			showPhotos();
 			showStudDoc();
 			clearInterval(imageProcessing);	
 		}
@@ -1117,8 +1116,8 @@ function showPhotos(){
 		.attr("width", timelineImgWidth)
 		.attr("height", timelineImgHeight)
 	    .attr("xlink:href", function(d, i) {
-			// return "images/frustration.png";
-			return d.data;                    	                       		
+			return "images/frustration.png";
+			// return d.data;                    	                       		
 	    })
 	    .on("click", function(d,i){
 	    	d3.select(this)

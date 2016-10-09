@@ -625,6 +625,8 @@ function makeShow(whichName){
 	if(hoverData == "Timeline"){
 		$("g.axis").show();
 		$(".clickThis1").show();
+			showPhotos();
+
 		if(numClicked>2){
 			$(".clickThis1").hide();
 		}
@@ -632,21 +634,6 @@ function makeShow(whichName){
 		$("g.statsRects").hide()
 		$(".svgTwo").hide();
 
-	}
-	if(hoverData=="Body"){
-		$("g.axis").show();
-		$(".clickThis1").hide();
-
-		numClicked+=2;
-		d3.selectAll(".graphImage").transition().attr("opacity",1);
-
-		if(numClicked>2&&numClicked%2==0){
-			moveDown();
-		}else{
-			revealFaces();
-			showingHands();			
-		}
-		console.log(numClicked+"numClicked")
 	}
 	if(hoverData=="Phases"){
 		$("g.axis").show();
@@ -687,10 +674,23 @@ function makeShow(whichName){
 		$("g#arduinoRect").show();
 		if(numClicked>2&&numClicked%2==0){
 			moveDown();
-			revealFaces();
+			// revealFaces();
 		}
-// revealFaces();
-// undefined
+		console.log(numClicked+"numClicked")
+	}
+	if(hoverData=="Body"){
+		$("g.axis").show();
+		$(".clickThis1").hide();
+
+		numClicked+=2;
+		d3.selectAll(".graphImage").transition().attr("opacity",1);
+
+		if(numClicked>2&&numClicked%2==0){
+			moveDown();
+		}else{
+			revealFaces();
+			showingHands();			
+		}
 		console.log(numClicked+"numClicked")
 	}
 	if(hoverData == "Summary"){
@@ -728,13 +728,11 @@ function moveDown(){
 	callMinis();
 }
 function callMinis(){
+	miniTwo();
 	miniZero();
 	miniOne();
-	miniTwo();
 	miniThree();
 	miniFour();	
-	revealFaces();
-	miniTwo();
 }
 function miniZero(){
 	yBottom = belowIcons*2;
@@ -775,6 +773,55 @@ function miniOneHalf(){
 	revealFaces();
 	showingHands();	
 	miniOne();
+	yBottom = belowIcons*2;
+	yTop = lineHY+100;
+	console.log("miniTwo")
+	d3.selectAll("#hands.graphImage").transition().attr("y",yBottom+25);
+
+	$(".faceTitle").show();
+
+// #2
+//TO TRANSITION THE FACES
+// faceY=yTop+2*maxTotal*faceRadius;
+	faceY=yBottom-2*maxTotal*faceRadius;
+
+	d3.selectAll(".pathLine")
+		.transition()
+	    .attr("x1", timeX(startTime))
+	    .attr("x2", timeX(endTime))
+	    .attr("opacity",1)
+	    .attr("y1", faceY)
+	    .attr("y2", faceY);
+
+	d3.selectAll(".facerect")	
+		.transition()
+		.attr("fill", faceColor)
+		.attr("x", function(d){
+			return timeX(d.time);
+		})
+	    .attr("y", function(d,i){
+	    	return faceY-(d.num*faceRadius);
+	    })
+	faceY=yBottom-2*maxTotal*faceRadius;
+	d3.selectAll("circle.facerect")	
+		.transition()
+		.attr("fill", faceColor)
+		.attr("cx", function(d){
+			return timeX(d.time);
+		})
+	    .attr("cy", function(d,i){
+	    	return faceY-(d.num*faceRadius/4); //			return faceY-(d.num*faceRadius/4);
+
+	    })
+	d3.selectAll("#face.graphImage").transition().attr("y",faceY-iconW);
+
+	var faceHeight = 2*maxTotal*faceRadius;
+	d3.selectAll(".faceLine")
+		.transition()
+	    .attr("x1", timeX(startTime))
+	    .attr("x2", timeX(endTime))
+	    .attr("y1", yBottom-faceHeight)
+	    .attr("y2", yBottom-faceHeight);
 }
 function miniOne(){
 	console.log("miniOne")
@@ -784,7 +831,56 @@ function miniOne(){
 
 	d3.selectAll("#hands.graphImage").transition().attr("y",yBottom+25);
 	d3.selectAll(".graphImage").transition().attr("opacity",1);
-	miniTwo();
+	// miniTwo();
+	yBottom = belowIcons*2;
+	yTop = lineHY+100;
+	console.log("miniTwo")
+	d3.selectAll("#hands.graphImage").transition().attr("y",yBottom+25);
+
+	$(".faceTitle").show();
+
+// #2
+//TO TRANSITION THE FACES
+// faceY=yTop+2*maxTotal*faceRadius;
+	faceY=yBottom-2*maxTotal*faceRadius;
+
+	d3.selectAll(".pathLine")
+		.transition()
+	    .attr("x1", timeX(startTime))
+	    .attr("x2", timeX(endTime))
+	    .attr("opacity",1)
+	    .attr("y1", faceY)
+	    .attr("y2", faceY);
+
+	d3.selectAll(".facerect")	
+		.transition()
+		.attr("fill", faceColor)
+		.attr("x", function(d){
+			return timeX(d.time);
+		})
+	    .attr("y", function(d,i){
+	    	return faceY-(d.num*faceRadius);
+	    })
+	faceY=yBottom-2*maxTotal*faceRadius;
+	d3.selectAll("circle.facerect")	
+		.transition()
+		.attr("fill", faceColor)
+		.attr("cx", function(d){
+			return timeX(d.time);
+		})
+	    .attr("cy", function(d,i){
+	    	return faceY-(d.num*faceRadius/4); //			return faceY-(d.num*faceRadius/4);
+
+	    })
+	d3.selectAll("#face.graphImage").transition().attr("y",faceY-iconW);
+
+	var faceHeight = 2*maxTotal*faceRadius;
+	d3.selectAll(".faceLine")
+		.transition()
+	    .attr("x1", timeX(startTime))
+	    .attr("x2", timeX(endTime))
+	    .attr("y1", yBottom-faceHeight)
+	    .attr("y2", yBottom-faceHeight);
 }
 
 function unshowBody(){
@@ -827,6 +923,8 @@ function hideFaces(){
 }
 
 function miniTwo(){
+	yBottom = belowIcons*2;
+	yTop = lineHY+100;
 	console.log("miniTwo")
 	d3.selectAll("#hands.graphImage").transition().attr("y",yBottom+25);
 
@@ -1048,6 +1146,7 @@ function miniFour(){
 	d3.selectAll(".logCC").transition()
 			.attr("y1", topMarg) 
 		    .attr("y2", bottomHere) 	
+	miniTwo();
 }
 
 var moveToFront = function() { 

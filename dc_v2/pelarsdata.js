@@ -132,6 +132,7 @@ function pelars_init()
 	// TODO here the offline mode from session
 	if(thisSession == "offline")
 	{
+		console.log("offline")
 		dataaccess = {
 			getToken: function () {} ,
 			getData: function (session,fx) { $.getJSONSync("data/data1.json",fx); },
@@ -140,8 +141,7 @@ function pelars_init()
 			getMultimedias: function (session,fx) { $.getJSONSync("data/multimedia.json",fx); },
 			getPhases: function (session,fx) { $.getJSONSync("data/phaseData.json",fx); },
 			getLastSession: function () { return 1593 },
-			getSnapshot(session,time,fx) { pelars_getSnapshot(session,time,fx); },
-			getMultimedia: function (session,id,fx) { pelars_getMultimedia(session,id,fx) },
+			getSnapshot(session,time,fx) { $.getJSONSync("data/button1.json",fx); },
 		}
 
 		thisSession = 1593
