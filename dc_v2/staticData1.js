@@ -1086,6 +1086,7 @@ function parsePhotos(multiData){
 		if(autoImg.length>0){ //researcherCaptions.length>0 && 
 			// console.log(studentCaptions.length+"studentCaptions length")
 			canShowPhotos = true;
+			showPhotos();
 			showStudDoc();
 			clearInterval(imageProcessing);	
 		}
@@ -1140,22 +1141,26 @@ function showPhotos(){
 	    		.attr("y", lineHY-bigImgHeight+bigImgHeight/4)
 	    		.attr("width",bigImgWidth)
 	    		.attr("height",bigImgHeight)
-	    		.transition()
-	    		.delay(3000)
-	    		.attr("x", function(d){
-	    			// console.log(d+"image clicked")
-	    			return timeX(d.time)-timelineImgWidth/4;
+	    		.each("end", function(){
+	    			d3.select(this)
+			    		.transition()
+			    		.delay(3000)
+			    		.attr("x", function(d){
+			    			// console.log(d+"image clicked")
+			    			return timeX(d.time)-timelineImgWidth/4;
+			    		})
+						.attr("y", function(d){
+							if(numClicked>2){
+								return (lineHY+61) 
+							}else if (numClicked<=2){
+								return lineHY-timelineImgHeight/2 
+								// (lineHY+100-timelineImgHeight/2) 
+							}
+						})
+			    		.attr("width", timelineImgWidth)
+			    		.attr("height", timelineImgHeight)   
+					d3.select(this).each(moveToFront);
 	    		})
-				.attr("y", function(d){
-					if(numClicked>2){
-						return (lineHY+61) 
-					}else{
-						return (lineHY+100-timelineImgHeight/2) 
-					}
-				})
-	    		.attr("width", timelineImgWidth)
-	    		.attr("height", timelineImgHeight)   
-			d3.select(this).each(moveToFront);
 	    })
 	// d3.selectAll(overview).moveToFront;    
 //mobile image data back up?

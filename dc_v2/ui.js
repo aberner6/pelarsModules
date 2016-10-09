@@ -620,12 +620,12 @@ function chooseData(){
 	$(".clickThis1").hide();
 }
 function makeShow(whichName){
+$('.backRects').insertBefore('.timelineSVG');
 	var hoverData = whichName;
 	console.log(hoverData+"hover data")	
 	if(hoverData == "Timeline"){
 		$("g.axis").show();
 		$(".clickThis1").show();
-			showPhotos();
 
 		if(numClicked>2){
 			$(".clickThis1").hide();
